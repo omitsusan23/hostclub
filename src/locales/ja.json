@@ -1,0 +1,16 @@
+{
+  "login": {
+    "title": "ログイン",
+    "username": "ユーザー名",
+    "password": "パスワード",
+    "submit": "ログイン"
+  },
+  "reservation": {
+    "title": "来店予約表",
+    "addButton": "来店予約を追加"
+  },
+  "invite": {
+    "title": "キャスト招待管理",
+    "issueButton": "招待リンク発行"
+  }
+}

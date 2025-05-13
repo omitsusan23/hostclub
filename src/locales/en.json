@@ -1,0 +1,16 @@
+{
+  "login": {
+    "title": "Login",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Log In"
+  },
+  "reservation": {
+    "title": "Reservation Table",
+    "addButton": "Add Reservation"
+  },
+  "invite": {
+    "title": "Cast Invitation",
+    "issueButton": "Generate Invite Link"
+  }
+}
