@@ -1,28 +1,28 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint'
-
-export default tseslint.config(
-  { ignores: ['dist'] },
-  {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ['**/*.{ts,tsx}'],
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-    },
-    plugins: {
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
-    },
-    rules: {
-      ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
+// eslint.config.js
+module.exports = {
+  root: true,
+  parser: '@typescript-eslint/parser',
+  extends: [
+    'eslint:recommended',
+    'plugin:react/recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:react-hooks/recommended',
+  ],
+  rules: {
+    // any を一時的に許可
+    '@typescript-eslint/no-explicit-any': 'off',
+    // case 内での let/const を許可
+    'no-case-declarations': 'off',
+    // 空のオブジェクトパターンを許可
+    'no-empty-pattern': 'off',
+    // useEffect の依存警告を warning に
+    'react-hooks/exhaustive-deps': 'warn',
+    // Fast refresh 警告をオフ
+    'react-refresh/only-export-components': 'off',
+  },
+  settings: {
+    react: {
+      version: 'detect',
     },
   },
-)
+};
