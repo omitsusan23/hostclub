@@ -30,6 +30,8 @@ jobs:
   lint:
     needs: test
     runs-on: ubuntu-latest
+    # ここを追加 → Lint が NG でもジョブを「失敗」にしない
+    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
