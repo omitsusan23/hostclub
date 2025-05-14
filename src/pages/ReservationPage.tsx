@@ -23,7 +23,7 @@ export default function ReservationPage({
   const { state, dispatch } = useAppContext()
   const { reservations, tableSettings = [], tables } = state
 
-  // ─── 既に反映済みの卓番号一覧 ─────────────────────────
+  // ─── すでに反映済み卓番号一覧（反映モーダル用） ─────────────
   const assignedNumbers = tables.map((t) => t.tableNumber)
 
   // ─── 入力フィールド state ────────────────────────────
@@ -32,11 +32,10 @@ export default function ReservationPage({
   const [budget, setBudget] = useState<number | ''>('')
   const [errors, setErrors] = useState<{
     princess?: string
-    requestedTable?: string
     budget?: string
   }>({})
 
-  // ─── モーダルの Ref ＆ 初回フォーカス ─────────────────
+  // ─── 追加モーダルの Ref ＆ 初回フォーカス ───────────────
   const firstInputRef = useRef<HTMLInputElement>(null)
   useEffect(() => {
     if (isOpen) firstInputRef.current?.focus()
@@ -60,8 +59,6 @@ export default function ReservationPage({
   const validate = () => {
     const newErrors: typeof errors = {}
     if (!princess.trim()) newErrors.princess = '姫名を入力してください'
-    if (!requestedTable.trim())
-      newErrors.requestedTable = '希望卓番号を入力してください'
     if (budget === '' || isNaN(budget as number))
       newErrors.budget = '予算を入力してください'
     setErrors(newErrors)
@@ -74,7 +71,7 @@ export default function ReservationPage({
     const payload: Reservation = {
       id: Date.now(),
       princess: princess.trim(),
-      requestedTable: requestedTable.trim(),
+      requestedTable: requestedTable.trim(), // 空欄でもOK
       budget: Number(budget),
     }
     dispatch({ type: 'ADD_RESERVATION', payload })
@@ -150,6 +147,8 @@ export default function ReservationPage({
             >
               予約詳細を入力
             </h3>
+
+            {/* 姫名 */}
             <label className="block text-sm mb-1">姫名</label>
             <input
               ref={firstInputRef}
@@ -171,31 +170,23 @@ export default function ReservationPage({
               </p>
             )}
 
-            <label className="block text-sm mb-1">
-              希望卓番号
-            </label>
-            <input
-              type="text"
+            {/* 希望卓番号：プルダウンに変更 */}
+            <label className="block text-sm mb-1">希望卓番号</label>
+            <select
               value={requestedTable}
               onChange={(e) => setRequestedTable(e.target.value)}
-              className="border p-2 w-full rounded mb-2"
-              aria-invalid={!!errors.requestedTable}
-              aria-describedby={
-                errors.requestedTable ? 'error-table' : undefined
-              }
-            />
-            {errors.requestedTable && (
-              <p
-                id="error-table"
-                className="text-red-500 text-sm mb-2"
-              >
-                {errors.requestedTable}
-              </p>
-            )}
+              className="border p-2 w-full rounded mb-4"
+            >
+              <option value="">希望無し</option>
+              {tableSettings.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
 
-            <label className="block text-sm mb-1">
-              予算（円）
-            </label>
+            {/* 予算 */}
+            <label className="block text-sm mb-1">予算（円）</label>
             <input
               type="number"
               value={budget}
@@ -215,6 +206,7 @@ export default function ReservationPage({
               </p>
             )}
 
+            {/* 操作ボタン */}
             <div className="flex justify-end space-x-2">
               <button
                 onClick={onClose}
@@ -265,9 +257,7 @@ export default function ReservationPage({
                   disabled={assignedNumbers.includes(t)}
                 >
                   {t}
-                  {assignedNumbers.includes(t)
-                    ? '（使用中）'
-                    : ''}
+                  {assignedNumbers.includes(t) ? '（使用中）' : ''}
                 </option>
               ))}
             </select>
@@ -312,7 +302,7 @@ export default function ReservationPage({
               <strong>姫名:</strong> {res.princess}
             </p>
             <p>
-              <strong>希望卓:</strong> {res.requestedTable}
+              <strong>希望卓:</strong> {res.requestedTable || '—'}
             </p>
             <p>
               <strong>予算:</strong> {res.budget.toLocaleString()}
