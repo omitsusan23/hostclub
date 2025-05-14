@@ -30,12 +30,13 @@ export default function ReservationPage({
   const [budgetMode, setBudgetMode] = useState<'undecided' | 'input'>(
     'undecided'
   )
-  const [budget, setBudget] = useState<number | ''>('')
+  const [budget, setBudget] = useState('')               // 文字列で管理
   const [errors, setErrors] = useState<{
     princess?: string
     budget?: string
   }>({})
 
+  // 初回フォーカス
   const firstInputRef = useRef<HTMLInputElement>(null)
   useEffect(() => {
     if (isOpen) firstInputRef.current?.focus()
@@ -45,33 +46,42 @@ export default function ReservationPage({
     if (e.key === 'Escape') onClose()
   }
 
+  // 卓反映モーダル
   const [isReflectOpen, setReflectOpen] = useState(false)
   const [selectedRes, setSelectedRes] = useState<Reservation | null>(null)
   const [reflectTable, setReflectTable] = useState('')
   const [startTime, setStartTime] = useState('')
 
+  // トースト
   const [toastMessage, setToastMessage] = useState('')
   const [showToast, setShowToast] = useState(false)
 
   const canAssign =
     currentUser?.role === 'admin' || currentUser?.canManageTables
 
+  // バリデーション
   const validate = () => {
     const newErrors: typeof errors = {}
     if (!princess.trim()) newErrors.princess = '姫名を入力してください'
-    if (budgetMode === 'input' && (budget === '' || isNaN(budget as number)))
-      newErrors.budget = '予算を入力してください'
+    if (budgetMode === 'input' && !/^\d+$/.test(budget))
+      newErrors.budget = budget === ''
+        ? '予算を入力してください'
+        : '許可されていない文字です'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
+  // 追加処理
   const handleAdd = () => {
     if (!validate()) return
     const payload: Reservation = {
       id: Date.now(),
       princess: princess.trim(),
       requestedTable: requestedTable.trim(),
-      budget: budgetMode === 'input' && typeof budget === 'number' ? budget : 0,
+      budget:
+        budgetMode === 'input' && /^\d+$/.test(budget)
+          ? Number(budget)
+          : 0,
     }
     dispatch({ type: 'ADD_RESERVATION', payload })
     setPrincess('')
@@ -85,9 +95,9 @@ export default function ReservationPage({
   const handleDelete = (id: number) =>
     dispatch({ type: 'DELETE_RESERVATION', payload: id })
 
+  // 反映モーダル開閉
   const openReflectModal = (res: Reservation) => {
     setSelectedRes(res)
-    // 現在時刻で初期化
     const now = new Date()
     const hh = String(now.getHours()).padStart(2, '0')
     const mm = String(now.getMinutes()).padStart(2, '0')
@@ -144,6 +154,7 @@ export default function ReservationPage({
             >
               予約詳細を入力
             </h3>
+
             <label className="block text-sm mb-1">姫名</label>
             <input
               ref={firstInputRef}
@@ -193,7 +204,6 @@ export default function ReservationPage({
               <option value="input">入力</option>
             </select>
 
-            {/* モバイルで数字キーパッドを出す */}
             {budgetMode === 'input' && (
               <>
                 <input
@@ -201,13 +211,21 @@ export default function ReservationPage({
                   inputMode="numeric"
                   pattern="[0-9]*"
                   value={budget}
-                  onChange={(e) =>
-                    setBudget(
-                      e.target.value === ''
-                        ? ''
-                        : Number(e.target.value)
-                    )
-                  }
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    const v = e.target.value
+                    if (v === '' || /^\d+$/.test(v)) {
+                      setBudget(v)
+                      setErrors((prev) => ({
+                        ...prev,
+                        budget: undefined,
+                      }))
+                    } else {
+                      setErrors((prev) => ({
+                        ...prev,
+                        budget: '許可されていない文字です',
+                      }))
+                    }
+                  }}
                   className="border p-2 w-full rounded mb-2"
                   placeholder="予算を入力"
                   aria-invalid={!!errors.budget}
@@ -253,6 +271,7 @@ export default function ReservationPage({
             >
               卓に反映
             </h3>
+
             <label className="block text-sm mb-1">
               卓番号を選択
             </label>
@@ -299,9 +318,7 @@ export default function ReservationPage({
               </button>
               <button
                 onClick={handleReflectConfirm}
-                disabled={
-                  !reflectTable || !startTime
-                }
+                disabled={!reflectTable || !startTime}
                 className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
               >
                 反映
@@ -330,37 +347,3 @@ export default function ReservationPage({
             <p>
               <strong>姫名:</strong> {res.princess}
             </p>
-            <p>
-              <strong>希望卓:</strong>{' '}
-              {res.requestedTable || '—'}
-            </p>
-            <p>
-              <strong>予算:</strong>{' '}
-              {res.budget > 0
-                ? res.budget.toLocaleString() + '円'
-                : '未定'}
-            </p>
-            <div className="mt-2 space-x-2">
-              {canAssign && (
-                <button
-                  onClick={() =>
-                    openReflectModal(res)
-                  }
-                  className="text-blue-600 underline"
-                >
-                  卓に反映
-                </button>
-              )}
-              <button
-                onClick={() => handleDelete(res.id)}
-                className="text-red-500 underline"
-              >
-                削除
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </main>
-  )
-}
