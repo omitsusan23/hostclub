@@ -1,15 +1,13 @@
 // src/pages/AdminDashboard.tsx
-
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
 
 interface Props {
-  user: { username: string; role: string }
   setCurrentUser: (user: any) => void
 }
 
-export default function AdminDashboard({ user, setCurrentUser }: Props) {
+export default function AdminDashboard({ setCurrentUser }: Props) {
   const navigate = useNavigate()
   const { state, dispatch } = useAppContext()
   const { tables, tableSettings = [] } = state
@@ -21,19 +19,6 @@ export default function AdminDashboard({ user, setCurrentUser }: Props) {
   const handleLogout = () => {
     setCurrentUser(null)
     navigate('/')
-  }
-
-  // テーブル設定の追加（テスト用）
-  const handleAddTableSetting = () => {
-    const trimmed = newTable.trim()
-    if (!trimmed) return
-    dispatch({ type: 'ADD_TABLE_SETTING', payload: trimmed })
-    setNewTable('')
-  }
-
-  // テーブル設定の削除（テスト用）
-  const handleRemoveTableSetting = (t: string) => {
-    dispatch({ type: 'REMOVE_TABLE_SETTING', payload: t })
   }
 
   return (
@@ -48,7 +33,6 @@ export default function AdminDashboard({ user, setCurrentUser }: Props) {
         </button>
       </div>
 
-      {/* ────────── 卓状況 ────────── */}
       <h2 className="text-xl font-semibold mb-2">卓状況</h2>
       {tables.length === 0 ? (
         <p className="text-gray-500 mb-6">まだ反映された卓はありません。</p>
@@ -65,7 +49,6 @@ export default function AdminDashboard({ user, setCurrentUser }: Props) {
                 <p><strong>予算:</strong> {table.budget}円</p>
                 <p><strong>反映時刻:</strong> {table.time}</p>
               </div>
-              {/* 削除ボタン */}
               <button
                 onClick={() => dispatch({ type: 'DELETE_TABLE', payload: table.id })}
                 className="text-sm text-red-500 hover:underline"
@@ -77,7 +60,6 @@ export default function AdminDashboard({ user, setCurrentUser }: Props) {
         </div>
       )}
 
-      {/* ────────── 卓設定 (テスト用) ────────── */}
       <h2 className="text-xl font-semibold mb-2">卓設定 (テスト用)</h2>
       <div className="flex mb-4 space-x-2">
         <input
@@ -88,7 +70,13 @@ export default function AdminDashboard({ user, setCurrentUser }: Props) {
           className="border p-2 rounded flex-grow"
         />
         <button
-          onClick={handleAddTableSetting}
+          onClick={() => {
+            const trimmed = newTable.trim()
+            if (trimmed) {
+              dispatch({ type: 'ADD_TABLE_SETTING', payload: trimmed })
+              setNewTable('')
+            }
+          }}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
           追加
@@ -105,7 +93,7 @@ export default function AdminDashboard({ user, setCurrentUser }: Props) {
             >
               <span>{t}</span>
               <button
-                onClick={() => handleRemoveTableSetting(t)}
+                onClick={() => dispatch({ type: 'REMOVE_TABLE_SETTING', payload: t })}
                 className="text-sm text-red-500 hover:underline"
               >
                 削除
