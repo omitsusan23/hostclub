@@ -8,7 +8,7 @@ import React, {
 } from 'react'
 import { useAppContext, type Reservation, type User } from '../context/AppContext'
 
-// 19:00～25:00 を 15 分刻みで生成
+// 19:00～25:00 を15分刻みで生成
 const generateTimeOptions = (): string[] => {
   const opts: string[] = []
   for (let h = 19; h <= 25; h++) {
@@ -37,10 +37,10 @@ export default function ReservationPage({
   const { state, dispatch } = useAppContext()
   const { reservations, tableSettings = [], tables } = state
 
-  // 現在使用中の卓番号一覧
+  // 使用中の卓番号リスト
   const assignedNumbers = tables.map((t) => t.tableNumber)
 
-  // 入力フィールド state
+  // 入力 state
   const [princess, setPrincess] = useState('')
   const [requestedTable, setRequestedTable] = useState('')
   const [plannedTime, setPlannedTime] = useState('')
@@ -53,14 +53,12 @@ export default function ReservationPage({
     budget?: string
   }>({})
 
-  // トースト表示
+  // トースト＆削除メッセージ
   const [toastMessage, setToastMessage] = useState('')
   const [showToast, setShowToast] = useState(false)
-
-  // 削除メッセージ
   const [deleteMessage, setDeleteMessage] = useState('')
 
-  // モーダル Ref & フォーカス
+  // モーダル初期フォーカス
   const firstInputRef = useRef<HTMLInputElement>(null)
   useEffect(() => {
     if (isOpen) firstInputRef.current?.focus()
@@ -71,7 +69,7 @@ export default function ReservationPage({
     if (e.key === 'Escape') onClose()
   }
 
-  // 卓反映モーダル制御
+  // 卓反映モーダル state
   const [isReflectOpen, setReflectOpen] = useState(false)
   const [selectedRes, setSelectedRes] = useState<Reservation | null>(null)
   const [reflectTable, setReflectTable] = useState('')
@@ -112,7 +110,7 @@ export default function ReservationPage({
     onClose()
   }
 
-  // 予約削除（確認ダイアログ＋メッセージ）
+  // 予約削除（確認＋メッセージ）
   const handleReservationDelete = (id: number, name: string) => {
     if (!window.confirm(`本当に ${name} さんの予約を削除しますか？`)) return
     dispatch({ type: 'DELETE_RESERVATION', payload: id })
@@ -120,7 +118,7 @@ export default function ReservationPage({
     setTimeout(() => setDeleteMessage(''), 1000)
   }
 
-  // 卓反映モーダル開閉
+  // 卓反映モーダルを開く
   const openReflectModal = (res: Reservation) => {
     setSelectedRes(res)
     setReflectTable(res.requestedTable)
@@ -137,7 +135,7 @@ export default function ReservationPage({
     setStartTime('')
   }
 
-  // 卓反映確定
+  // ★修正：ASSIGN_TABLE の payload に tableNumber を渡すように
   const handleReflectConfirm = () => {
     if (
       !selectedRes ||
@@ -149,8 +147,10 @@ export default function ReservationPage({
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
-        ...selectedRes,
-        requestedTable: reflectTable,
+        id: selectedRes.id,
+        tableNumber: reflectTable,
+        princess: selectedRes.princess,
+        budget: selectedRes.budget,
         time: startTime,
       },
     })
@@ -162,7 +162,7 @@ export default function ReservationPage({
     setTimeout(() => setShowToast(false), 1000)
   }
 
-  // 予算モード切替
+  // 予算モード切替＆入力
   const handleBudgetModeChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setBudgetMode(e.target.value as 'undecided' | 'input')
     setBudget('')
@@ -183,7 +183,7 @@ export default function ReservationPage({
 
   return (
     <>
-      {/* 削除メッセージオーバーレイ */}
+      {/* 削除メッセージ */}
       {deleteMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded">
@@ -219,10 +219,7 @@ export default function ReservationPage({
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
           >
             <div className="bg-white p-6 rounded-lg w-full max-w-md">
-              <h3
-                id="res-modal-title"
-                className="text-lg font-semibold mb-4"
-              >
+              <h3 id="res-modal-title" className="text-lg font-semibold mb-4">
                 予約詳細を入力
               </h3>
 
@@ -234,22 +231,15 @@ export default function ReservationPage({
                 onChange={(e) => setPrincess(e.target.value)}
                 className="border p-2 w-full rounded mb-2"
                 aria-invalid={!!errors.princess}
-                aria-describedby={
-                  errors.princess ? 'error-princess' : undefined
-                }
+                aria-describedby={errors.princess ? 'error-princess' : undefined}
               />
               {errors.princess && (
-                <p
-                  id="error-princess"
-                  className="text-red-500 text-sm mb-2"
-                >
+                <p id="error-princess" className="text-red-500 text-sm mb-2">
                   {errors.princess}
                 </p>
               )}
 
-              <label className="block text-sm mb-1">
-                希望卓番号
-              </label>
+              <label className="block text-sm mb-1">希望卓番号</label>
               <select
                 value={requestedTable}
                 onChange={(e) => setRequestedTable(e.target.value)}
@@ -263,9 +253,7 @@ export default function ReservationPage({
                 ))}
               </select>
 
-              <label className="block text-sm mb-1">
-                来店予定時間
-              </label>
+              <label className="block text-sm mb-1">来店予定時間</label>
               <select
                 value={plannedTime}
                 onChange={(e) => setPlannedTime(e.target.value)}
@@ -297,16 +285,11 @@ export default function ReservationPage({
                   onChange={handleBudgetChange}
                   className="border p-2 w-full rounded mb-4"
                   aria-invalid={!!errors.budget}
-                  aria-describedby={
-                    errors.budget ? 'error-budget' : undefined
-                  }
+                  aria-describedby={errors.budget ? 'error-budget' : undefined}
                 />
               )}
               {errors.budget && (
-                <p
-                  id="error-budget"
-                  className="text-red-500 text-sm mb-4"
-                >
+                <p id="error-budget" className="text-red-500 text-sm mb-4">
                   {errors.budget}
                 </p>
               )}
@@ -329,30 +312,75 @@ export default function ReservationPage({
           </div>
         )}
 
+        {/* 卓反映モーダル */}
+        {isReflectOpen && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reflect-modal-title"
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          >
+            <div className="bg-white p-6 rounded-lg w-full max-w-md">
+              <h3 id="reflect-modal-title" className="text-lg font-semibold mb-4">
+                卓に反映
+              </h3>
+
+              <label className="block text-sm mb-1">卓番号を選択</label>
+              <select
+                value={reflectTable}
+                onChange={(e) => setReflectTable(e.target.value)}
+                className="border p-2 w-full rounded mb-4"
+              >
+                <option value="">選択してください</option>
+                {tableSettings.map((t) => (
+                  <option key={t} value={t} disabled={assignedNumbers.includes(t)}>
+                    {t}{assignedNumbers.includes(t) ? '（使用中）' : ''}
+                  </option>
+                ))}
+              </select>
+
+              <label className="block text-sm mb-1">開始時間</label>
+              <input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="border p-2 w-full rounded mb-4"
+              />
+
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={closeReflectModal}
+                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={handleReflectConfirm}
+                  disabled={!reflectTable || !startTime || assignedNumbers.includes(reflectTable)}
+                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
+                >
+                  反映
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 予約リスト */}
         <div className="mt-6 space-y-3">
           {reservations.map((res) => (
-            <div
-              key={res.id}
-              className="border p-4 rounded bg-white"
-            >
+            <div key={res.id} className="border p-4 rounded bg-white">
               <p><strong>姫名:</strong> {res.princess}</p>
               <p><strong>希望卓:</strong> {res.requestedTable || 'なし'}</p>
               <p><strong>来店予定時間:</strong> {res.time || 'これから'}</p>
               <p><strong>予算:</strong> {res.budget ? `${res.budget.toLocaleString()}円` : '未定'}</p>
               <div className="mt-2 space-x-2">
                 {canAssign && (
-                  <button
-                    onClick={() => openReflectModal(res)}
-                    className="text-blue-600 underline"
-                  >
+                  <button onClick={() => openReflectModal(res)} className="text-blue-600 underline">
                     卓に反映
                   </button>
                 )}
-                <button
-                  onClick={() => handleReservationDelete(res.id, res.princess)}
-                  className="text-red-500 underline"
-                >
+                <button onClick={() => handleReservationDelete(res.id, res.princess)} className="text-red-500 underline">
                   削除
                 </button>
               </div>
