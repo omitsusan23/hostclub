@@ -93,7 +93,7 @@ export default function CastListPage() {
     <div className="p-4 pb-16">
       {/* 見出し */}
       <h2 className="text-2xl font-bold mb-4 text-center">
-        キャスト招待管理
+        在籍キャスト一覧
       </h2>
 
       {/* 発行済みリンク一覧 */}
