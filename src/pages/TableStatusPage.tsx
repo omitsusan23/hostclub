@@ -59,6 +59,8 @@ export default function TableStatusPage() {
   const confirmFirst = () => {
     const now = new Date();
     const hhmm = now.toTimeString().slice(0,5);
+
+    // ←ここを ADD_TABLE から ASSIGN_TABLE に変更
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
@@ -70,7 +72,6 @@ export default function TableStatusPage() {
       } as Table
     });
 
-    // 変更箇所：選択された卓番号を必ず入れる
     const entries = names.map((n, i) => {
       const label = positionLabelsByCount[selectedCount][i];
       const pname = n || 'お客様';
