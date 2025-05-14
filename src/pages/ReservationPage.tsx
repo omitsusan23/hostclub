@@ -22,13 +22,11 @@ export default function ReservationPage({
   const { state, dispatch } = useAppContext()
   const { reservations, tableSettings = [], tables } = state
 
-  // 反映済み卓番号一覧
   const assignedNumbers = tables.map((t) => t.tableNumber)
 
   // 追加モーダル用 state
   const [princess, setPrincess] = useState('')
   const [requestedTable, setRequestedTable] = useState('')
-  // 予算関連: mode と数値
   const [budgetMode, setBudgetMode] = useState<'undecided' | 'input'>(
     'undecided'
   )
@@ -38,31 +36,26 @@ export default function ReservationPage({
     budget?: string
   }>({})
 
-  // フォーカス管理
   const firstInputRef = useRef<HTMLInputElement>(null)
   useEffect(() => {
     if (isOpen) firstInputRef.current?.focus()
   }, [isOpen])
 
-  // ESC キーで閉じる
   const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
     if (e.key === 'Escape') onClose()
   }
 
-  // 卓反映モーダル用 state
   const [isReflectOpen, setReflectOpen] = useState(false)
   const [selectedRes, setSelectedRes] = useState<Reservation | null>(null)
   const [reflectTable, setReflectTable] = useState('')
   const [startTime, setStartTime] = useState('')
 
-  // トースト用 state
   const [toastMessage, setToastMessage] = useState('')
   const [showToast, setShowToast] = useState(false)
 
   const canAssign =
     currentUser?.role === 'admin' || currentUser?.canManageTables
 
-  // バリデーション
   const validate = () => {
     const newErrors: typeof errors = {}
     if (!princess.trim()) newErrors.princess = '姫名を入力してください'
@@ -72,7 +65,6 @@ export default function ReservationPage({
     return Object.keys(newErrors).length === 0
   }
 
-  // 追加処理
   const handleAdd = () => {
     if (!validate()) return
     const payload: Reservation = {
@@ -82,7 +74,6 @@ export default function ReservationPage({
       budget: budgetMode === 'input' && typeof budget === 'number' ? budget : 0,
     }
     dispatch({ type: 'ADD_RESERVATION', payload })
-    // リセット
     setPrincess('')
     setRequestedTable('')
     setBudgetMode('undecided')
@@ -94,7 +85,6 @@ export default function ReservationPage({
   const handleDelete = (id: number) =>
     dispatch({ type: 'DELETE_RESERVATION', payload: id })
 
-  // 卓反映モーダル開閉
   const openReflectModal = (res: Reservation) => {
     setSelectedRes(res)
     // 現在時刻で初期化
@@ -111,7 +101,6 @@ export default function ReservationPage({
     setStartTime('')
   }
 
-  // 確定処理
   const handleReflectConfirm = () => {
     if (!selectedRes || !reflectTable || !startTime) return
     dispatch({
@@ -123,8 +112,9 @@ export default function ReservationPage({
       },
     })
     closeReflectModal()
-    // トースト表示
-    setToastMessage(`${selectedRes.princess}様は${reflectTable}に着席しました`)
+    setToastMessage(
+      `${selectedRes.princess}様は${reflectTable}に着席しました`
+    )
     setShowToast(true)
     setTimeout(() => setShowToast(false), 1000)
   }
@@ -154,7 +144,6 @@ export default function ReservationPage({
             >
               予約詳細を入力
             </h3>
-            {/* 姫名 */}
             <label className="block text-sm mb-1">姫名</label>
             <input
               ref={firstInputRef}
@@ -169,13 +158,15 @@ export default function ReservationPage({
                 {errors.princess}
               </p>
             )}
-            {/* 希望卓 */}
+
             <label className="block text-sm mb-1">
               希望卓番号
             </label>
             <select
               value={requestedTable}
-              onChange={(e) => setRequestedTable(e.target.value)}
+              onChange={(e) =>
+                setRequestedTable(e.target.value)
+              }
               className="border p-2 w-full rounded mb-4"
             >
               <option value="">希望無し</option>
@@ -185,13 +176,15 @@ export default function ReservationPage({
                 </option>
               ))}
             </select>
-            {/* 予算モード */}
+
             <label className="block text-sm mb-1">予算</label>
             <select
               value={budgetMode}
               onChange={(e) =>
                 setBudgetMode(
-                  e.target.value === 'input' ? 'input' : 'undecided'
+                  e.target.value === 'input'
+                    ? 'input'
+                    : 'undecided'
                 )
               }
               className="border p-2 w-full rounded mb-2"
@@ -199,18 +192,24 @@ export default function ReservationPage({
               <option value="undecided">未定</option>
               <option value="input">入力</option>
             </select>
-            {/* 数字入力欄 */}
+
+            {/* モバイルで数字キーパッドを出す */}
             {budgetMode === 'input' && (
               <>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   value={budget}
                   onChange={(e) =>
                     setBudget(
-                      e.target.value === '' ? '' : Number(e.target.value)
+                      e.target.value === ''
+                        ? ''
+                        : Number(e.target.value)
                     )
                   }
                   className="border p-2 w-full rounded mb-2"
+                  placeholder="予算を入力"
                   aria-invalid={!!errors.budget}
                 />
                 {errors.budget && (
@@ -220,7 +219,7 @@ export default function ReservationPage({
                 )}
               </>
             )}
-            {/* ボタン */}
+
             <div className="flex justify-end space-x-2">
               <button
                 onClick={onClose}
@@ -259,7 +258,9 @@ export default function ReservationPage({
             </label>
             <select
               value={reflectTable}
-              onChange={(e) => setReflectTable(e.target.value)}
+              onChange={(e) =>
+                setReflectTable(e.target.value)
+              }
               className="border p-2 w-full rounded mb-4"
             >
               <option value="">選択してください</option>
@@ -270,19 +271,25 @@ export default function ReservationPage({
                   disabled={assignedNumbers.includes(t)}
                 >
                   {t}
-                  {assignedNumbers.includes(t) ? '（使用中）' : ''}
+                  {assignedNumbers.includes(t)
+                    ? '（使用中）'
+                    : ''}
                 </option>
               ))}
             </select>
+
             <label className="block text-sm mb-1">
               開始時間
             </label>
             <input
               type="time"
               value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
+              onChange={(e) =>
+                setStartTime(e.target.value)
+              }
               className="border p-2 w-full rounded mb-4"
             />
+
             <div className="flex justify-end space-x-2">
               <button
                 onClick={closeReflectModal}
@@ -292,7 +299,9 @@ export default function ReservationPage({
               </button>
               <button
                 onClick={handleReflectConfirm}
-                disabled={!reflectTable || !startTime}
+                disabled={
+                  !reflectTable || !startTime
+                }
                 className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
               >
                 反映
@@ -334,7 +343,9 @@ export default function ReservationPage({
             <div className="mt-2 space-x-2">
               {canAssign && (
                 <button
-                  onClick={() => openReflectModal(res)}
+                  onClick={() =>
+                    openReflectModal(res)
+                  }
                   className="text-blue-600 underline"
                 >
                   卓に反映
