@@ -11,7 +11,7 @@ const TableStatusPage: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  // 時刻文字列 "HH:MM:SS" や "HH:MM" を "HH:MM" のみ表示に整形
+  // 時刻を「HH:MM」のみで表示
   const formatTime = (time: string) => {
     const parts = time.split(':');
     return parts.length >= 2 ? `${parts[0]}:${parts[1]}` : time;
@@ -21,8 +21,7 @@ const TableStatusPage: React.FC = () => {
     async (id: number) => {
       const table = tables.find((t) => t.id === id);
       if (!table) return;
-      if (!window.confirm(`本当に卓 ${table.tableNumber} を削除しますか？`))
-        return;
+      if (!window.confirm(`本当に卓 ${table.tableNumber} を削除しますか？`)) return;
 
       setError('');
       setDeletingId(id);
@@ -53,7 +52,10 @@ const TableStatusPage: React.FC = () => {
               <strong>姫名:</strong> {table.princess}
             </p>
             <p>
-              <strong>予算:</strong> {table.budget.toLocaleString()}円
+              <strong>予算:</strong>{' '}
+              {table.budget === 0
+                ? '未定'
+                : `${table.budget.toLocaleString()}円`}
             </p>
             <p>
               <strong>開始時間:</strong> {formatTime(table.time)}
@@ -85,9 +87,7 @@ const TableStatusPage: React.FC = () => {
       )}
 
       {/* 見出し */}
-      <h2 className="text-2xl font-bold mb-4 text-center">
-        卓状況
-      </h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">卓状況</h2>
 
       {tables.length === 0 ? (
         <p className="text-gray-500">まだ反映された卓はありません。</p>
