@@ -94,9 +94,11 @@ export default function ReservationPage({
     onClose()
   }
 
-  // 予約削除
-  const handleDelete = (id: number) =>
+  // 予約削除（確認ダイアログ付き）
+  const handleDelete = (id: number, name: string) => {
+    if (!window.confirm(`本当に ${name} さんの予約を削除しますか？`)) return
     dispatch({ type: 'DELETE_RESERVATION', payload: id })
+  }
 
   // 卓反映モーダル開閉
   const openReflectModal = (res: Reservation) => {
@@ -159,7 +161,6 @@ export default function ReservationPage({
       setBudget(val === '' ? '' : Number(val))
       setErrors((prev) => ({ ...prev, budget: undefined }))
     } else {
-      // 数字以外の入力はエラー
       setErrors((prev) => ({
         ...prev,
         budget: '許可されていない文字です',
@@ -396,7 +397,7 @@ export default function ReservationPage({
                   </button>
                 )}
                 <button
-                  onClick={() => handleDelete(res.id)}
+                  onClick={() => handleDelete(res.id, res.princess)}
                   className="text-red-500 underline"
                 >
                   削除
