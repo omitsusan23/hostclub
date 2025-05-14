@@ -3,27 +3,40 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
 
 const TableStatusPage: React.FC = () => {
-  const { state: { tables }, dispatch } = useAppContext();
+  const {
+    state: { tables },
+    dispatch,
+  } = useAppContext();
   const [message, setMessage] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const handleDelete = useCallback(async (id: number) => {
-    const table = tables.find((t) => t.id === id);
-    if (!table) return;
-    if (!window.confirm(`本当に卓 ${table.tableNumber} を削除しますか？`)) return;
+  // 時刻文字列 "HH:MM:SS" や "HH:MM" を "HH:MM" のみ表示に整形
+  const formatTime = (time: string) => {
+    const parts = time.split(':');
+    return parts.length >= 2 ? `${parts[0]}:${parts[1]}` : time;
+  };
 
-    setError('');
-    setDeletingId(id);
-    try {
-      dispatch({ type: 'DELETE_TABLE', payload: id });
-      setMessage(`卓 ${table.tableNumber} を削除しました`);
-    } catch {
-      setError('卓の削除に失敗しました');
-    } finally {
-      setDeletingId(null);
-    }
-  }, [dispatch, tables]);
+  const handleDelete = useCallback(
+    async (id: number) => {
+      const table = tables.find((t) => t.id === id);
+      if (!table) return;
+      if (!window.confirm(`本当に卓 ${table.tableNumber} を削除しますか？`))
+        return;
+
+      setError('');
+      setDeletingId(id);
+      try {
+        dispatch({ type: 'DELETE_TABLE', payload: id });
+        setMessage(`卓 ${table.tableNumber} を削除しました`);
+      } catch {
+        setError('卓の削除に失敗しました');
+      } finally {
+        setDeletingId(null);
+      }
+    },
+    [dispatch, tables]
+  );
 
   const renderedTables = useMemo(
     () =>
@@ -43,7 +56,7 @@ const TableStatusPage: React.FC = () => {
               <strong>予算:</strong> {table.budget.toLocaleString()}円
             </p>
             <p>
-              <strong>開始時間:</strong> {table.time}
+              <strong>開始時間:</strong> {formatTime(table.time)}
             </p>
           </div>
           <button
