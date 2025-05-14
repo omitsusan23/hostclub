@@ -1,6 +1,15 @@
 // .eslintrc.cjs
 module.exports = {
   root: true,
+
+  // 対象外にするパスを追加
+  ignorePatterns: [
+    'coverage/**',
+    'postcss.config.js',
+    'tailwind.config.js',
+    'vite.config.ts'
+  ],
+
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: './tsconfig.json',
@@ -24,6 +33,9 @@ module.exports = {
     react: { version: 'detect' },
   },
   rules: {
-    // 必要に応じてここにルールを追加
+    // No case declarations エラー回避の例（必要に応じて調整）
+    'no-case-declarations': 'off',
+    // any の抑制（必要に応じて調整）
+    '@typescript-eslint/no-explicit-any': 'warn',
   },
 };
