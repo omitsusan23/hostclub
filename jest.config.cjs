@@ -10,6 +10,8 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest'
   },
+  // グローバルセットアップファイル（必要なら）
   setupFiles: ['<rootDir>/jest.setup.cjs'],
-  setupFilesAfterEnv: ['@testing-library/jest-dom']
+  // テスト環境セットアップ（@testing-library/jest-dom を含む）
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs']
 };
