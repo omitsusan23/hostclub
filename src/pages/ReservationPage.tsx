@@ -8,7 +8,7 @@ import React, {
 } from 'react'
 import { useAppContext, type Reservation, type User } from '../context/AppContext'
 
-// 19:00～25:00 を15分刻みで生成
+// 19:00～25:00 を 15 分刻みで生成
 const generateTimeOptions = (): string[] => {
   const opts: string[] = []
   for (let h = 19; h <= 25; h++) {
@@ -51,19 +51,19 @@ export default function ReservationPage({
   const [errors, setErrors] = useState<{
     princess?: string
     budget?: string
-  }>({}) // requestedTable error 削除
+  }>({})
 
-  // 卓反映トースト表示
+  // トースト表示
   const [toastMessage, setToastMessage] = useState('')
   const [showToast, setShowToast] = useState(false)
 
-  // モーダルの Ref ＆初回フォーカス
+  // モーダル Ref & フォーカス
   const firstInputRef = useRef<HTMLInputElement>(null)
   useEffect(() => {
     if (isOpen) firstInputRef.current?.focus()
   }, [isOpen])
 
-  // ESC キーで閉じる
+  // ESC で閉じる
   const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
     if (e.key === 'Escape') onClose()
   }
@@ -87,7 +87,7 @@ export default function ReservationPage({
     return Object.keys(newErrors).length === 0
   }
 
-  // 予約追加（モーダルの「保存」）
+  // 予約追加
   const handleAdd = () => {
     if (!validate()) return
     dispatch({
@@ -96,7 +96,7 @@ export default function ReservationPage({
         id: Date.now(),
         princess: princess.trim(),
         requestedTable: requestedTable.trim(),
-        time: plannedTime,          // ←追加して保存
+        time: plannedTime,
         budget: budgetMode === 'input' ? Number(budget) : 0,
       },
     })
@@ -110,8 +110,8 @@ export default function ReservationPage({
     onClose()
   }
 
-  // 予約削除（確認ダイアログ付き）
-  const handleDelete = (id: number, name: string) => {
+  // 予約削除（確認ダイアログ）
+  const handleReservationDelete = (id: number, name: string) => {
     if (!window.confirm(`本当に ${name} さんの予約を削除しますか？`)) return
     dispatch({ type: 'DELETE_RESERVATION', payload: id })
   }
@@ -119,9 +119,7 @@ export default function ReservationPage({
   // 卓反映モーダル開閉
   const openReflectModal = (res: Reservation) => {
     setSelectedRes(res)
-    // 希望卓を初期値に
     setReflectTable(res.requestedTable)
-    // 開始時間を今の時刻で初期値に
     const now = new Date()
     const hh = now.getHours().toString().padStart(2, '0')
     const mm = now.getMinutes().toString().padStart(2, '0')
@@ -153,7 +151,6 @@ export default function ReservationPage({
       },
     })
     closeReflectModal()
-    // トースト表示
     setToastMessage(
       `${selectedRes.princess}様は${reflectTable}に着席しました`
     )
@@ -161,16 +158,13 @@ export default function ReservationPage({
     setTimeout(() => setShowToast(false), 1000)
   }
 
-  // 予算モード切り替え
-  const handleBudgetModeChange = (
-    e: ChangeEvent<HTMLSelectElement>
-  ) => {
+  // 予算モード切替
+  const handleBudgetModeChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setBudgetMode(e.target.value as 'undecided' | 'input')
     setBudget('')
     setErrors((prev) => ({ ...prev, budget: undefined }))
   }
-
-  // 予算 input の onChange 型（数字以外はエラー）
+  // 予算入力（数字のみ）
   const handleBudgetChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
     if (/^\d*$/.test(val)) {
@@ -243,9 +237,7 @@ export default function ReservationPage({
               )}
 
               {/* 希望卓番号 */}
-              <label className="block text-sm mb-1">
-                希望卓番号
-              </label>
+              <label className="block text-sm mb-1">希望卓番号</label>
               <select
                 value={requestedTable}
                 onChange={(e) => setRequestedTable(e.target.value)}
@@ -349,7 +341,7 @@ export default function ReservationPage({
                   </button>
                 )}
                 <button
-                  onClick={() => handleDelete(res.id, res.princess)}
+                  onClick={() => handleReservationDelete(res.id, res.princess)}
                   className="text-red-500 underline"
                 >
                   削除
