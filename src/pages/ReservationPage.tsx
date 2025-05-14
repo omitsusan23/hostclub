@@ -52,6 +52,10 @@ export default function ReservationPage({
   const [reflectTable, setReflectTable] = useState('')
   const [startTime, setStartTime] = useState('')
 
+  // ─── トースト表示制御 ───────────────────────────────
+  const [toastMessage, setToastMessage] = useState('')
+  const [showToast, setShowToast] = useState(false)
+
   const canAssign =
     currentUser?.role === 'admin' || currentUser?.canManageTables
 
@@ -89,7 +93,7 @@ export default function ReservationPage({
   // ─── 卓反映モーダル開閉 ─────────────────────────────
   const openReflectModal = (res: Reservation) => {
     setSelectedRes(res)
-    // ★開始時間を現在時刻で初期化
+    // 開始時間を現在時刻で初期化
     const now = new Date()
     const hh = String(now.getHours()).padStart(2, '0')
     const mm = String(now.getMinutes()).padStart(2, '0')
@@ -115,6 +119,15 @@ export default function ReservationPage({
       },
     })
     closeReflectModal()
+
+    // ── トーストを出して 1 秒後に自動で消す ─────────
+    setToastMessage(
+      `${selectedRes.princess}様は${reflectTable}に着席しました`
+    )
+    setShowToast(true)
+    setTimeout(() => {
+      setShowToast(false)
+    }, 1000)
   }
 
   // ─── 予算 input の onChange 型 ────────────────────────
@@ -170,7 +183,7 @@ export default function ReservationPage({
               </p>
             )}
 
-            {/* 希望卓番号：プルダウンに変更 */}
+            {/* 希望卓番号 */}
             <label className="block text-sm mb-1">希望卓番号</label>
             <select
               value={requestedTable}
@@ -287,6 +300,15 @@ export default function ReservationPage({
                 反映
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── トーストメッセージ ─────────────────────── */}
+      {showToast && (
+        <div className="fixed inset-0 flex items-center justify-center z-[100] pointer-events-none">
+          <div className="bg-black bg-opacity-75 text-white px-4 py-2 rounded">
+            {toastMessage}
           </div>
         </div>
       )}
