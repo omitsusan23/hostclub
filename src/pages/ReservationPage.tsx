@@ -37,39 +37,38 @@ export default function ReservationPage({
   const { state, dispatch } = useAppContext()
   const { reservations, tableSettings = [], tables } = state
 
-  // 使用中卓
+  // 現在使用中の卓番号一覧
   const assignedNumbers = tables.map((t) => t.tableNumber)
 
-  // 入力 state
+  // 入力フィールド state
   const [princess, setPrincess] = useState('')
   const [requestedTable, setRequestedTable] = useState('')
-  const [plannedTime, setPlannedTime] = useState('')  // ←追加
+  const [plannedTime, setPlannedTime] = useState('') // ←追加
   const [budgetMode, setBudgetMode] = useState<'undecided' | 'input'>(
     'undecided'
   )
   const [budget, setBudget] = useState<number | ''>('')
   const [errors, setErrors] = useState<{
     princess?: string
-    requestedTable?: string
     budget?: string
-  }>({})
+  }>({}) // requestedTable error 削除
 
-  // トースト
+  // 卓反映トースト表示
   const [toastMessage, setToastMessage] = useState('')
   const [showToast, setShowToast] = useState(false)
 
-  // 初回フォーカス
+  // モーダルの Ref ＆初回フォーカス
   const firstInputRef = useRef<HTMLInputElement>(null)
   useEffect(() => {
     if (isOpen) firstInputRef.current?.focus()
   }, [isOpen])
 
-  // ESC で閉じる
+  // ESC キーで閉じる
   const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
     if (e.key === 'Escape') onClose()
   }
 
-  // 卓反映モーダル
+  // 卓反映モーダル制御
   const [isReflectOpen, setReflectOpen] = useState(false)
   const [selectedRes, setSelectedRes] = useState<Reservation | null>(null)
   const [reflectTable, setReflectTable] = useState('')
@@ -82,15 +81,13 @@ export default function ReservationPage({
   const validate = () => {
     const newErrors: typeof errors = {}
     if (!princess.trim()) newErrors.princess = '姫名を入力してください'
-    if (!requestedTable.trim())
-      newErrors.requestedTable = '希望卓番号を入力してください'
     if (budgetMode === 'input' && (budget === '' || isNaN(budget as number)))
       newErrors.budget = '予算を入力してください'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  // 予約追加
+  // 予約追加（モーダルの「保存」）
   const handleAdd = () => {
     if (!validate()) return
     dispatch({
@@ -99,37 +96,36 @@ export default function ReservationPage({
         id: Date.now(),
         princess: princess.trim(),
         requestedTable: requestedTable.trim(),
-        time: plannedTime || '',          // ←追加して保存
+        time: plannedTime,          // ←追加して保存
         budget: budgetMode === 'input' ? Number(budget) : 0,
       },
     })
     // リセット
     setPrincess('')
     setRequestedTable('')
-    setPlannedTime('')                   // ←リセット
+    setPlannedTime('')
     setBudgetMode('undecided')
     setBudget('')
     setErrors({})
     onClose()
   }
 
-  // 予約削除
+  // 予約削除（確認ダイアログ付き）
   const handleDelete = (id: number, name: string) => {
     if (!window.confirm(`本当に ${name} さんの予約を削除しますか？`)) return
     dispatch({ type: 'DELETE_RESERVATION', payload: id })
   }
 
-  // 卓反映モーダル open
+  // 卓反映モーダル開閉
   const openReflectModal = (res: Reservation) => {
     setSelectedRes(res)
+    // 希望卓を初期値に
     setReflectTable(res.requestedTable)
+    // 開始時間を今の時刻で初期値に
     const now = new Date()
-    setStartTime(
-      `${now.getHours().toString().padStart(2, '0')}:${now
-        .getMinutes()
-        .toString()
-        .padStart(2, '0')}`
-    )
+    const hh = now.getHours().toString().padStart(2, '0')
+    const mm = now.getMinutes().toString().padStart(2, '0')
+    setStartTime(`${hh}:${mm}`)
     setReflectOpen(true)
   }
   const closeReflectModal = () => {
@@ -157,6 +153,7 @@ export default function ReservationPage({
       },
     })
     closeReflectModal()
+    // トースト表示
     setToastMessage(
       `${selectedRes.princess}様は${reflectTable}に着席しました`
     )
@@ -164,7 +161,7 @@ export default function ReservationPage({
     setTimeout(() => setShowToast(false), 1000)
   }
 
-  // 予算モード切替
+  // 予算モード切り替え
   const handleBudgetModeChange = (
     e: ChangeEvent<HTMLSelectElement>
   ) => {
@@ -173,7 +170,7 @@ export default function ReservationPage({
     setErrors((prev) => ({ ...prev, budget: undefined }))
   }
 
-  // 予算入力（数字のみ）
+  // 予算 input の onChange 型（数字以外はエラー）
   const handleBudgetChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
     if (/^\d*$/.test(val)) {
@@ -261,14 +258,6 @@ export default function ReservationPage({
                   </option>
                 ))}
               </select>
-              {errors.requestedTable && (
-                <p
-                  id="error-table"
-                  className="text-red-500 text-sm mb-2"
-                >
-                  {errors.requestedTable}
-                </p>
-              )}
 
               {/* 来店予定時間 */}
               <label className="block text-sm mb-1">
@@ -339,8 +328,36 @@ export default function ReservationPage({
           </div>
         )}
 
-        {/* 卓反映モーダル以下は既存のまま省略 */}
-        {/* ... */}
+        {/* 予約リスト */}
+        <div className="mt-6 space-y-3">
+          {reservations.map((res) => (
+            <div
+              key={res.id}
+              className="border p-4 rounded bg-white"
+            >
+              <p><strong>姫名:</strong> {res.princess}</p>
+              <p><strong>希望卓:</strong> {res.requestedTable || 'なし'}</p>
+              <p><strong>来店予定時間:</strong> {res.time || 'これから'}</p>
+              <p><strong>予算:</strong> {res.budget ? `${res.budget.toLocaleString()}円` : '未定'}</p>
+              <div className="mt-2 space-x-2">
+                {canAssign && (
+                  <button
+                    onClick={() => openReflectModal(res)}
+                    className="text-blue-600 underline"
+                  >
+                    卓に反映
+                  </button>
+                )}
+                <button
+                  onClick={() => handleDelete(res.id, res.princess)}
+                  className="text-red-500 underline"
+                >
+                  削除
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </main>
     </>
   )
