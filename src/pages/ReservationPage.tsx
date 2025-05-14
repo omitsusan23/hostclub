@@ -109,12 +109,7 @@ export default function ReservationPage({ isOpen, onClose, currentUser }: Props)
       className="p-4 pb-16"
       onKeyDown={handleKeyDown}
     >
-     <div className="p-4 pb-16">
-      {/* 見出し */}
-      <h2 className="text-2xl font-bold mb-4 text-center">
-        来店予約表
-      </h2>
-
+      <h2 className="text-xl font-bold mb-4">来店予約表</h2>
 
       {/* 追加モーダル（フッターから開く） */}
       {isOpen && (
