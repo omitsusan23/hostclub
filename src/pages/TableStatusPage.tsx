@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import { useAppContext, Table } from '../context/AppContext'
 
-// ポジションラベル（使わなくてもOKですが位置名だけ残しています）
+// ポジションラベル
 const positionsMap: Record<number, string[]> = {
   1: [''],
   2: ['左', '右'],
@@ -16,15 +16,18 @@ const positionsMap: Record<number, string[]> = {
 const TableStatusPage: React.FC = () => {
   const { state: { tables, tableSettings }, dispatch } = useAppContext()
 
-  // 中央オーバーレイメッセージ
+  // オーバーレイメッセージ
   const [overlayMessage, setOverlayMessage] = useState('')
-  // 初回来店モーダルの開閉＆ステップ管理
+
+  // 初回来店モーダルの状態
   const [isFirstModalOpen, setFirstModalOpen] = useState(false)
   const [firstStep, setFirstStep] = useState(true)
-  // ステップ１：選択された人数
-  const [selectedCount, setSelectedCount] = useState(0)
-  // ステップ２：選択された卓と名前リスト
+
+  // ステップ1：選択された卓＆人数
   const [selectedTable, setSelectedTable] = useState('')
+  const [selectedCount, setSelectedCount] = useState(0)
+
+  // ステップ2：お客様名リスト
   const [names, setNames] = useState<string[]>([])
 
   // 使用中の卓番号リスト
@@ -39,27 +42,29 @@ const TableStatusPage: React.FC = () => {
     setTimeout(() => setOverlayMessage(''), 1000)
   }, [dispatch, tables])
 
-  // --- モーダルオープン時リセット ---
+  // モーダル開閉＆ステップリセット
   const openFirstModal = () => {
     setFirstStep(true)
+    setSelectedTable('')
     setSelectedCount(0)
     setNames([])
-    setSelectedTable('')
     setFirstModalOpen(true)
   }
   const closeFirstModal = () => setFirstModalOpen(false)
 
-  // --- ステップ１：人数選択 ---
+  // --- ステップ1 ---
+  const handleTableSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedTable(e.target.value)
+  }
   const handleCountSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const n = Number(e.target.value)
-    setSelectedCount(n)
+    setSelectedCount(Number(e.target.value))
   }
   const gotoStep2 = () => {
     setNames(Array(selectedCount).fill(''))
     setFirstStep(false)
   }
 
-  // --- ステップ２：名前入力＆最終確定 ---
+  // --- ステップ2 ---
   const handleNameChange = (idx: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const arr = [...names]; arr[idx] = e.target.value; setNames(arr)
   }
@@ -71,7 +76,7 @@ const TableStatusPage: React.FC = () => {
     closeFirstModal()
   }
 
-  // --- テーブルリスト描画 ---
+  // --- テーブル一覧レンダリング ---
   const renderedTables = useMemo(() => tables.map(tbl => (
     <div
       key={tbl.id}
@@ -130,8 +135,23 @@ const TableStatusPage: React.FC = () => {
           <div className="bg-white p-6 rounded-lg w-full max-w-lg">
             {firstStep ? (
               <>
-                <h3 className="text-lg font-semibold mb-4 text-center">初回来店：人数選択</h3>
-                <label className="block text-sm mb-2">人数を選択してください</label>
+                <h3 className="text-lg font-semibold mb-4 text-center">初回来店：卓＆人数選択</h3>
+                {/* 卓選択 */}
+                <label className="block text-sm mb-2">卓を選択</label>
+                <select
+                  value={selectedTable}
+                  onChange={handleTableSelect}
+                  className="border p-2 w-full rounded mb-4"
+                >
+                  <option value="" disabled>選択してください</option>
+                  {tableSettings.map(t => (
+                    <option key={t} value={t} disabled={inUseTables.includes(t)}>
+                      {t}{inUseTables.includes(t) ? '（使用中）' : ''}
+                    </option>
+                  ))}
+                </select>
+                {/* 人数選択 */}
+                <label className="block text-sm mb-2">人数を選択</label>
                 <select
                   value={selectedCount}
                   onChange={handleCountSelect}
@@ -151,9 +171,9 @@ const TableStatusPage: React.FC = () => {
                   </button>
                   <button
                     onClick={gotoStep2}
-                    disabled={selectedCount === 0}
+                    disabled={!selectedTable || selectedCount===0}
                     className={`px-4 py-2 rounded ${
-                      selectedCount === 0
+                      !selectedTable||selectedCount===0
                         ? 'bg-gray-300 text-gray-500'
                         : 'bg-blue-500 text-white hover:bg-blue-600'
                     }`}
@@ -165,22 +185,6 @@ const TableStatusPage: React.FC = () => {
             ) : (
               <>
                 <h3 className="text-lg font-semibold mb-4 text-center">初回来店：お客様情報</h3>
-                {/* 卓選択 */}
-                <label className="block text-sm mb-2">卓を選択</label>
-                <select
-                  value={selectedTable}
-                  onChange={e => setSelectedTable(e.target.value)}
-                  className="border p-2 w-full rounded mb-4"
-                >
-                  <option value="" disabled>選択してください</option>
-                  {tableSettings.map(t => (
-                    <option key={t} value={t} disabled={inUseTables.includes(t)}>
-                      {t}{inUseTables.includes(t) ? '（使用中）' : ''}
-                    </option>
-                  ))}
-                </select>
-
-                {/* お客様名入力（横並び） */}
                 <div className="flex items-start space-x-4 mb-6">
                   {names.map((_, idx) => (
                     <div key={idx} className="flex flex-col items-center">
@@ -198,7 +202,6 @@ const TableStatusPage: React.FC = () => {
                     </div>
                   ))}
                 </div>
-
                 <div className="flex justify-between">
                   <button
                     onClick={() => setFirstStep(true)}
@@ -208,7 +211,6 @@ const TableStatusPage: React.FC = () => {
                   </button>
                   <button
                     onClick={handleFirstConfirm}
-                    disabled={!selectedTable}
                     className={`px-4 py-2 rounded ${
                       !selectedTable
                         ? 'bg-gray-300 text-gray-500'
