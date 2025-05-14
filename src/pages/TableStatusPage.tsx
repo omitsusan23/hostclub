@@ -3,14 +3,14 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import { useAppContext, Table } from '../context/AppContext'
 
-// 人数ごとのポジションラベル定義（入力フォームのラベル表示用）
+// 人数ごとのポジションラベル定義
 const positionsMap: Record<number, string[]> = {
   1: [''],
   2: ['左', '右'],
   3: ['左', '中', '右'],
   4: ['左端', '左', '右', '右端'],
   5: ['左端', '左', '中', '右', '右端'],
-  6: ['左端', '左中', '中', '右中', '右端'],
+  6: ['左端', '左中', '左', '右', '右中', '右端'],
 }
 
 const TableStatusPage: React.FC = () => {
@@ -25,7 +25,6 @@ const TableStatusPage: React.FC = () => {
   const [selectedCount, setSelectedCount] = useState<number>(1)
   const [names, setNames] = useState<string[]>([''])
 
-  // 使用中の卓一覧
   const inUseTables = tables.map(t => t.tableNumber)
 
   const openFirstModal = () => {
@@ -176,18 +175,20 @@ const TableStatusPage: React.FC = () => {
               ))}
             </select>
 
-            {/* お客様名入力（グリッド表示） */}
-            <div className="grid grid-cols-3 gap-2 mb-4">
+            {/* お客様名入力（動的列数） */}
+            <div
+              className={`grid gap-2 mb-4 grid-cols-${selectedCount}`}
+            >
               {positionsMap[selectedCount].map((pos, idx) => (
                 <div key={idx} className="flex flex-col">
                   <label className="text-sm mb-1 text-center">
-                    {pos || 'お客様'} 
+                    {pos || 'お客様'}
                   </label>
                   <input
                     type="text"
                     value={names[idx] || ''}
                     onChange={handleNameChange(idx)}
-                    className="border p-2 rounded text-center w-full max-w-[96px] truncate"
+                    className="border p-2 rounded text-center w-full truncate"
                     placeholder="任意入力"
                     maxLength={12}
                   />
