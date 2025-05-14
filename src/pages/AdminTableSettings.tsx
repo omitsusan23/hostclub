@@ -17,8 +17,10 @@ const AdminTableSettings: React.FC = () => {
 
   // ログアウト
   const handleLogout = useCallback(() => {
+    // ユーザー情報をクリア
     dispatch({ type: 'SET_USER', payload: null });
-    navigate('/');
+    // ログイン画面へリダイレクト（履歴を置き換え）
+    navigate('/', { replace: true });
   }, [dispatch, navigate]);
 
   // 卓設定の追加
@@ -108,7 +110,9 @@ const AdminTableSettings: React.FC = () => {
         <button
           onClick={handleAdd}
           disabled={isLoading}
-          className={`px-4 py-2 rounded ${isLoading ? 'bg-gray-400 text-gray-200' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+          className={`px-4 py-2 rounded ${
+            isLoading ? 'bg-gray-400 text-gray-200' : 'bg-blue-500 text-white hover:bg-blue-600'
+          }`}
         >
           {isLoading ? '追加中...' : '追加'}
         </button>
