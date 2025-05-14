@@ -26,13 +26,7 @@ jobs:
       - name: Run tests with coverage
         run: npm test
 
-      - name: Upload coverage report
-        if: ${{ success() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: coverage-report
-          path: coverage/
-
+  
   lint:
     needs: test
     runs-on: ubuntu-latest
