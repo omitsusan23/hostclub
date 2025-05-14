@@ -22,7 +22,7 @@ export default function ReservationPage({
   const { state, dispatch } = useAppContext()
   const { reservations, tableSettings = [], tables } = state
 
-  // 現在反映済みの卓番号リスト
+  // 使用中テーブル番号リスト
   const assignedNumbers = tables.map((t) => t.tableNumber)
 
   // 追加モーダル用 state
@@ -47,13 +47,13 @@ export default function ReservationPage({
     if (e.key === 'Escape') onClose()
   }
 
-  // 卓反映モーダル state
+  // 反映モーダル用 state
   const [isReflectOpen, setReflectOpen] = useState(false)
   const [selectedRes, setSelectedRes] = useState<Reservation | null>(null)
   const [reflectTable, setReflectTable] = useState('')
   const [startTime, setStartTime] = useState('')
 
-  // トースト state
+  // トースト用 state
   const [toastMessage, setToastMessage] = useState('')
   const [showToast, setShowToast] = useState(false)
 
@@ -64,7 +64,7 @@ export default function ReservationPage({
   const validate = () => {
     const newErrors: typeof errors = {}
     if (!princess.trim()) newErrors.princess = '姫名を入力してください'
-    if (budgetMode === 'input' && !/^\d+$/.test(budget)) {
+    if (budgetMode === 'input' && !/^\d*$/.test(budget)) {
       newErrors.budget =
         budget === ''
           ? '予算を入力してください'
@@ -98,9 +98,10 @@ export default function ReservationPage({
   const handleDelete = (id: number) =>
     dispatch({ type: 'DELETE_RESERVATION', payload: id })
 
-  // 反映モーダル開く
+  // 反映モーダルを開くとき、希望卓を初期値にセット
   const openReflectModal = (res: Reservation) => {
     setSelectedRes(res)
+    setReflectTable(res.requestedTable || '')
     const now = new Date()
     const hh = now.getHours().toString().padStart(2, '0')
     const mm = now.getMinutes().toString().padStart(2, '0')
@@ -342,9 +343,7 @@ export default function ReservationPage({
             </p>
             <p>
               <strong>予算:</strong>{' '}
-              {budgetMode === 'undecided' && res.budget === 0
-                ? '未定'
-                : res.budget.toLocaleString() + '円'}
+              {res.budget === 0 ? '未定' : res.budget.toLocaleString() + '円'}
             </p>
             <div className="mt-2 space-x-2">
               {canAssign && (
