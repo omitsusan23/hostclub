@@ -25,8 +25,15 @@ export default function TableStatusPage() {
   const [selectedCount, setSelectedCount] = useState(0);
   const [names, setNames] = useState<string[]>([]);
   const [photos, setPhotos] = useState<string[]>([]);
+  // ★追加：開始時間ステート（step1用）
+  const [firstStartTime, setFirstStartTime] = useState('');
 
   const openFirstModal = () => {
+    // ★初期値に現在時刻(HH:MM)をセット
+    const now = new Date();
+    const hhmm = now.toTimeString().slice(0,5);
+    setFirstStartTime(hhmm);
+
     setStep1(true);
     setSelectedTable('');
     setSelectedCount(0);
@@ -57,18 +64,17 @@ export default function TableStatusPage() {
 
   // 初回来店確定
   const confirmFirst = () => {
-    const now = new Date();
-    const hhmm = now.toTimeString().slice(0, 5);
+    // ★step1で選択した時間を使う
+    const time = firstStartTime;
 
-    // ↓ここを修正：payload に tableNumber ではなく requestedTable を渡す
     dispatch({
-      type: 'ASSIGN_TABLE',
+      type: 'ADD_TABLE',
       payload: {
         id: Date.now(),
+        tableNumber: selectedTable,
         princess: names.join('、'),
-        requestedTable: selectedTable,
         budget: 0,
-        time: hhmm,
+        time,
       } as Table,
     });
 
@@ -78,7 +84,7 @@ export default function TableStatusPage() {
       const pcast = photos[i] !== 'なし' ? `（指名：${photos[i]}）` : '';
       return (label ? `${label}: ` : '') + `${pname}${pcast}`;
     });
-    setOverlayMessage(`卓【${selectedTable}】に着席：` + entries.join('、'));
+    setOverlayMessage(`卓【${selectedTable}】に着席：${entries.join('、')}`);
     setTimeout(() => setOverlayMessage(''), 1000);
     closeFirstModal();
   };
@@ -172,6 +178,16 @@ export default function TableStatusPage() {
                       : <option key={t} value={t}>{t}</option>
                   )}
                 </select>
+
+                {/* ★追加：開始時間入力 */}
+                <label className="block text-sm mb-2">開始時間</label>
+                <input
+                  type="time"
+                  value={firstStartTime}
+                  onChange={e => setFirstStartTime(e.target.value)}
+                  className="border p-2 w-full rounded mb-4"
+                />
+
                 <label className="block text-sm mb-2">人数を選択</label>
                 <select
                   value={selectedCount}
@@ -198,6 +214,7 @@ export default function TableStatusPage() {
               </>
             ) : (
               <>
+                {/* 既存の step2 内容（変更なし） */}
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：お客様情報
                 </h3>
