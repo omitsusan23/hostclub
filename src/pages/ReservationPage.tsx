@@ -366,7 +366,7 @@ export default function ReservationPage({
                   onClick={() => handleDelete(res.id)}
                   className="text-red-500 underline"
                 >
-                  �削除
+                  削除
                 </button>
               </div>
             </div>
