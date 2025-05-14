@@ -24,6 +24,6 @@ module.exports = {
     react: { version: 'detect' },
   },
   rules: {
-    // 必要に応じてルールをここで上書き
+    // 必要に応じてここにルールを追加
   },
 };
