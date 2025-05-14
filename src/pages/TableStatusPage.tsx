@@ -7,27 +7,32 @@ const TableStatusPage: React.FC = () => {
     state: { tables },
     dispatch,
   } = useAppContext();
-  const [message, setMessage] = useState<string>('');
+
+  // 削除前後のメッセージはオーバーレイで表示
+  const [overlayMessage, setOverlayMessage] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   // 時刻を「HH:MM」のみで表示
   const formatTime = (time: string) => {
-    const parts = time.split(':');
-    return parts.length >= 2 ? `${parts[0]}:${parts[1]}` : time;
+    const [h, m] = time.split(':');
+    return h && m ? `${h}:${m}` : time;
   };
 
   const handleDelete = useCallback(
     async (id: number) => {
       const table = tables.find((t) => t.id === id);
       if (!table) return;
-      if (!window.confirm(`本当に卓 ${table.tableNumber} を削除しますか？`)) return;
+      if (!window.confirm(`本当に卓 ${table.tableNumber} を削除しますか？`))
+        return;
 
       setError('');
       setDeletingId(id);
       try {
         dispatch({ type: 'DELETE_TABLE', payload: id });
-        setMessage(`卓 ${table.tableNumber} を削除しました`);
+        // オーバーレイメッセージを表示して1秒後に消す
+        setOverlayMessage(`卓 ${table.tableNumber} を削除しました`);
+        setTimeout(() => setOverlayMessage(''), 1000);
       } catch {
         setError('卓の削除に失敗しました');
       } finally {
@@ -77,12 +82,20 @@ const TableStatusPage: React.FC = () => {
   );
 
   return (
-    <main id="main-content" className="p-4 pb-16">
-      {/* メッセージ／エラー */}
-      {(message || error) && (
+    <main id="main-content" className="p-4 pb-16 relative">
+      {/* 削除完了オーバーレイ */}
+      {overlayMessage && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-black bg-opacity-75 text-white p-4 rounded">
+            {overlayMessage}
+          </div>
+        </div>
+      )}
+
+      {/* エラーメッセージ（失敗時のみ） */}
+      {error && (
         <div aria-live="polite" className="mb-4">
-          {message && <p className="text-green-600">{message}</p>}
-          {error && <p className="text-red-600">{error}</p>}
+          <p className="text-red-600">{error}</p>
         </div>
       )}
 
