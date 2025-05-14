@@ -109,7 +109,7 @@ export default function ReservationPage({ isOpen, onClose, currentUser }: Props)
       className="p-4 pb-16"
       onKeyDown={handleKeyDown}
     >
-      <h2 className="text-xl font-bold mb-4">来店予約表</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">来店予約表</h2>
 
       {/* 追加モーダル（フッターから開く） */}
       {isOpen && (
@@ -159,14 +159,12 @@ export default function ReservationPage({ isOpen, onClose, currentUser }: Props)
               <button
                 onClick={onClose}
                 className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                aria-label="キャンセルしてモーダルを閉じる"
               >
                 キャンセル
               </button>
               <button
                 onClick={handleAdd}
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                aria-label="予約を保存"
               >
                 保存
               </button>
@@ -210,7 +208,6 @@ export default function ReservationPage({ isOpen, onClose, currentUser }: Props)
               <button
                 onClick={closeReflectModal}
                 className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                aria-label="キャンセル"
               >
                 キャンセル
               </button>
@@ -218,7 +215,6 @@ export default function ReservationPage({ isOpen, onClose, currentUser }: Props)
                 onClick={handleReflectConfirm}
                 disabled={!reflectTable || !startTime}
                 className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
-                aria-label="卓を反映"
               >
                 反映
               </button>
@@ -239,7 +235,6 @@ export default function ReservationPage({ isOpen, onClose, currentUser }: Props)
                 <button
                   onClick={() => openReflectModal(res)}
                   className="text-blue-600 underline"
-                  aria-label={`卓に反映：${res.princess}さん`}
                 >
                   卓に反映
                 </button>
@@ -247,7 +242,6 @@ export default function ReservationPage({ isOpen, onClose, currentUser }: Props)
               <button
                 onClick={() => handleDelete(res.id)}
                 className="text-red-500 underline"
-                aria-label={`予約を削除：${res.princess}さん`}
               >
                 削除
               </button>
