@@ -2,8 +2,9 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
 
+// 一名〜六名の配置ラベル
 const positionLabelsByCount: Record<number, string[]> = {
-  1: [], // 一名時はラベルなし
+  1: [], // 一名はラベルなし
   2: ['左', '右'],
   3: ['左', '中', '右'],
   4: ['左端', '左', '右', '右端'],
@@ -14,11 +15,12 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
+  // オーバーレイ用メッセージ
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage] = useState('');
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  // 初回来店モーダル
+  // --- 初回来店モーダル制御 ---
   const [firstModalOpen, setFirstModalOpen] = useState(false);
   const [step1, setStep1] = useState(true);
   const [selectedTable, setSelectedTable] = useState('');
@@ -44,7 +46,38 @@ export default function TableStatusPage() {
     setStep1(false);
   };
 
-  // 削除
+  // ステップ2で確定
+  const confirmFirst = () => {
+    const now = new Date();
+    const hhmm = now.toTimeString().slice(0, 5); // "HH:MM"
+    // テーブルを追加（初回来店）
+    dispatch({
+      type: 'ADD_TABLE',
+      payload: {
+        id: Date.now(),
+        tableNumber: selectedTable,
+        princess: names.map((n, i) => {
+          const label = positionLabelsByCount[selectedCount][i] || '';
+          return (label ? `${label}: ` : '') + (n || 'お客様');
+        }).join('、'),
+        budget: 0,
+        time: hhmm,
+      } as Table,
+    });
+    // 着席オーバーレイ
+    const detail = names.map((n, i) => {
+      const label = positionLabelsByCount[selectedCount][i] || '';
+      const castName = photos[i] !== 'なし' ? `（指名：${photos[i]}）` : '';
+      return (label ? `${label}: ` : '') + (n || 'お客様') + castName;
+    }).join('、');
+    setOverlayMessage(`卓 ${selectedTable} に着席：${detail}`);
+    setTimeout(() => setOverlayMessage(''), 1000);
+
+    closeFirstModal();
+  };
+  // --- /初回来店モーダル制御 ---
+
+  // --- 既存：削除 ---
   const handleDelete = useCallback((id: number) => {
     const t = tables.find(x => x.id === id);
     if (!t) return;
@@ -54,45 +87,19 @@ export default function TableStatusPage() {
     setDeleteMessage(`卓 ${t.tableNumber} を削除しました`);
     setTimeout(() => setDeleteMessage(''), 1000);
   }, [dispatch, tables]);
+  // --- /削除 ---
 
-  // 初回来店確定
-  const confirmFirst = () => {
-    const now = new Date();
-    const hhmm = now.toTimeString().slice(0,5);
-    // テーブル追加アクション
-    dispatch({
-      type: 'ADD_TABLE',
-      payload: {
-        id: Date.now(),
-        tableNumber: selectedTable,
-        princess: names.join('、'),
-        budget: 0,
-        time: hhmm,
-      } as Table
-    });
-    // オーバーレイ表示
-    const entries = names.map((n, i) => {
-      const label = positionLabelsByCount[selectedCount][i];
-      const pname = n || 'お客様';
-      const pcast = photos[i] !== 'なし' ? `（指名：${photos[i]}）` : '';
-      return (label ? `${label}: ` : '') + `${pname}${pcast}`;
-    });
-    setOverlayMessage(`卓 ${selectedTable} に着席：` + entries.join('、'));
-    setTimeout(() => setOverlayMessage(''), 1000);
-    closeFirstModal();
-  };
-
-  // テーブルリスト
+  // --- 既存：テーブルリスト描画 ---
   const renderedTables = useMemo(() => tables.map(table => (
     <div
       key={table.id}
       className="border rounded p-4 shadow-sm bg-white flex justify-between items-start"
     >
-      <div>
-        <p className="text-center"><strong>卓番号:</strong> {table.tableNumber}</p>
-        <p className="text-center"><strong>姫名:</strong> {table.princess}</p>
-        <p className="text-center"><strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}</p>
-        <p className="text-center"><strong>開始時間:</strong> {table.time}</p>
+      <div className="text-center">
+        <p><strong>卓番号:</strong> {table.tableNumber}</p>
+        <p><strong>姫名:</strong> {table.princess}</p>
+        <p><strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}</p>
+        <p><strong>開始時間:</strong> {table.time}</p>
       </div>
       <button
         onClick={() => handleDelete(table.id)}
@@ -106,6 +113,7 @@ export default function TableStatusPage() {
       </button>
     </div>
   )), [tables, handleDelete, deletingId]);
+  // --- /テーブルリスト描画 ---
 
   return (
     <>
@@ -171,6 +179,7 @@ export default function TableStatusPage() {
                       : <option key={t} value={t}>{t}</option>
                   )}
                 </select>
+
                 <label className="block text-sm mb-2">人数を選択</label>
                 <select
                   value={selectedCount}
@@ -182,8 +191,12 @@ export default function TableStatusPage() {
                     <option key={n} value={n}>{n} 名</option>
                   ))}
                 </select>
+
                 <div className="flex justify-end space-x-2">
-                  <button onClick={closeFirstModal} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+                  <button
+                    onClick={closeFirstModal}
+                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                  >
                     キャンセル
                   </button>
                   <button
@@ -236,8 +249,12 @@ export default function TableStatusPage() {
                     </div>
                   ))}
                 </div>
+
                 <div className="flex justify-end space-x-2">
-                  <button onClick={() => setStep1(true)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+                  <button
+                    onClick={() => setStep1(true)}
+                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                  >
                     戻る
                   </button>
                   <button
