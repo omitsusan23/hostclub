@@ -16,34 +16,22 @@ const positionsMap: Record<number, string[]> = {
 const TableStatusPage: React.FC = () => {
   const { state: { tables, tableSettings }, dispatch } = useAppContext()
 
-  // 中央オーバーレイ用メッセージ
   const [overlayMessage, setOverlayMessage] = useState<string>('')
+  const [isFirstModalOpen, setFirstModalOpen] = useState(false)
+  const [selectedTable, setSelectedTable] = useState<string>('')
+  const [selectedCount, setSelectedCount] = useState<number>(1)
+  const [names, setNames] = useState<string[]>([''])
+  const inUseTables = tables.map(t => t.tableNumber)
 
-  // 削除処理
   const handleDelete = useCallback(async (id: number) => {
     const table = tables.find(t => t.id === id)
     if (!table) return
     if (!window.confirm(`本当に卓 ${table.tableNumber} を削除しますか？`)) return
 
-    try {
-      dispatch({ type: 'DELETE_TABLE', payload: id })
-      // 中央オーバーレイで表示
-      setOverlayMessage(`卓 ${table.tableNumber} を削除しました`)
-      setTimeout(() => setOverlayMessage(''), 1000)
-    } catch {
-      // 必要ならエラーオーバーレイも
-      setOverlayMessage('削除に失敗しました')
-      setTimeout(() => setOverlayMessage(''), 1000)
-    }
+    dispatch({ type: 'DELETE_TABLE', payload: id })
+    setOverlayMessage(`卓 ${table.tableNumber} を削除しました`)
+    setTimeout(() => setOverlayMessage(''), 1000)
   }, [dispatch, tables])
-
-  // 初回来店モーダルまわり（省略可）
-  const [isFirstModalOpen, setFirstModalOpen] = useState(false)
-  const [selectedTable, setSelectedTable] = useState<string>('')
-  const [selectedCount, setSelectedCount] = useState<number>(1)
-  const [names, setNames] = useState<string[]>([''])
-
-  const inUseTables = tables.map(t => t.tableNumber)
 
   const openFirstModal = () => {
     setSelectedTable('')
@@ -67,7 +55,6 @@ const TableStatusPage: React.FC = () => {
     closeFirstModal()
   }
 
-  // テーブルカード描画
   const renderedTables = useMemo(() => tables.map((table: Table) => (
     <div
       key={table.id}
@@ -99,7 +86,7 @@ const TableStatusPage: React.FC = () => {
     <main id="main-content" className="p-4 pb-16">
       {/* 見出し＋初回ボタン */}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold mb-0 flex-grow text-center">卓状況</h2>
+        <h2 className="text-2xl font-bold text-center flex-grow">卓状況</h2>
         <button
           onClick={openFirstModal}
           className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 ml-4"
@@ -168,7 +155,7 @@ const TableStatusPage: React.FC = () => {
             </select>
 
             {/* お客様名入力（横一列） */}
-            <div className={`grid gap-2 mb-4 grid-cols-${selectedCount}`}>
+            <div className="flex items-start space-x-4 mb-4">
               {positionsMap[selectedCount].map((pos, idx) => (
                 <div key={idx} className="flex flex-col items-center">
                   <label className="text-sm mb-1">{pos || 'お客様'}</label>
@@ -176,7 +163,7 @@ const TableStatusPage: React.FC = () => {
                     type="text"
                     value={names[idx] || ''}
                     onChange={handleNameChange(idx)}
-                    className="border p-2 rounded w-full max-w-[4rem] text-center truncate"
+                    className="border p-2 rounded w-20 text-center truncate"
                     placeholder="任意"
                     maxLength={6}
                   />
