@@ -43,7 +43,7 @@ const TableStatusPage: React.FC = () => {
               <strong>予算:</strong> {table.budget.toLocaleString()}円
             </p>
             <p>
-              <strong>反映時刻:</strong> {table.time}
+              <strong>開始時間:</strong> {table.time}
             </p>
           </div>
           <button
