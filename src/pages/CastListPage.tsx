@@ -1,115 +1,102 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
+// src/pages/CastListPage.tsx
+
+import React, { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { v4 as uuidv4 } from 'uuid'
 
 interface Invite {
-  id: string;
-  token: string;
-  createdAt: string;
+  id: string
+  token: string
+  createdAt: string
 }
 
 export default function CastListPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams()
   const [invites, setInvites] = useState<Invite[]>(() => {
-    const saved = localStorage.getItem('invites');
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [modalOpen, setModalOpen] = useState(false);
-  const issueButtonRef = useRef<HTMLButtonElement>(null);
-  const firstShareButtonRef = useRef<HTMLButtonElement>(null);
+    const saved = localStorage.getItem('invites')
+    return saved ? JSON.parse(saved) : []
+  })
+  const [modalOpen, setModalOpen] = useState(false)
+  const firstShareButtonRef = useRef<HTMLButtonElement>(null)
 
-  // URL クエリに ?openModal=true があれば開く
+  // URLクエリに ?openModal=true があればモーダルを開く
   useEffect(() => {
     if (searchParams.get('openModal') === 'true') {
-      setModalOpen(true);
-      // クエリは消しておく
-      setSearchParams({});
+      setModalOpen(true)
+      setSearchParams({})
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams])
 
-  // persist invites
+  // invites を localStorage に永続化
   useEffect(() => {
-    localStorage.setItem('invites', JSON.stringify(invites));
-  }, [invites]);
+    localStorage.setItem('invites', JSON.stringify(invites))
+  }, [invites])
 
-  // モーダルオープン時にフォーカス管理
+  // モーダルオープン時に最初の共有ボタンへフォーカス
   useEffect(() => {
     if (modalOpen) {
-      firstShareButtonRef.current?.focus();
-    } else {
-      issueButtonRef.current?.focus();
+      firstShareButtonRef.current?.focus()
     }
-  }, [modalOpen]);
+  }, [modalOpen])
 
-  // Esc でモーダル閉じる
+  // ESCキーでモーダルを閉じる
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && modalOpen) {
-        setModalOpen(false);
+        setModalOpen(false)
       }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [modalOpen]);
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [modalOpen])
 
-  // 共有モーダルを開くだけ
-  const openModal = () => setModalOpen(true);
-
-  // 発行＋共有フロー
+  // トークン発行＋共有処理
   const issueAndShare = async (shareFn: (url: string) => void) => {
-    const token = uuidv4();
+    const token = uuidv4()
     const newInvite: Invite = {
       id: token,
       token,
       createdAt: new Date().toLocaleString(),
-    };
-    setInvites(prev => [newInvite, ...prev]);
-    setModalOpen(false);
-    const url = `https://your.app/signup?token=${token}`;
-    shareFn(url);
-  };
+    }
+    setInvites(prev => [newInvite, ...prev])
+    setModalOpen(false)
+    const url = `https://your.app/signup?token=${token}`
+    shareFn(url)
+  }
 
   // 共有手段
   const shareViaLine = (url: string) => {
     const lineShare =
-      'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(url);
-    window.open(lineShare, '_blank');
-  };
+      'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(url)
+    window.open(lineShare, '_blank')
+  }
   const shareViaMail = (url: string) => {
     window.location.href =
       `mailto:?subject=${encodeURIComponent('キャスト招待リンク')}` +
-      `&body=${encodeURIComponent('こちらからサインアップしてください：\n' + url)}`;
-  };
+      `&body=${encodeURIComponent('こちらからサインアップしてください：\n' + url)}`
+  }
   const copyToClipboard = async (url: string) => {
     try {
-      await navigator.clipboard.writeText(url);
-      alert('招待リンクをクリップボードにコピーしました');
+      await navigator.clipboard.writeText(url)
+      alert('招待リンクをクリップボードにコピーしました')
     } catch {
-      alert('コピーに失敗しました');
+      alert('コピーに失敗しました')
     }
-  };
+  }
 
+  // 招待の取り消し
   const revokeInvite = (id: string) => {
-    setInvites(prev => prev.filter(inv => inv.id !== id));
-  };
+    setInvites(prev => prev.filter(inv => inv.id !== id))
+  }
 
   return (
     <div className="p-4 pb-16">
+      {/* 見出し */}
       <h2 className="text-2xl font-bold mb-4 text-center">
         キャスト招待管理
       </h2>
 
-      <div className="mb-6 text-center">
-        <button
-          ref={issueButtonRef}
-          onClick={openModal}
-          className="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
-          招待リンク発行
-        </button>
-      </div>
-
+      {/* 発行済みリンク一覧 */}
       <ul className="space-y-4">
         {invites.map(inv => (
           <li
@@ -118,7 +105,10 @@ export default function CastListPage() {
           >
             <div className="mb-2 md:mb-0 md:w-2/3">
               <p className="text-sm text-gray-700 mb-1">
-                発行日時： <time dateTime={new Date(inv.createdAt).toISOString()}>{inv.createdAt}</time>
+                発行日時：
+                <time dateTime={new Date(inv.createdAt).toISOString()}>
+                  {inv.createdAt}
+                </time>
               </p>
               <p className="text-sm break-all text-blue-600">
                 https://your.app/signup?token={inv.token}
@@ -126,7 +116,7 @@ export default function CastListPage() {
             </div>
             <div className="flex space-x-4">
               <button
-                onClick={openModal}
+                onClick={() => setModalOpen(true)}
                 className="text-green-600 hover:underline focus:outline-none focus:ring-2 focus:ring-green-300"
               >
                 共有
@@ -142,6 +132,7 @@ export default function CastListPage() {
         ))}
       </ul>
 
+      {/* 共有モーダル */}
       {modalOpen && (
         <div
           role="dialog"
@@ -150,7 +141,10 @@ export default function CastListPage() {
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center px-4 z-50"
         >
           <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
-            <h3 id="invite-modal-title" className="text-lg font-semibold mb-4 text-center">
+            <h3
+              id="invite-modal-title"
+              className="text-lg font-semibold mb-4 text-center"
+            >
               共有方法を選択
             </h3>
             <div className="space-y-3">
@@ -184,5 +178,5 @@ export default function CastListPage() {
         </div>
       )}
     </div>
-  );
+  )
 }
