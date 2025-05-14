@@ -18,7 +18,7 @@ export default function TableStatusPage() {
   const [deleteMessage, setDeleteMessage] = useState('');
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  // 初回来店モーダル状態
+  // 初回来店モーダル
   const [firstModalOpen, setFirstModalOpen] = useState(false);
   const [step1, setStep1] = useState(true);
   const [selectedTable, setSelectedTable] = useState('');
@@ -36,7 +36,7 @@ export default function TableStatusPage() {
   };
   const closeFirstModal = () => setFirstModalOpen(false);
 
-  // ステップ1 → ステップ2
+  // ステップ1→2
   const nextStep = () => {
     if (!selectedTable || selectedCount < 1) return;
     setNames(Array(selectedCount).fill(''));
@@ -44,7 +44,7 @@ export default function TableStatusPage() {
     setStep1(false);
   };
 
-  // テーブル削除
+  // 削除
   const handleDelete = useCallback((id: number) => {
     const t = tables.find(x => x.id === id);
     if (!t) return;
@@ -58,8 +58,7 @@ export default function TableStatusPage() {
   // 初回来店確定
   const confirmFirst = () => {
     const now = new Date();
-    const hhmm = now.toTimeString().slice(0, 5);
-    // 既存の割当アクションに変更
+    const hhmm = now.toTimeString().slice(0,5);
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
@@ -68,16 +67,20 @@ export default function TableStatusPage() {
         princess: names.join('、'),
         budget: 0,
         time: hhmm,
-      } as Table,
+      } as Table
     });
-    // オーバーレイメッセージ
+
+    // 変更箇所：選択された卓番号を必ず入れる
     const entries = names.map((n, i) => {
       const label = positionLabelsByCount[selectedCount][i];
       const pname = n || 'お客様';
       const pcast = photos[i] !== 'なし' ? `（指名：${photos[i]}）` : '';
       return (label ? `${label}: ` : '') + `${pname}${pcast}`;
     });
-    setOverlayMessage(`卓 ${selectedTable} に着席：` + entries.join('、'));
+    setOverlayMessage(
+      `卓【${selectedTable}】に着席しました：` +
+      entries.join('、')
+    );
     setTimeout(() => setOverlayMessage(''), 1000);
     closeFirstModal();
   };
@@ -91,9 +94,7 @@ export default function TableStatusPage() {
       <div>
         <p className="text-center"><strong>卓番号:</strong> {table.tableNumber}</p>
         <p className="text-center"><strong>姫名:</strong> {table.princess}</p>
-        <p className="text-center">
-          <strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
-        </p>
+        <p className="text-center"><strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}</p>
         <p className="text-center"><strong>開始時間:</strong> {table.time}</p>
       </div>
       <button
@@ -111,7 +112,7 @@ export default function TableStatusPage() {
 
   return (
     <>
-      {/* 削除メッセージオーバーレイ */}
+      {/* 削除オーバーレイ */}
       {deleteMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded">
@@ -119,7 +120,7 @@ export default function TableStatusPage() {
           </div>
         </div>
       )}
-      {/* 着席メッセージオーバーレイ */}
+      {/* 着席オーバーレイ */}
       {overlayMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded max-w-md text-center">
