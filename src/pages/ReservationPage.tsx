@@ -8,7 +8,7 @@ import React, {
 } from 'react'
 import { useAppContext, type Reservation, type User } from '../context/AppContext'
 
-/** 19:00～25:00 を15分刻みで生成 */
+// 19:00～25:00 を15分刻みで生成
 const generateTimeOptions = (): string[] => {
   const opts: string[] = []
   for (let h = 19; h <= 25; h++) {
@@ -37,14 +37,13 @@ export default function ReservationPage({
   const { state, dispatch } = useAppContext()
   const { reservations, tableSettings = [], tables } = state
 
-  // 現在使用中の卓番号一覧
+  // 使用中卓
   const assignedNumbers = tables.map((t) => t.tableNumber)
 
-  // 入力フィールド state
+  // 入力 state
   const [princess, setPrincess] = useState('')
   const [requestedTable, setRequestedTable] = useState('')
-  // ★追加：来店予定時間
-  const [plannedTime, setPlannedTime] = useState<string>('')
+  const [plannedTime, setPlannedTime] = useState('')  // ←追加
   const [budgetMode, setBudgetMode] = useState<'undecided' | 'input'>(
     'undecided'
   )
@@ -55,22 +54,22 @@ export default function ReservationPage({
     budget?: string
   }>({})
 
-  // 卓反映トースト表示
+  // トースト
   const [toastMessage, setToastMessage] = useState('')
   const [showToast, setShowToast] = useState(false)
 
-  // モーダルの Ref ＆初回フォーカス
+  // 初回フォーカス
   const firstInputRef = useRef<HTMLInputElement>(null)
   useEffect(() => {
     if (isOpen) firstInputRef.current?.focus()
   }, [isOpen])
 
-  // ESC キーで閉じる
+  // ESC で閉じる
   const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
     if (e.key === 'Escape') onClose()
   }
 
-  // 卓反映モーダル制御
+  // 卓反映モーダル
   const [isReflectOpen, setReflectOpen] = useState(false)
   const [selectedRes, setSelectedRes] = useState<Reservation | null>(null)
   const [reflectTable, setReflectTable] = useState('')
@@ -79,7 +78,7 @@ export default function ReservationPage({
   const canAssign =
     currentUser?.role === 'admin' || currentUser?.canManageTables
 
-  // 予約追加バリデーション
+  // バリデーション
   const validate = () => {
     const newErrors: typeof errors = {}
     if (!princess.trim()) newErrors.princess = '姫名を入力してください'
@@ -91,7 +90,7 @@ export default function ReservationPage({
     return Object.keys(newErrors).length === 0
   }
 
-  // 予約追加（モーダルの「保存」）
+  // 予約追加
   const handleAdd = () => {
     if (!validate()) return
     dispatch({
@@ -100,35 +99,37 @@ export default function ReservationPage({
         id: Date.now(),
         princess: princess.trim(),
         requestedTable: requestedTable.trim(),
-        // ★plannedTime は現在の仕様では保存しません
+        time: plannedTime || '',          // ←追加して保存
         budget: budgetMode === 'input' ? Number(budget) : 0,
       },
     })
+    // リセット
     setPrincess('')
     setRequestedTable('')
-    setPlannedTime('')
+    setPlannedTime('')                   // ←リセット
     setBudgetMode('undecided')
     setBudget('')
     setErrors({})
     onClose()
   }
 
-  // 予約削除（確認ダイアログ付き）
+  // 予約削除
   const handleDelete = (id: number, name: string) => {
     if (!window.confirm(`本当に ${name} さんの予約を削除しますか？`)) return
     dispatch({ type: 'DELETE_RESERVATION', payload: id })
   }
 
-  // 卓反映モーダル開閉
+  // 卓反映モーダル open
   const openReflectModal = (res: Reservation) => {
     setSelectedRes(res)
-    // 希望卓を初期値に
     setReflectTable(res.requestedTable)
-    // 開始時間を今の時刻で初期値に
     const now = new Date()
-    const hh = now.getHours().toString().padStart(2, '0')
-    const mm = now.getMinutes().toString().padStart(2, '0')
-    setStartTime(`${hh}:${mm}`)
+    setStartTime(
+      `${now.getHours().toString().padStart(2, '0')}:${now
+        .getMinutes()
+        .toString()
+        .padStart(2, '0')}`
+    )
     setReflectOpen(true)
   }
   const closeReflectModal = () => {
@@ -156,7 +157,6 @@ export default function ReservationPage({
       },
     })
     closeReflectModal()
-    // トースト表示
     setToastMessage(
       `${selectedRes.princess}様は${reflectTable}に着席しました`
     )
@@ -164,7 +164,7 @@ export default function ReservationPage({
     setTimeout(() => setShowToast(false), 1000)
   }
 
-  // 予算モード切り替え
+  // 予算モード切替
   const handleBudgetModeChange = (
     e: ChangeEvent<HTMLSelectElement>
   ) => {
@@ -173,7 +173,7 @@ export default function ReservationPage({
     setErrors((prev) => ({ ...prev, budget: undefined }))
   }
 
-  // 予算 input の onChange 型（数字以外はエラー）
+  // 予算入力（数字のみ）
   const handleBudgetChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
     if (/^\d*$/.test(val)) {
@@ -222,6 +222,8 @@ export default function ReservationPage({
               >
                 予約詳細を入力
               </h3>
+
+              {/* 姫名 */}
               <label className="block text-sm mb-1">姫名</label>
               <input
                 ref={firstInputRef}
@@ -243,6 +245,7 @@ export default function ReservationPage({
                 </p>
               )}
 
+              {/* 希望卓番号 */}
               <label className="block text-sm mb-1">
                 希望卓番号
               </label>
@@ -267,22 +270,24 @@ export default function ReservationPage({
                 </p>
               )}
 
-              {/* ★ここから：来店予定時間の追加 */}
+              {/* 来店予定時間 */}
               <label className="block text-sm mb-1">
                 来店予定時間
               </label>
               <select
                 value={plannedTime}
-                onChange={e => setPlannedTime(e.target.value)}
+                onChange={(e) => setPlannedTime(e.target.value)}
                 className="border p-2 w-full rounded mb-2"
               >
                 <option value="">これから</option>
-                {timeOptions.map(t => (
-                  <option key={t} value={t}>{t}</option>
+                {timeOptions.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
                 ))}
               </select>
-              {/* ★ここまで */}
 
+              {/* 予算 */}
               <label className="block text-sm mb-1">予算</label>
               <select
                 value={budgetMode}
@@ -315,6 +320,7 @@ export default function ReservationPage({
                 </p>
               )}
 
+              {/* ボタン */}
               <div className="flex justify-end space-x-2">
                 <button
                   onClick={onClose}
@@ -333,7 +339,8 @@ export default function ReservationPage({
           </div>
         )}
 
-        {/* ...（卓反映モーダル以下、省略せずに既存のままです） */}
+        {/* 卓反映モーダル以下は既存のまま省略 */}
+        {/* ... */}
       </main>
     </>
   )
