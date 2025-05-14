@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import { useAppContext, Table } from '../context/AppContext'
 
-// 人数ごとのポジションラベル定義
+// 人数ごとのポジションラベル定義（今回使わないなら削除可）
 const positionsMap: Record<number, string[]> = {
   1: [''],
   2: ['左', '右'],
@@ -25,10 +25,10 @@ const TableStatusPage: React.FC = () => {
   const [selectedCount, setSelectedCount] = useState<number>(1)
   const [names, setNames] = useState<string[]>([''])
 
-  // 現在使用中の卓を抽出
+  // 現在使用中の卓リスト
   const inUseTables = tables.map(t => t.tableNumber)
 
-  // 初回モーダルを開く
+  // 「初回」モーダルを開く／閉じる
   const openFirstModal = () => {
     setSelectedTable('')
     setSelectedCount(1)
@@ -37,28 +37,27 @@ const TableStatusPage: React.FC = () => {
   }
   const closeFirstModal = () => setFirstModalOpen(false)
 
-  // 人数が変わったら names 配列を再構築
+  // 人数変更時に名前入力欄を再生成
   const handleCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const n = Number(e.target.value)
     setSelectedCount(n)
     setNames(Array(n).fill(''))
   }
 
-  // 名前入力ハンドラ
+  // 名前変更ハンドラ
   const handleNameChange = (idx: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const copy = [...names]
     copy[idx] = e.target.value
     setNames(copy)
   }
 
-  // 初回反映確定（現状は alert。後で dispatch に差し替え可能）
+  // 初回反映確定（※後で dispatch に差し替え）
   const handleFirstConfirm = () => {
     alert(`卓 ${selectedTable} に ${selectedCount} 名を反映しました`)
-    // TODO: dispatch({ type: 'ASSIGN_FIRST_VISIT', payload: {...} })
     closeFirstModal()
   }
 
-  // 削除ハンドラ（確認ダイアログ→中央メッセージ→1秒後消去）
+  // 削除ハンドラ（確認→中央メッセージ→1秒後消去）
   const handleDelete = useCallback(async (id: number) => {
     const table = tables.find(t => t.id === id)
     if (!table) return
@@ -94,7 +93,6 @@ const TableStatusPage: React.FC = () => {
           </p>
           <p>
             <strong>開始時間:</strong>{' '}
-            {/* 秒を切り捨て */}
             {table.time.replace(/:\d{2}$/, '')}
           </p>
         </div>
@@ -116,10 +114,11 @@ const TableStatusPage: React.FC = () => {
     <main id="main-content" className="p-4 pb-16">
       {/* 見出し＋「初回」ボタン */}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">卓状況</h2>
+        {/* ★ 見出しを中央揃え */}
+        <h2 className="text-2xl font-bold mb-0 text-center flex-grow">卓状況</h2>
         <button
           onClick={openFirstModal}
-          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 ml-4"
         >
           初回
         </button>
@@ -133,7 +132,7 @@ const TableStatusPage: React.FC = () => {
         </div>
       )}
 
-      {/* テーブル一覧 or 空メッセージ */}
+      {/* テーブル一覧 or 空状態 */}
       {tables.length === 0 ? (
         <p className="text-gray-500">まだ反映された卓はありません。</p>
       ) : (
@@ -156,7 +155,7 @@ const TableStatusPage: React.FC = () => {
               初回来店反映
             </h3>
 
-            {/* 卓選択 */}
+            {/* 卓選択プルダウン */}
             <label className="block text-sm mb-1">卓を選択</label>
             <select
               value={selectedTable}
@@ -164,12 +163,15 @@ const TableStatusPage: React.FC = () => {
               className="border p-2 w-full rounded mb-4"
             >
               <option value="">選択してください</option>
-              {tableSettings
-                .filter(t => !inUseTables.includes(t))
-                .map(t => (
-                  <option key={t} value={t}>{t}</option>
-                ))
-              }
+              {tableSettings.map(t => (
+                <option
+                  key={t}
+                  value={t}
+                  disabled={inUseTables.includes(t)}
+                >
+                  {t}{inUseTables.includes(t) ? '（使用中）' : ''}
+                </option>
+              ))}
             </select>
 
             {/* 人数選択 */}
@@ -184,7 +186,7 @@ const TableStatusPage: React.FC = () => {
               ))}
             </select>
 
-            {/* 名前フォーム */}
+            {/* 名前入力フォーム */}
             <div className="space-y-2 mb-4">
               {positionsMap[selectedCount].map((pos, idx) => (
                 <div key={idx}>
@@ -202,7 +204,7 @@ const TableStatusPage: React.FC = () => {
               ))}
             </div>
 
-            {/* モーダルボタン */}
+            {/* モーダル操作ボタン */}
             <div className="flex justify-end space-x-2">
               <button
                 onClick={closeFirstModal}
