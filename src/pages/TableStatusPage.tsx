@@ -58,18 +58,18 @@ export default function TableStatusPage() {
   // 初回来店確定
   const confirmFirst = () => {
     const now = new Date();
-    const hhmm = now.toTimeString().slice(0,5);
+    const hhmm = now.toTimeString().slice(0, 5);
 
-    // ←ここを ADD_TABLE から ASSIGN_TABLE に変更
+    // ↓ここを修正：payload に tableNumber ではなく requestedTable を渡す
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
         id: Date.now(),
-        tableNumber: selectedTable,
         princess: names.join('、'),
+        requestedTable: selectedTable,
         budget: 0,
         time: hhmm,
-      } as Table
+      } as Table,
     });
 
     const entries = names.map((n, i) => {
@@ -78,10 +78,7 @@ export default function TableStatusPage() {
       const pcast = photos[i] !== 'なし' ? `（指名：${photos[i]}）` : '';
       return (label ? `${label}: ` : '') + `${pname}${pcast}`;
     });
-    setOverlayMessage(
-      `卓【${selectedTable}】に着席しました：` +
-      entries.join('、')
-    );
+    setOverlayMessage(`卓【${selectedTable}】に着席：` + entries.join('、'));
     setTimeout(() => setOverlayMessage(''), 1000);
     closeFirstModal();
   };
