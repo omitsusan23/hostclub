@@ -3,14 +3,14 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import { useAppContext, Table } from '../context/AppContext'
 
-// 人数ごとのポジションラベル定義（今回使わないなら削除可）
+// 人数ごとのポジションラベル定義（入力フォームのラベル表示用）
 const positionsMap: Record<number, string[]> = {
   1: [''],
   2: ['左', '右'],
   3: ['左', '中', '右'],
   4: ['左端', '左', '右', '右端'],
   5: ['左端', '左', '中', '右', '右端'],
-  6: ['左端', '左中', '中', '右中', '右', '右端'],
+  6: ['左端', '左中', '中', '右中', '右端'],
 }
 
 const TableStatusPage: React.FC = () => {
@@ -25,10 +25,9 @@ const TableStatusPage: React.FC = () => {
   const [selectedCount, setSelectedCount] = useState<number>(1)
   const [names, setNames] = useState<string[]>([''])
 
-  // 現在使用中の卓リスト
+  // 使用中の卓一覧
   const inUseTables = tables.map(t => t.tableNumber)
 
-  // 「初回」モーダルを開く／閉じる
   const openFirstModal = () => {
     setSelectedTable('')
     setSelectedCount(1)
@@ -37,27 +36,24 @@ const TableStatusPage: React.FC = () => {
   }
   const closeFirstModal = () => setFirstModalOpen(false)
 
-  // 人数変更時に名前入力欄を再生成
   const handleCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const n = Number(e.target.value)
     setSelectedCount(n)
     setNames(Array(n).fill(''))
   }
 
-  // 名前変更ハンドラ
   const handleNameChange = (idx: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const copy = [...names]
-    copy[idx] = e.target.value
-    setNames(copy)
+    const arr = [...names]
+    arr[idx] = e.target.value
+    setNames(arr)
   }
 
-  // 初回反映確定（※後で dispatch に差し替え）
   const handleFirstConfirm = () => {
+    // TODO: dispatch に置き換え
     alert(`卓 ${selectedTable} に ${selectedCount} 名を反映しました`)
     closeFirstModal()
   }
 
-  // 削除ハンドラ（確認→中央メッセージ→1秒後消去）
   const handleDelete = useCallback(async (id: number) => {
     const table = tables.find(t => t.id === id)
     if (!table) return
@@ -77,7 +73,6 @@ const TableStatusPage: React.FC = () => {
     }
   }, [dispatch, tables])
 
-  // テーブル一覧レンダリング
   const renderedTables = useMemo(() =>
     tables.map((table: Table) => (
       <div
@@ -112,9 +107,8 @@ const TableStatusPage: React.FC = () => {
 
   return (
     <main id="main-content" className="p-4 pb-16">
-      {/* 見出し＋「初回」ボタン */}
+      {/* 見出し＋初回ボタン */}
       <div className="flex justify-between items-center mb-4">
-        {/* ★ 見出しを中央揃え */}
         <h2 className="text-2xl font-bold mb-0 text-center flex-grow">卓状況</h2>
         <button
           onClick={openFirstModal}
@@ -124,7 +118,7 @@ const TableStatusPage: React.FC = () => {
         </button>
       </div>
 
-      {/* 成功／エラーメッセージ */}
+      {/* メッセージ */}
       {(message || error) && (
         <div aria-live="polite" className="mb-4">
           {message && <p className="text-green-600">{message}</p>}
@@ -132,14 +126,14 @@ const TableStatusPage: React.FC = () => {
         </div>
       )}
 
-      {/* テーブル一覧 or 空状態 */}
+      {/* テーブル一覧 */}
       {tables.length === 0 ? (
         <p className="text-gray-500">まだ反映された卓はありません。</p>
       ) : (
         <div className="space-y-3">{renderedTables}</div>
       )}
 
-      {/* 初回来店反映モーダル */}
+      {/* 初回来店モーダル */}
       {isFirstModalOpen && (
         <div
           role="dialog"
@@ -155,7 +149,7 @@ const TableStatusPage: React.FC = () => {
               初回来店反映
             </h3>
 
-            {/* 卓選択プルダウン */}
+            {/* 卓選択 */}
             <label className="block text-sm mb-1">卓を選択</label>
             <select
               value={selectedTable}
@@ -164,11 +158,7 @@ const TableStatusPage: React.FC = () => {
             >
               <option value="">選択してください</option>
               {tableSettings.map(t => (
-                <option
-                  key={t}
-                  value={t}
-                  disabled={inUseTables.includes(t)}
-                >
+                <option key={t} value={t} disabled={inUseTables.includes(t)}>
                   {t}{inUseTables.includes(t) ? '（使用中）' : ''}
                 </option>
               ))}
@@ -186,25 +176,26 @@ const TableStatusPage: React.FC = () => {
               ))}
             </select>
 
-            {/* 名前入力フォーム */}
-            <div className="space-y-2 mb-4">
+            {/* お客様名入力（グリッド表示） */}
+            <div className="grid grid-cols-3 gap-2 mb-4">
               {positionsMap[selectedCount].map((pos, idx) => (
-                <div key={idx}>
-                  <label className="block text-sm mb-1">
-                    {pos ? `${pos} のお客様名` : 'お客様名'}
+                <div key={idx} className="flex flex-col">
+                  <label className="text-sm mb-1 text-center">
+                    {pos || 'お客様'} 
                   </label>
                   <input
                     type="text"
                     value={names[idx] || ''}
                     onChange={handleNameChange(idx)}
-                    className="border p-2 w-full rounded"
+                    className="border p-2 rounded text-center w-full max-w-[96px] truncate"
                     placeholder="任意入力"
+                    maxLength={12}
                   />
                 </div>
               ))}
             </div>
 
-            {/* モーダル操作ボタン */}
+            {/* 操作ボタン */}
             <div className="flex justify-end space-x-2">
               <button
                 onClick={closeFirstModal}
