@@ -15,18 +15,23 @@ export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
   const [overlayMessage, setOverlayMessage] = useState('');
-  const [deleteMessage, setDeleteMessage] = useState('');
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deleteMessage, setDeleteMessage]   = useState('');
+  const [deletingId, setDeletingId]         = useState<number | null>(null);
 
-  // 初回来店モーダル
+  // ―― 初回来店モーダル管理 ――
   const [firstModalOpen, setFirstModalOpen] = useState(false);
-  const [step1, setStep1] = useState(true);
-  const [selectedTable, setSelectedTable] = useState('');
-  const [selectedCount, setSelectedCount] = useState(0);
-  const [names, setNames] = useState<string[]>([]);
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [step1,         setStep1]           = useState(true);
+  const [selectedTable, setSelectedTable]   = useState('');
+  const [selectedCount, setSelectedCount]   = useState(0);
+  const [names,         setNames]           = useState<string[]>([]);
+  const [photos,        setPhotos]          = useState<string[]>([]);
+  const [firstStartTime, setFirstStartTime] = useState('');
 
   const openFirstModal = () => {
+    const now  = new Date();
+    const hhmm = now.toTimeString().slice(0,5);
+    setFirstStartTime(hhmm);
+
     setStep1(true);
     setSelectedTable('');
     setSelectedCount(0);
@@ -36,7 +41,6 @@ export default function TableStatusPage() {
   };
   const closeFirstModal = () => setFirstModalOpen(false);
 
-  // ステップ1→2
   const nextStep = () => {
     if (!selectedTable || selectedCount < 1) return;
     setNames(Array(selectedCount).fill(''));
@@ -44,7 +48,6 @@ export default function TableStatusPage() {
     setStep1(false);
   };
 
-  // 削除
   const handleDelete = useCallback((id: number) => {
     const t = tables.find(x => x.id === id);
     if (!t) return;
@@ -55,12 +58,8 @@ export default function TableStatusPage() {
     setTimeout(() => setDeleteMessage(''), 1000);
   }, [dispatch, tables]);
 
-  // 初回来店確定
   const confirmFirst = () => {
-    const now = new Date();
-    const hhmm = now.toTimeString().slice(0, 5);
-
-    // ↓ここを修正：payload に tableNumber ではなく requestedTable を渡す
+    // ここを ASSIGN_TABLE に戻し、requestedTable を渡す
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
@@ -68,8 +67,8 @@ export default function TableStatusPage() {
         princess: names.join('、'),
         requestedTable: selectedTable,
         budget: 0,
-        time: hhmm,
-      } as Table,
+        time: firstStartTime,
+      },
     });
 
     const entries = names.map((n, i) => {
@@ -78,12 +77,12 @@ export default function TableStatusPage() {
       const pcast = photos[i] !== 'なし' ? `（指名：${photos[i]}）` : '';
       return (label ? `${label}: ` : '') + `${pname}${pcast}`;
     });
-    setOverlayMessage(`卓【${selectedTable}】に着席：` + entries.join('、'));
+    setOverlayMessage(`卓【${selectedTable}】に着席：${entries.join('、')}`);
     setTimeout(() => setOverlayMessage(''), 1000);
+
     closeFirstModal();
   };
 
-  // テーブルリスト描画
   const renderedTables = useMemo(() => tables.map(table => (
     <div
       key={table.id}
@@ -92,7 +91,9 @@ export default function TableStatusPage() {
       <div>
         <p className="text-center"><strong>卓番号:</strong> {table.tableNumber}</p>
         <p className="text-center"><strong>姫名:</strong> {table.princess}</p>
-        <p className="text-center"><strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}</p>
+        <p className="text-center">
+          <strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
+        </p>
         <p className="text-center"><strong>開始時間:</strong> {table.time}</p>
       </div>
       <button
@@ -128,7 +129,6 @@ export default function TableStatusPage() {
       )}
 
       <main id="main-content" className="p-4 pb-16">
-        {/* 見出し＋初回ボタン */}
         <div className="flex items-center justify-center mb-4 relative">
           <h2 className="text-2xl font-bold text-center">卓状況</h2>
           <button
@@ -146,7 +146,6 @@ export default function TableStatusPage() {
         )}
       </main>
 
-      {/* 初回来店モーダル */}
       {firstModalOpen && (
         <div
           role="dialog"
@@ -172,6 +171,15 @@ export default function TableStatusPage() {
                       : <option key={t} value={t}>{t}</option>
                   )}
                 </select>
+
+                <label className="block text-sm mb-2">開始時間</label>
+                <input
+                  type="time"
+                  value={firstStartTime}
+                  onChange={e => setFirstStartTime(e.target.value)}
+                  className="border p-2 w-full rounded mb-4"
+                />
+
                 <label className="block text-sm mb-2">人数を選択</label>
                 <select
                   value={selectedCount}
@@ -183,8 +191,12 @@ export default function TableStatusPage() {
                     <option key={n} value={n}>{n} 名</option>
                   ))}
                 </select>
+
                 <div className="flex justify-end space-x-2">
-                  <button onClick={closeFirstModal} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+                  <button
+                    onClick={closeFirstModal}
+                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                  >
                     キャンセル
                   </button>
                   <button
@@ -215,7 +227,7 @@ export default function TableStatusPage() {
                         value={names[i]}
                         onChange={e => {
                           const a = [...names];
-                          a[i] = e.target.value.slice(0, 6);
+                          a[i] = e.target.value.slice(0,6);
                           setNames(a);
                         }}
                         className="border p-2 rounded w-full"
@@ -238,7 +250,10 @@ export default function TableStatusPage() {
                   ))}
                 </div>
                 <div className="flex justify-end space-x-2">
-                  <button onClick={() => setStep1(true)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+                  <button
+                    onClick={() => setStep1(true)}
+                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                  >
                     戻る
                   </button>
                   <button
