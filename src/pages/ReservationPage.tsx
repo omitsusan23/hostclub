@@ -43,7 +43,7 @@ export default function ReservationPage({
   // 入力フィールド state
   const [princess, setPrincess] = useState('')
   const [requestedTable, setRequestedTable] = useState('')
-  const [plannedTime, setPlannedTime] = useState('') // ←追加
+  const [plannedTime, setPlannedTime] = useState('')
   const [budgetMode, setBudgetMode] = useState<'undecided' | 'input'>(
     'undecided'
   )
@@ -56,6 +56,9 @@ export default function ReservationPage({
   // トースト表示
   const [toastMessage, setToastMessage] = useState('')
   const [showToast, setShowToast] = useState(false)
+
+  // 削除メッセージ
+  const [deleteMessage, setDeleteMessage] = useState('')
 
   // モーダル Ref & フォーカス
   const firstInputRef = useRef<HTMLInputElement>(null)
@@ -100,7 +103,6 @@ export default function ReservationPage({
         budget: budgetMode === 'input' ? Number(budget) : 0,
       },
     })
-    // リセット
     setPrincess('')
     setRequestedTable('')
     setPlannedTime('')
@@ -110,10 +112,12 @@ export default function ReservationPage({
     onClose()
   }
 
-  // 予約削除（確認ダイアログ）
+  // 予約削除（確認ダイアログ＋メッセージ）
   const handleReservationDelete = (id: number, name: string) => {
     if (!window.confirm(`本当に ${name} さんの予約を削除しますか？`)) return
     dispatch({ type: 'DELETE_RESERVATION', payload: id })
+    setDeleteMessage(`${name} さんの予約を削除しました`)
+    setTimeout(() => setDeleteMessage(''), 1000)
   }
 
   // 卓反映モーダル開閉
@@ -164,7 +168,6 @@ export default function ReservationPage({
     setBudget('')
     setErrors((prev) => ({ ...prev, budget: undefined }))
   }
-  // 予算入力（数字のみ）
   const handleBudgetChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
     if (/^\d*$/.test(val)) {
@@ -180,7 +183,16 @@ export default function ReservationPage({
 
   return (
     <>
-      {/* トースト */}
+      {/* 削除メッセージオーバーレイ */}
+      {deleteMessage && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+          <div className="bg-black bg-opacity-75 text-white p-4 rounded">
+            {deleteMessage}
+          </div>
+        </div>
+      )}
+
+      {/* 卓反映トースト */}
       {showToast && (
         <div className="fixed inset-0 flex items-center justify-center pointer-events-none">
           <div className="bg-black text-white px-4 py-2 rounded">
@@ -214,7 +226,6 @@ export default function ReservationPage({
                 予約詳細を入力
               </h3>
 
-              {/* 姫名 */}
               <label className="block text-sm mb-1">姫名</label>
               <input
                 ref={firstInputRef}
@@ -236,8 +247,9 @@ export default function ReservationPage({
                 </p>
               )}
 
-              {/* 希望卓番号 */}
-              <label className="block text-sm mb-1">希望卓番号</label>
+              <label className="block text-sm mb-1">
+                希望卓番号
+              </label>
               <select
                 value={requestedTable}
                 onChange={(e) => setRequestedTable(e.target.value)}
@@ -251,7 +263,6 @@ export default function ReservationPage({
                 ))}
               </select>
 
-              {/* 来店予定時間 */}
               <label className="block text-sm mb-1">
                 来店予定時間
               </label>
@@ -268,7 +279,6 @@ export default function ReservationPage({
                 ))}
               </select>
 
-              {/* 予算 */}
               <label className="block text-sm mb-1">予算</label>
               <select
                 value={budgetMode}
@@ -301,7 +311,6 @@ export default function ReservationPage({
                 </p>
               )}
 
-              {/* ボタン */}
               <div className="flex justify-end space-x-2">
                 <button
                   onClick={onClose}
