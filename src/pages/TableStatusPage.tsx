@@ -1,5 +1,4 @@
 // src/pages/TableStatusPage.tsx
-
 import React, { useState, useCallback, useMemo } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
 
@@ -47,7 +46,6 @@ const TableStatusPage: React.FC = () => {
           className={`text-sm hover:underline ${
             deletingId === table.id ? 'text-gray-400' : 'text-red-500'
           }`}
-          aria-label={`卓 ${table.tableNumber} を削除`}
         >
           {deletingId === table.id ? '削除中...' : '削除'}
         </button>
@@ -58,15 +56,13 @@ const TableStatusPage: React.FC = () => {
 
   return (
     <main id="main-content" className="p-4 pb-16">
-      {/* メッセージ or エラーがあるときのみ余白付きで表示 */}
-      {(message || error) && (
-        <div aria-live="polite" className="mb-4">
-          {message && <p className="text-green-600">{message}</p>}
-          {error   && <p className="text-red-600">{error}</p>}
-        </div>
-      )}
+      {/* 操作結果・エラー通知 */}
+      <div aria-live="polite" className="mb-4">
+        {message && <p className="text-green-600">{message}</p>}
+        {error && <p className="text-red-600">{error}</p>}
+      </div>
 
-      <h2 className="text-xl font-bold mb-4">卓状況</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">卓状況</h2>
 
       {tables.length === 0 ? (
         <p className="text-gray-500">まだ反映された卓はありません。</p>
