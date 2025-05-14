@@ -1,6 +1,15 @@
 // src/pages/TableStatusPage.tsx
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
+
+const positionLabelsByCount: Record<number, string[]> = {
+  1: ['中央'],
+  2: ['左', '右'],
+  3: ['左', '中', '右'],
+  4: ['左端', '左', '右', '右端'],
+  5: ['左端', '左', '中', '右', '右端'],
+  6: ['左端', '左中', '左', '右', '右中', '右端'],
+};
 
 const TableStatusPage: React.FC = () => {
   const {
@@ -8,68 +17,63 @@ const TableStatusPage: React.FC = () => {
     dispatch,
   } = useAppContext();
 
-  // 全体のメッセージ（オーバーレイ表示）
   const [overlayMessage, setOverlayMessage] = useState<string>('');
-
-  // 削除メッセージ（オーバーレイ表示）
   const [deleteMessage, setDeleteMessage] = useState<string>('');
-
-  // 削除対象 ID
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  // 初回来店モーダル
+  // 初回来店モーダル状態
   const [firstModalOpen, setFirstModalOpen] = useState(false);
-  const [firstStep, setFirstStep] = useState(true);
-
-  // モーダル入力状態
-  const [selectedTable, setSelectedTable] = useState<string>('');
-  const [selectedCount, setSelectedCount] = useState<number>(0);
+  const [step1, setStep1] = useState(true);
+  const [selectedTable, setSelectedTable] = useState('');
+  const [selectedCount, setSelectedCount] = useState(0);
   const [names, setNames] = useState<string[]>([]);
-  const [photoChoice, setPhotoChoice] = useState<string>('なし');
+  const [photos, setPhotos] = useState<string[]>([]);
 
-  // モーダル開閉
   const openFirstModal = () => {
-    setFirstStep(true);
+    setStep1(true);
     setSelectedTable('');
     setSelectedCount(0);
     setNames([]);
-    setPhotoChoice('なし');
+    setPhotos([]);
     setFirstModalOpen(true);
   };
   const closeFirstModal = () => setFirstModalOpen(false);
 
-  // 削除ハンドラ
+  // 削除
   const handleDelete = useCallback((id: number) => {
-    const table = tables.find(t => t.id === id);
-    if (!table) return;
-    if (!window.confirm(`本当に卓 ${table.tableNumber} を削除しますか？`)) return;
+    const t = tables.find(x => x.id === id);
+    if (!t) return;
+    if (!window.confirm(`本当に卓 ${t.tableNumber} を削除しますか？`)) return;
     setDeletingId(id);
     dispatch({ type: 'DELETE_TABLE', payload: id });
-    setDeleteMessage(`卓 ${table.tableNumber} を削除しました`);
+    setDeleteMessage(`卓 ${t.tableNumber} を削除しました`);
     setTimeout(() => setDeleteMessage(''), 1000);
   }, [dispatch, tables]);
 
-  // 初回来店：ステップ１確定
-  const handleFirstNext = () => {
+  // ステップ1→2
+  const nextStep = () => {
     if (!selectedTable || selectedCount < 1) return;
-    // 名前配列を人数分用意
     setNames(Array(selectedCount).fill(''));
-    setFirstStep(false);
+    setPhotos(Array(selectedCount).fill('なし'));
+    setStep1(false);
   };
 
-  // 初回来店：確定
-  const handleFirstConfirm = () => {
-    // dispatch パターンが別途必要ならここで行う
-    setOverlayMessage(
-      `${names[0] || 'お客様'}様は卓 ${selectedTable} に着席しました`
-      + (photoChoice !== 'なし' ? `（指名：${photoChoice}）` : '')
-    );
+  // 確定
+  const confirmFirst = () => {
+    // オーバーレイ表示用文字列組み立て
+    const lines = names.map((n, i) => {
+      const label = positionLabelsByCount[selectedCount][i];
+      const pname = n || 'お客様';
+      const pcast = photos[i] !== 'なし' ? `（指名：${photos[i]}）` : '';
+      return `${label}: ${pname}${pcast}`;
+    }).join('、');
+    setOverlayMessage(`卓 ${selectedTable} に着席： ${lines}`);
     setTimeout(() => setOverlayMessage(''), 1000);
     closeFirstModal();
   };
 
-  // テーブルリスト描画
-  const renderedTables = useMemo(() => tables.map((table: Table) => (
+  // テーブル描画
+  const renderedTables = useMemo(() => tables.map(table => (
     <div
       key={table.id}
       className="border rounded p-4 shadow-sm bg-white flex justify-between items-start"
@@ -97,24 +101,25 @@ const TableStatusPage: React.FC = () => {
     <>
       {/* 削除メッセージオーバーレイ */}
       {deleteMessage && (
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
+        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded">
             {deleteMessage}
           </div>
         </div>
       )}
-      {/* 初回来店 メッセージオーバーレイ */}
+      {/* 初回来店オーバーレイ */}
       {overlayMessage && (
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
-          <div className="bg-black bg-opacity-75 text-white p-4 rounded">
+        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+          <div className="bg-black bg-opacity-75 text-white p-4 rounded max-w-md text-center">
             {overlayMessage}
           </div>
         </div>
       )}
 
       <main id="main-content" className="p-4 pb-16">
-        {/* 初回来店ボタン */}
-        <div className="flex justify-end mb-4">
+        {/* 見出しと初回ボタンを同列に */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">卓状況</h2>
           <button
             onClick={openFirstModal}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
@@ -122,11 +127,6 @@ const TableStatusPage: React.FC = () => {
             初回
           </button>
         </div>
-
-        {/* 見出し */}
-        <h2 className="text-2xl font-bold mb-4 text-center">
-          卓状況
-        </h2>
 
         {tables.length === 0 ? (
           <p className="text-gray-500">まだ反映された卓はありません。</p>
@@ -143,7 +143,7 @@ const TableStatusPage: React.FC = () => {
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
         >
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
-            {firstStep ? (
+            {step1 ? (
               <>
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：卓と人数を選択
@@ -177,7 +177,7 @@ const TableStatusPage: React.FC = () => {
                     キャンセル
                   </button>
                   <button
-                    onClick={handleFirstNext}
+                    onClick={nextStep}
                     disabled={!selectedTable || selectedCount < 1}
                     className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
                   >
@@ -190,39 +190,46 @@ const TableStatusPage: React.FC = () => {
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：お客様情報
                 </h3>
-                <label className="block text-sm mb-2">写真指名</label>
-                <select
-                  value={photoChoice}
-                  onChange={e => setPhotoChoice(e.target.value)}
-                  className="border p-2 w-full rounded mb-4"
-                >
-                  <option value="なし">写真指名なし</option>
-                  {casts.map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-                <div className="grid grid-cols-2 gap-2 mb-4">
-                  {names.map((name, idx) => (
-                    <input
-                      key={idx}
-                      type="text"
-                      placeholder={`名前${idx+1}`}
-                      value={name}
-                      onChange={e => {
-                        const newArr = [...names];
-                        newArr[idx] = e.target.value.slice(0, 6);
-                        setNames(newArr);
-                      }}
-                      className="border p-2 rounded w-full"
-                    />
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  {names.map((n, i) => (
+                    <div key={i}>
+                      <label className="block text-xs text-gray-500 mb-1">
+                        {positionLabelsByCount[selectedCount][i]}
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="名前"
+                        value={names[i]}
+                        onChange={e => {
+                          const a = [...names];
+                          a[i] = e.target.value.slice(0, 6);
+                          setNames(a);
+                        }}
+                        className="border p-2 rounded w-full"
+                      />
+                      <select
+                        value={photos[i]}
+                        onChange={e => {
+                          const b = [...photos];
+                          b[i] = e.target.value;
+                          setPhotos(b);
+                        }}
+                        className="border p-2 rounded w-full mt-1"
+                      >
+                        <option value="なし">写真指名なし</option>
+                        {casts.map(c => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
                   ))}
                 </div>
                 <div className="flex justify-end space-x-2">
-                  <button onClick={closeFirstModal} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+                  <button onClick={() => setStep1(true)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
                     戻る
                   </button>
                   <button
-                    onClick={handleFirstConfirm}
+                    onClick={confirmFirst}
                     className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                   >
                     反映
