@@ -1,6 +1,5 @@
-// src/pages/CastListPage.tsx
-
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 
 interface Invite {
@@ -10,6 +9,8 @@ interface Invite {
 }
 
 export default function CastListPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [invites, setInvites] = useState<Invite[]>(() => {
     const saved = localStorage.getItem('invites');
     return saved ? JSON.parse(saved) : [];
@@ -17,6 +18,15 @@ export default function CastListPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const issueButtonRef = useRef<HTMLButtonElement>(null);
   const firstShareButtonRef = useRef<HTMLButtonElement>(null);
+
+  // URL クエリに ?openModal=true があれば開く
+  useEffect(() => {
+    if (searchParams.get('openModal') === 'true') {
+      setModalOpen(true);
+      // クエリは消しておく
+      setSearchParams({});
+    }
+  }, [searchParams, setSearchParams]);
 
   // persist invites
   useEffect(() => {
@@ -86,12 +96,10 @@ export default function CastListPage() {
 
   return (
     <div className="p-4 pb-16">
-      {/* 中央揃えにした見出し */}
       <h2 className="text-2xl font-bold mb-4 text-center">
         キャスト招待管理
       </h2>
 
-      {/* 発行ボタン */}
       <div className="mb-6 text-center">
         <button
           ref={issueButtonRef}
@@ -102,7 +110,6 @@ export default function CastListPage() {
         </button>
       </div>
 
-      {/* 発行済みリンク一覧 */}
       <ul className="space-y-4">
         {invites.map(inv => (
           <li
@@ -135,7 +142,6 @@ export default function CastListPage() {
         ))}
       </ul>
 
-      {/* モーダル */}
       {modalOpen && (
         <div
           role="dialog"
