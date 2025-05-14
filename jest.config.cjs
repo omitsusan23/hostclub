@@ -10,8 +10,6 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest'
   },
-  // JSDOM の TextEncoder/TextDecoder ポリフィルを読み込む
   setupFiles: ['<rootDir>/jest.setup.cjs'],
-  // @testing-library/jest-dom のマッチャーを読み込む
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs']
+  setupFilesAfterEnv: ['@testing-library/jest-dom']
 };
