@@ -149,14 +149,21 @@ export default function ReservationPage({
   ) => {
     setBudgetMode(e.target.value as 'undecided' | 'input')
     setBudget('')
+    setErrors((prev) => ({ ...prev, budget: undefined }))
   }
 
-  // 予算 input の onChange 型
+  // 予算 input の onChange 型（数字以外はエラーを出す）
   const handleBudgetChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
     if (/^\d*$/.test(val)) {
       setBudget(val === '' ? '' : Number(val))
-      setErrors((e) => ({ ...e, budget: undefined }))
+      setErrors((prev) => ({ ...prev, budget: undefined }))
+    } else {
+      // 数字以外の入力はエラー
+      setErrors((prev) => ({
+        ...prev,
+        budget: '許可されていない文字です',
+      }))
     }
   }
 
