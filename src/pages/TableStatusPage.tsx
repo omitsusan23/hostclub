@@ -3,7 +3,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
 
 const positionLabelsByCount: Record<number, string[]> = {
-  1: ['中央'],
+  1: [], // 一名時はラベルなし
   2: ['左', '右'],
   3: ['左', '中', '右'],
   4: ['左端', '左', '右', '右端'],
@@ -11,17 +11,14 @@ const positionLabelsByCount: Record<number, string[]> = {
   6: ['左端', '左中', '左', '右', '右中', '右端'],
 };
 
-const TableStatusPage: React.FC = () => {
-  const {
-    state: { tables, tableSettings, casts },
-    dispatch,
-  } = useAppContext();
+export default function TableStatusPage() {
+  const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
-  const [overlayMessage, setOverlayMessage] = useState<string>('');
-  const [deleteMessage, setDeleteMessage] = useState<string>('');
+  const [overlayMessage, setOverlayMessage] = useState('');
+  const [deleteMessage, setDeleteMessage] = useState('');
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  // 初回来店モーダル状態
+  // 初回来店モーダル
   const [firstModalOpen, setFirstModalOpen] = useState(false);
   const [step1, setStep1] = useState(true);
   const [selectedTable, setSelectedTable] = useState('');
@@ -39,6 +36,14 @@ const TableStatusPage: React.FC = () => {
   };
   const closeFirstModal = () => setFirstModalOpen(false);
 
+  // ステップ1→2
+  const nextStep = () => {
+    if (!selectedTable || selectedCount < 1) return;
+    setNames(Array(selectedCount).fill(''));
+    setPhotos(Array(selectedCount).fill('なし'));
+    setStep1(false);
+  };
+
   // 削除
   const handleDelete = useCallback((id: number) => {
     const t = tables.find(x => x.id === id);
@@ -50,39 +55,44 @@ const TableStatusPage: React.FC = () => {
     setTimeout(() => setDeleteMessage(''), 1000);
   }, [dispatch, tables]);
 
-  // ステップ1→2
-  const nextStep = () => {
-    if (!selectedTable || selectedCount < 1) return;
-    setNames(Array(selectedCount).fill(''));
-    setPhotos(Array(selectedCount).fill('なし'));
-    setStep1(false);
-  };
-
-  // 確定
+  // 初回来店確定
   const confirmFirst = () => {
-    // オーバーレイ表示用文字列組み立て
-    const lines = names.map((n, i) => {
+    const now = new Date();
+    const hhmm = now.toTimeString().slice(0,5);
+    // テーブル追加アクション
+    dispatch({
+      type: 'ADD_TABLE',
+      payload: {
+        id: Date.now(),
+        tableNumber: selectedTable,
+        princess: names.join('、'),
+        budget: 0,
+        time: hhmm,
+      } as Table
+    });
+    // オーバーレイ表示
+    const entries = names.map((n, i) => {
       const label = positionLabelsByCount[selectedCount][i];
       const pname = n || 'お客様';
       const pcast = photos[i] !== 'なし' ? `（指名：${photos[i]}）` : '';
-      return `${label}: ${pname}${pcast}`;
-    }).join('、');
-    setOverlayMessage(`卓 ${selectedTable} に着席： ${lines}`);
+      return (label ? `${label}: ` : '') + `${pname}${pcast}`;
+    });
+    setOverlayMessage(`卓 ${selectedTable} に着席：` + entries.join('、'));
     setTimeout(() => setOverlayMessage(''), 1000);
     closeFirstModal();
   };
 
-  // テーブル描画
+  // テーブルリスト
   const renderedTables = useMemo(() => tables.map(table => (
     <div
       key={table.id}
       className="border rounded p-4 shadow-sm bg-white flex justify-between items-start"
     >
       <div>
-        <p><strong>卓番号:</strong> {table.tableNumber}</p>
-        <p><strong>姫名:</strong> {table.princess}</p>
-        <p><strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}</p>
-        <p><strong>開始時間:</strong> {table.time.slice(0,5)}</p>
+        <p className="text-center"><strong>卓番号:</strong> {table.tableNumber}</p>
+        <p className="text-center"><strong>姫名:</strong> {table.princess}</p>
+        <p className="text-center"><strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}</p>
+        <p className="text-center"><strong>開始時間:</strong> {table.time}</p>
       </div>
       <button
         onClick={() => handleDelete(table.id)}
@@ -99,7 +109,7 @@ const TableStatusPage: React.FC = () => {
 
   return (
     <>
-      {/* 削除メッセージオーバーレイ */}
+      {/* 削除オーバーレイ */}
       {deleteMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded">
@@ -107,7 +117,7 @@ const TableStatusPage: React.FC = () => {
           </div>
         </div>
       )}
-      {/* 初回来店オーバーレイ */}
+      {/* 着席オーバーレイ */}
       {overlayMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded max-w-md text-center">
@@ -117,19 +127,19 @@ const TableStatusPage: React.FC = () => {
       )}
 
       <main id="main-content" className="p-4 pb-16">
-        {/* 見出しと初回ボタンを同列に */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">卓状況</h2>
+        {/* 見出し＋初回ボタン */}
+        <div className="flex items-center justify-center mb-4 relative">
+          <h2 className="text-2xl font-bold text-center">卓状況</h2>
           <button
             onClick={openFirstModal}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="absolute right-0 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             初回
           </button>
         </div>
 
         {tables.length === 0 ? (
-          <p className="text-gray-500">まだ反映された卓はありません。</p>
+          <p className="text-gray-500 text-center">まだ反映された卓はありません。</p>
         ) : (
           <div className="space-y-3">{renderedTables}</div>
         )}
@@ -191,11 +201,13 @@ const TableStatusPage: React.FC = () => {
                   初回来店：お客様情報
                 </h3>
                 <div className="grid grid-cols-2 gap-4 mb-4">
-                  {names.map((n, i) => (
+                  {names.map((_, i) => (
                     <div key={i}>
-                      <label className="block text-xs text-gray-500 mb-1">
-                        {positionLabelsByCount[selectedCount][i]}
-                      </label>
+                      {positionLabelsByCount[selectedCount][i] && (
+                        <label className="block text-xs text-gray-500 mb-1">
+                          {positionLabelsByCount[selectedCount][i]}
+                        </label>
+                      )}
                       <input
                         type="text"
                         placeholder="名前"
@@ -242,6 +254,4 @@ const TableStatusPage: React.FC = () => {
       )}
     </>
   );
-};
-
-export default TableStatusPage;
+}
