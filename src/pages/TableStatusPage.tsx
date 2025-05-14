@@ -1,3 +1,4 @@
+// src/pages/TableStatusPage.tsx
 import React, { useState, useCallback, useMemo } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
 
@@ -13,27 +14,19 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
-  // オーバーレイ用メッセージ
   const [overlayMessage, setOverlayMessage] = useState('');
-  const [deleteMessage, setDeleteMessage]   = useState('');
-  const [deletingId, setDeletingId]         = useState<number | null>(null);
+  const [deleteMessage, setDeleteMessage] = useState('');
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  // ―― 初回来店モーダル管理 ――
+  // 初回来店モーダル
   const [firstModalOpen, setFirstModalOpen] = useState(false);
-  const [step1,         setStep1]           = useState(true);
-  const [selectedTable, setSelectedTable]   = useState('');
-  const [selectedCount, setSelectedCount]   = useState(0);
-  const [names,         setNames]           = useState<string[]>([]);
-  const [photos,        setPhotos]          = useState<string[]>([]);
-  // ★追加：開始時間ステート（ステップ1用）
-  const [firstStartTime, setFirstStartTime] = useState('');
+  const [step1, setStep1] = useState(true);
+  const [selectedTable, setSelectedTable] = useState('');
+  const [selectedCount, setSelectedCount] = useState(0);
+  const [names, setNames] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<string[]>([]);
 
-  // モーダルオープン時に現在時刻を初期値としてセット
   const openFirstModal = () => {
-    const now  = new Date();
-    const hhmm = now.toTimeString().slice(0,5);
-    setFirstStartTime(hhmm);
-
     setStep1(true);
     setSelectedTable('');
     setSelectedCount(0);
@@ -43,7 +36,7 @@ export default function TableStatusPage() {
   };
   const closeFirstModal = () => setFirstModalOpen(false);
 
-  // ステップ1 → ステップ2
+  // ステップ1→2
   const nextStep = () => {
     if (!selectedTable || selectedCount < 1) return;
     setNames(Array(selectedCount).fill(''));
@@ -51,7 +44,7 @@ export default function TableStatusPage() {
     setStep1(false);
   };
 
-  // ―― 削除処理 ――
+  // 削除
   const handleDelete = useCallback((id: number) => {
     const t = tables.find(x => x.id === id);
     if (!t) return;
@@ -62,37 +55,35 @@ export default function TableStatusPage() {
     setTimeout(() => setDeleteMessage(''), 1000);
   }, [dispatch, tables]);
 
-  // ―― 初回来店確定処理 ――
+  // 初回来店確定
   const confirmFirst = () => {
-    // ★ステップ1でセットした時刻を使う
-    const time = firstStartTime;
+    const now = new Date();
+    const hhmm = now.toTimeString().slice(0, 5);
 
-    // テーブル追加
+    // ↓ここを修正：payload に tableNumber ではなく requestedTable を渡す
     dispatch({
-      type: 'ADD_TABLE',
+      type: 'ASSIGN_TABLE',
       payload: {
         id: Date.now(),
-        tableNumber: selectedTable,
         princess: names.join('、'),
+        requestedTable: selectedTable,
         budget: 0,
-        time,
+        time: hhmm,
       } as Table,
     });
 
-    // オーバーレイメッセージ
-    const entries = names.map((n,i) => {
+    const entries = names.map((n, i) => {
       const label = positionLabelsByCount[selectedCount][i];
       const pname = n || 'お客様';
       const pcast = photos[i] !== 'なし' ? `（指名：${photos[i]}）` : '';
       return (label ? `${label}: ` : '') + `${pname}${pcast}`;
     });
-    setOverlayMessage(`卓【${selectedTable}】に着席：${entries.join('、')}`);
+    setOverlayMessage(`卓【${selectedTable}】に着席：` + entries.join('、'));
     setTimeout(() => setOverlayMessage(''), 1000);
-
     closeFirstModal();
   };
 
-  // ―― テーブルリスト描画 ――
+  // テーブルリスト描画
   const renderedTables = useMemo(() => tables.map(table => (
     <div
       key={table.id}
@@ -101,9 +92,7 @@ export default function TableStatusPage() {
       <div>
         <p className="text-center"><strong>卓番号:</strong> {table.tableNumber}</p>
         <p className="text-center"><strong>姫名:</strong> {table.princess}</p>
-        <p className="text-center">
-          <strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
-        </p>
+        <p className="text-center"><strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}</p>
         <p className="text-center"><strong>開始時間:</strong> {table.time}</p>
       </div>
       <button
@@ -129,7 +118,6 @@ export default function TableStatusPage() {
           </div>
         </div>
       )}
-
       {/* 着席オーバーレイ */}
       {overlayMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
@@ -171,8 +159,6 @@ export default function TableStatusPage() {
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：卓と人数を選択
                 </h3>
-
-                {/* 卓選択 */}
                 <label className="block text-sm mb-2">卓を選択</label>
                 <select
                   value={selectedTable}
@@ -186,17 +172,6 @@ export default function TableStatusPage() {
                       : <option key={t} value={t}>{t}</option>
                   )}
                 </select>
-
-                {/* ★開始時間入力 */}
-                <label className="block text-sm mb-2">開始時間</label>
-                <input
-                  type="time"
-                  value={firstStartTime}
-                  onChange={e => setFirstStartTime(e.target.value)}
-                  className="border p-2 w-full rounded mb-4"
-                />
-
-                {/* 人数選択 */}
                 <label className="block text-sm mb-2">人数を選択</label>
                 <select
                   value={selectedCount}
@@ -208,12 +183,8 @@ export default function TableStatusPage() {
                     <option key={n} value={n}>{n} 名</option>
                   ))}
                 </select>
-
                 <div className="flex justify-end space-x-2">
-                  <button
-                    onClick={closeFirstModal}
-                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                  >
+                  <button onClick={closeFirstModal} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
                     キャンセル
                   </button>
                   <button
@@ -244,7 +215,7 @@ export default function TableStatusPage() {
                         value={names[i]}
                         onChange={e => {
                           const a = [...names];
-                          a[i] = e.target.value.slice(0,6);
+                          a[i] = e.target.value.slice(0, 6);
                           setNames(a);
                         }}
                         className="border p-2 rounded w-full"
@@ -267,10 +238,7 @@ export default function TableStatusPage() {
                   ))}
                 </div>
                 <div className="flex justify-end space-x-2">
-                  <button
-                    onClick={() => setStep1(true)}
-                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                  >
+                  <button onClick={() => setStep1(true)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
                     戻る
                   </button>
                   <button
