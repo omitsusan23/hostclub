@@ -15,11 +15,29 @@ const positionsMap: Record<number, string[]> = {
 
 const TableStatusPage: React.FC = () => {
   const { state: { tables, tableSettings }, dispatch } = useAppContext()
-  const [message, setMessage] = useState<string>('')
-  const [error, setError] = useState<string>('')
-  const [deletingId, setDeletingId] = useState<number | null>(null)
 
-  // 「初回」モーダル用 state
+  // 中央オーバーレイ用メッセージ
+  const [overlayMessage, setOverlayMessage] = useState<string>('')
+
+  // 削除処理
+  const handleDelete = useCallback(async (id: number) => {
+    const table = tables.find(t => t.id === id)
+    if (!table) return
+    if (!window.confirm(`本当に卓 ${table.tableNumber} を削除しますか？`)) return
+
+    try {
+      dispatch({ type: 'DELETE_TABLE', payload: id })
+      // 中央オーバーレイで表示
+      setOverlayMessage(`卓 ${table.tableNumber} を削除しました`)
+      setTimeout(() => setOverlayMessage(''), 1000)
+    } catch {
+      // 必要ならエラーオーバーレイも
+      setOverlayMessage('削除に失敗しました')
+      setTimeout(() => setOverlayMessage(''), 1000)
+    }
+  }, [dispatch, tables])
+
+  // 初回来店モーダルまわり（省略可）
   const [isFirstModalOpen, setFirstModalOpen] = useState(false)
   const [selectedTable, setSelectedTable] = useState<string>('')
   const [selectedCount, setSelectedCount] = useState<number>(1)
@@ -40,75 +58,48 @@ const TableStatusPage: React.FC = () => {
     setSelectedCount(n)
     setNames(Array(n).fill(''))
   }
-
   const handleNameChange = (idx: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const arr = [...names]
-    arr[idx] = e.target.value
-    setNames(arr)
+    const a = [...names]; a[idx] = e.target.value; setNames(a)
   }
-
   const handleFirstConfirm = () => {
-    // TODO: dispatch に置き換え
-    alert(`卓 ${selectedTable} に ${selectedCount} 名を反映しました`)
+    setOverlayMessage(`${names[0] || 'お客様'}様は卓 ${selectedTable} に着席しました`)
+    setTimeout(() => setOverlayMessage(''), 1000)
     closeFirstModal()
   }
 
-  const handleDelete = useCallback(async (id: number) => {
-    const table = tables.find(t => t.id === id)
-    if (!table) return
-    if (!window.confirm(`本当に卓 ${table.tableNumber} を削除しますか？`)) return
-
-    setError('')
-    setDeletingId(id)
-    try {
-      dispatch({ type: 'DELETE_TABLE', payload: id })
-      setMessage(`卓 ${table.tableNumber} を削除しました`)
-      setTimeout(() => setMessage(''), 1000)
-    } catch {
-      setError('卓の削除に失敗しました')
-      setTimeout(() => setError(''), 1000)
-    } finally {
-      setDeletingId(null)
-    }
-  }, [dispatch, tables])
-
-  const renderedTables = useMemo(() =>
-    tables.map((table: Table) => (
-      <div
-        key={table.id}
-        className="border rounded p-4 shadow-sm bg-white flex justify-between items-start"
-      >
-        <div>
-          <p><strong>卓番号:</strong> {table.tableNumber}</p>
-          <p><strong>姫名:</strong> {table.princess}</p>
-          <p>
-            <strong>予算:</strong>{' '}
-            {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
-          </p>
-          <p>
-            <strong>開始時間:</strong>{' '}
-            {table.time.replace(/:\d{2}$/, '')}
-          </p>
-        </div>
-        <button
-          onClick={() => handleDelete(table.id)}
-          disabled={deletingId === table.id}
-          className={`text-sm hover:underline ${
-            deletingId === table.id ? 'text-gray-400' : 'text-red-500'
-          }`}
-          aria-label={`卓 ${table.tableNumber} を削除`}
-        >
-          {deletingId === table.id ? '削除中...' : '削除'}
-        </button>
+  // テーブルカード描画
+  const renderedTables = useMemo(() => tables.map((table: Table) => (
+    <div
+      key={table.id}
+      className="border rounded p-4 shadow-sm bg-white flex justify-between items-start"
+    >
+      <div>
+        <p><strong>卓番号:</strong> {table.tableNumber}</p>
+        <p><strong>姫名:</strong> {table.princess}</p>
+        <p>
+          <strong>予算:</strong>{' '}
+          {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
+        </p>
+        <p>
+          <strong>開始時間:</strong>{' '}
+          {table.time.replace(/:\d{2}$/, '')}
+        </p>
       </div>
-    )),
-  [tables, deletingId, handleDelete])
+      <button
+        onClick={() => handleDelete(table.id)}
+        className="text-sm hover:underline text-red-500"
+        aria-label={`卓 ${table.tableNumber} を削除`}
+      >
+        削除
+      </button>
+    </div>
+  )), [tables, handleDelete])
 
   return (
     <main id="main-content" className="p-4 pb-16">
       {/* 見出し＋初回ボタン */}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold mb-0 text-center flex-grow">卓状況</h2>
+        <h2 className="text-2xl font-bold mb-0 flex-grow text-center">卓状況</h2>
         <button
           onClick={openFirstModal}
           className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 ml-4"
@@ -117,19 +108,20 @@ const TableStatusPage: React.FC = () => {
         </button>
       </div>
 
-      {/* メッセージ */}
-      {(message || error) && (
-        <div aria-live="polite" className="mb-4">
-          {message && <p className="text-green-600">{message}</p>}
-          {error && <p className="text-red-600">{error}</p>}
-        </div>
-      )}
-
       {/* テーブル一覧 */}
       {tables.length === 0 ? (
         <p className="text-gray-500">まだ反映された卓はありません。</p>
       ) : (
         <div className="space-y-3">{renderedTables}</div>
+      )}
+
+      {/* 中央オーバーレイ */}
+      {overlayMessage && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-black bg-opacity-75 text-white px-6 py-4 rounded text-lg">
+            {overlayMessage}
+          </div>
+        </div>
       )}
 
       {/* 初回来店モーダル */}
@@ -175,22 +167,18 @@ const TableStatusPage: React.FC = () => {
               ))}
             </select>
 
-            {/* お客様名入力（動的列数） */}
-            <div
-              className={`grid gap-2 mb-4 grid-cols-${selectedCount}`}
-            >
+            {/* お客様名入力（横一列） */}
+            <div className={`grid gap-2 mb-4 grid-cols-${selectedCount}`}>
               {positionsMap[selectedCount].map((pos, idx) => (
-                <div key={idx} className="flex flex-col">
-                  <label className="text-sm mb-1 text-center">
-                    {pos || 'お客様'}
-                  </label>
+                <div key={idx} className="flex flex-col items-center">
+                  <label className="text-sm mb-1">{pos || 'お客様'}</label>
                   <input
                     type="text"
                     value={names[idx] || ''}
                     onChange={handleNameChange(idx)}
-                    className="border p-2 rounded text-center w-full truncate"
-                    placeholder="任意入力"
-                    maxLength={12}
+                    className="border p-2 rounded w-full max-w-[4rem] text-center truncate"
+                    placeholder="任意"
+                    maxLength={6}
                   />
                 </div>
               ))}
