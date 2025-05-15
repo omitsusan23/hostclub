@@ -173,12 +173,12 @@ export default function TableStatusPage() {
 
       {/* 固定ヘッダー */}
       <header className="sticky top-0 bg-white z-50">
-        {/* 上下の余白を均一に py-2 に */}
-        <div className="px-4 py-2">
-          <h2 className="text-2xl font-bold text-center">卓状況</h2>
+        {/* タイトル行: 固定の高さを変えず、上下均等にテキストを中央配置 */}
+        <div className="px-4 py-2 flex items-center justify-center">
+          <h2 className="text-2xl font-bold">卓状況</h2>
         </div>
-        <div className="flex justify-between px-4 pb-2 bg-white border-b">
-          {/* 初回を左端に */}
+        {/* フィルター行: 左端に初回、右端に他3つ */}
+        <div className="flex justify-between px-4 py-2 bg-white border-b">
           <div className="bg-gray-100 rounded-full inline-flex space-x-1 px-1 py-0.5">
             <button
               onClick={() => setFilter('first')}
@@ -189,7 +189,6 @@ export default function TableStatusPage() {
               初回
             </button>
           </div>
-          {/* 他三つを右端に */}
           <div className="bg-gray-100 rounded-full inline-flex space-x-1 px-1 py-0.5">
             <button
               onClick={() => setFilter('all')}
@@ -237,7 +236,7 @@ export default function TableStatusPage() {
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：卓と人数を選択
                 </h3>
-                {/* 省略（既存フォーム部分） */}
+                {/* 既存フォーム省略 */}
                 <div className="flex justify-end space-x-2">
                   <button
                     onClick={closeFirstModal}
@@ -256,7 +255,7 @@ export default function TableStatusPage() {
               </>
             ) : (
               <>
-                {/* 省略（既存フォーム部分） */}
+                {/* 既存フォーム省略 */}
                 <div className="flex justify-end space-x-2">
                   {/* ... */}
                 </div>
