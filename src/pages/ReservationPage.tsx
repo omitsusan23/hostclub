@@ -135,7 +135,7 @@ export default function ReservationPage({
     setStartTime('')
   }
 
-  // 修正：ASSIGN_TABLE の payload に requestedTable を渡すように
+  // ★修正：ASSIGN_TABLE の payload に tableNumber を渡すように
   const handleReflectConfirm = () => {
     if (
       !selectedRes ||
@@ -148,7 +148,7 @@ export default function ReservationPage({
       type: 'ASSIGN_TABLE',
       payload: {
         id: selectedRes.id,
-        requestedTable: reflectTable,
+        tableNumber: reflectTable,
         princess: selectedRes.princess,
         budget: selectedRes.budget,
         time: startTime,
@@ -219,7 +219,95 @@ export default function ReservationPage({
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
           >
             <div className="bg-white p-6 rounded-lg w-full max-w-md">
-              {/* 既存の追加モーダル内容 */}
+              <h3 id="res-modal-title" className="text-lg font-semibold mb-4">
+                予約詳細を入力
+              </h3>
+
+              <label className="block text-sm mb-1">姫名</label>
+              <input
+                ref={firstInputRef}
+                type="text"
+                value={princess}
+                onChange={(e) => setPrincess(e.target.value)}
+                className="border p-2 w-full rounded mb-2"
+                aria-invalid={!!errors.princess}
+                aria-describedby={errors.princess ? 'error-princess' : undefined}
+              />
+              {errors.princess && (
+                <p id="error-princess" className="text-red-500 text-sm mb-2">
+                  {errors.princess}
+                </p>
+              )}
+
+              <label className="block text-sm mb-1">希望卓番号</label>
+              <select
+                value={requestedTable}
+                onChange={(e) => setRequestedTable(e.target.value)}
+                className="border p-2 w-full rounded mb-2"
+              >
+                <option value="">希望なし</option>
+                {tableSettings.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+
+              <label className="block text-sm mb-1">来店予定時間</label>
+              <select
+                value={plannedTime}
+                onChange={(e) => setPlannedTime(e.target.value)}
+                className="border p-2 w-full rounded mb-2"
+              >
+                <option value="">これから</option>
+                {timeOptions.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+
+              <label className="block text-sm mb-1">予算</label>
+              <select
+                value={budgetMode}
+                onChange={handleBudgetModeChange}
+                className="border p-2 w-full rounded mb-2"
+              >
+                <option value="undecided">未定</option>
+                <option value="input">入力</option>
+              </select>
+              {budgetMode === 'input' && (
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="\d*"
+                  value={budget}
+                  onChange={handleBudgetChange}
+                  className="border p-2 w-full rounded mb-4"
+                  aria-invalid={!!errors.budget}
+                  aria-describedby={errors.budget ? 'error-budget' : undefined}
+                />
+              )}
+              {errors.budget && (
+                <p id="error-budget" className="text-red-500 text-sm mb-4">
+                  {errors.budget}
+                </p>
+              )}
+
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={handleAdd}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  保存
+                </button>
+              </div>
             </div>
           </div>
         )}
