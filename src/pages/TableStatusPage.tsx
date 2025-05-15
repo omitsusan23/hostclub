@@ -135,12 +135,12 @@ export default function TableStatusPage() {
         <div className="px-4 pt-4">
           <h2 className="text-2xl font-bold text-center">卓状況</h2>
         </div>
-        <div className="flex justify-end space-x-2 px-4 pb-2 bg-white border-b">
+        <div className="flex justify-end space-x-0 px-4 pb-2 bg-white border-b">
           {(['all', 'occupied', 'empty', 'first'] as Filter[]).map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-2 py-1 text-sm rounded ${filter === f ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
+              className={`px-1 py-1 text-xs ${filter === f ? 'font-bold text-black' : 'text-gray-700'}`}
             >
               {{ all: '全卓', occupied: '使用中', empty: '空卓', first: '初回' }[f]}
             </button>
