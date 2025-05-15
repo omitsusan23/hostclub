@@ -6,17 +6,19 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 interface FooterProps {
   currentUser: { role: string } | null
   onOpenAddReservation: () => void
+  onOpenFirst: () => void
 }
 
 export default function Footer({
   currentUser,
   onOpenAddReservation,
+  onOpenFirst,
 }: FooterProps) {
   const loc = useLocation()
   const navigate = useNavigate()
-  const isReservations = loc.pathname === '/reservations'
-  const isTableStatus = loc.pathname === '/table-status'
-  const isCastList     = loc.pathname === '/cast-list'
+  const isReservations   = loc.pathname === '/reservations'
+  const isTableStatus    = loc.pathname === '/table-status'
+  const isCastList       = loc.pathname === '/cast-list'
 
   return (
     <footer className="fixed bottom-0 left-0 right-0 bg-gray-100 border-t py-2 flex justify-around">
@@ -27,6 +29,16 @@ export default function Footer({
       >
         卓状況
       </Link>
+
+      {/* 初回モーダルを開く */}
+      {isTableStatus && (
+        <button
+          onClick={onOpenFirst}
+          className="text-blue-600 hover:underline"
+        >
+          初回
+        </button>
+      )}
 
       {/* 来店予約追加 or 来店予約ページ */}
       {isReservations ? (
@@ -92,5 +104,5 @@ export default function Footer({
         </>
       )}
     </footer>
-  )
+)
 }
