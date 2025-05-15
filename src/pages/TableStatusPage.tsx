@@ -194,3 +194,4 @@ export default function TableStatusPage() {
       <Footer currentUser={null} onOpenAddReservation={()=>{}} onOpenFirst={openFirstModal} />
     </>
   );
+}
