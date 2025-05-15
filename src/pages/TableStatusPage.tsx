@@ -135,12 +135,12 @@ export default function TableStatusPage() {
         <div className="px-4 pt-4">
           <h2 className="text-2xl font-bold text-center">卓状況</h2>
         </div>
-        <div className="flex justify-end px-0 pb-2 bg-white border-b">
+        <div className="flex justify-end space-x-0 px-4 pb-2 bg-white border-b">
           {(['all', 'occupied', 'empty', 'first'] as Filter[]).map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-0 py-1 text-xs ${filter === f ? 'font-bold text-black' : 'text-gray-700'}`}
+              className={`px-1 py-1 text-xs ${filter === f ? 'font-bold text-black' : 'text-gray-700'}`}
             >
               {{ all: '全卓', occupied: '使用中', empty: '空卓', first: '初回' }[f]}
             </button>
@@ -167,11 +167,10 @@ export default function TableStatusPage() {
                   className="border p-2 w-full rounded mb-4"
                 >
                   <option value="">選択してください</option>
-                  {tableSettings.map(t => (
-                    tables.some(tab => tab.tableNumber === t)
-                      ? <option key={t} value={t} disabled>{t}（使用中）</option>
-                      : <option key={t} value={t}>{t}</option>
-                  ))}
+                  {tableSettings.map(t => tables.some(tab => tab.tableNumber === t)
+                    ? <option key={t} value={t} disabled>{t}（使用中）</option>
+                    : <option key={t} value={t}>{t}</option>
+                  )}
                 </select>
                 <label className="block text-sm mb-2">開始時間</label>
                 <input
@@ -195,16 +194,12 @@ export default function TableStatusPage() {
                   <button
                     onClick={closeFirstModal}
                     className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                  >
-                    キャンセル
-                  </button>
+                  >キャンセル</button>
                   <button
                     onClick={nextStep}
                     disabled={!selectedTable || selectedCount < 1}
                     className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-                  >
-                    次へ
-                  </button>
+                  >次へ</button>
                 </div>
               </>
             ) : (
@@ -250,15 +245,11 @@ export default function TableStatusPage() {
                   <button
                     onClick={() => setStep1(true)}
                     className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                  >
-                    戻る
-                  </button>
+                  >戻る</button>
                   <button
                     onClick={confirmFirst}
                     className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                  >
-                    反映
-                  </button>
+                  >反映</button>
                 </div>
               </>
             )}
