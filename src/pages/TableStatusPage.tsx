@@ -186,7 +186,7 @@ export default function TableStatusPage() {
           初回
         </button>
 
-        {/* 中央: タイトル */}
+        {/* 中央: 「卓状況」 */}
         <h2 className="justify-self-center text-2xl font-bold">
           卓状況
         </h2>
