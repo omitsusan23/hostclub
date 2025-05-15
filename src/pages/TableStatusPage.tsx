@@ -172,49 +172,45 @@ export default function TableStatusPage() {
       )}
 
       {/* 固定ヘッダー */}
-      <header className="sticky top-0 bg-white z-50">
-        {/* タイトル行: 固定の高さを変えず、上下均等にテキストを中央配置 */}
-        <div className="px-4 py-2 flex items-center justify-center">
-          <h2 className="text-2xl font-bold">卓状況</h2>
-        </div>
-        {/* フィルター行: 左端に初回、右端に他3つ */}
-        <div className="flex justify-between px-4 py-2 bg-white border-b">
-          <div className="bg-gray-100 rounded-full inline-flex space-x-1 px-1 py-0.5">
-            <button
-              onClick={() => setFilter('first')}
-              className={`px-1 py-0.5 text-xs ${
-                filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              初回
-            </button>
-          </div>
-          <div className="bg-gray-100 rounded-full inline-flex space-x-1 px-1 py-0.5">
-            <button
-              onClick={() => setFilter('all')}
-              className={`px-1 py-0.5 text-xs ${
-                filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              全卓
-            </button>
-            <button
-              onClick={() => setFilter('occupied')}
-              className={`px-1 py-0.5 text-xs ${
-                filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              使用中
-            </button>
-            <button
-              onClick={() => setFilter('empty')}
-              className={`px-1 py-0.5 text-xs ${
-                filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              空卓
-            </button>
-          </div>
+      <header className="sticky top-0 bg-white z-50 px-4 py-2 border-b flex items-center justify-between">
+        {/* タイトルを上下中央に */}
+        <h2 className="text-2xl font-bold">卓状況</h2>
+        {/* フィルターグループ */}
+        <div className="flex space-x-1">
+          {/* 初回 */}
+          <button
+            onClick={() => setFilter('first')}
+            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+              filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
+            }`}
+          >
+            初回
+          </button>
+          {/* 全卓・使用中・空卓 */}
+          <button
+            onClick={() => setFilter('all')}
+            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+              filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
+            }`}
+          >
+            全卓
+          </button>
+          <button
+            onClick={() => setFilter('occupied')}
+            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+              filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
+            }`}
+          >
+            使用中
+          </button>
+          <button
+            onClick={() => setFilter('empty')}
+            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+              filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
+            }`}
+          >
+            空卓
+          </button>
         </div>
       </header>
 
@@ -236,7 +232,7 @@ export default function TableStatusPage() {
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：卓と人数を選択
                 </h3>
-                {/* 既存フォーム省略 */}
+                {/* 既存フォーム部分 */}
                 <div className="flex justify-end space-x-2">
                   <button
                     onClick={closeFirstModal}
@@ -255,7 +251,7 @@ export default function TableStatusPage() {
               </>
             ) : (
               <>
-                {/* 既存フォーム省略 */}
+                {/* 既存フォーム部分 */}
                 <div className="flex justify-end space-x-2">
                   {/* ... */}
                 </div>
