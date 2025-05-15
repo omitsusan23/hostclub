@@ -17,13 +17,13 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
+  // 追加：初回で反映された卓番号のリスト
+  const [firstTables, setFirstTables] = useState<string[]>([]);
+
   // フィルタリング
   const [filter, setFilter] = useState<Filter>('all');
 
-  // “初回”で反映した卓番号を保持
-  const [firstTables, setFirstTables] = useState<string[]>([]);
-
-  // ―― オーバーレイ／モーダル機能 ――
+  // ――（省略：オーバーレイ・モーダル管理の state）――
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage]   = useState('');
   const [deletingId, setDeletingId]         = useState<number | null>(null);
@@ -64,6 +64,7 @@ export default function TableStatusPage() {
   }, [dispatch, tables]);
 
   const confirmFirst = () => {
+    // テーブルを割り当て
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
@@ -74,7 +75,12 @@ export default function TableStatusPage() {
         time: firstStartTime,
       },
     });
-    // モーダルの内容表示
+
+    // 初回リストに追加（既に含まれなければ）
+    setFirstTables(prev =>
+      prev.includes(selectedTable) ? prev : [...prev, selectedTable]
+    );
+
     const entries = names.map((n, i) => {
       const label = positionLabelsByCount[selectedCount][i];
       const pname = n || 'お客様';
@@ -83,24 +89,20 @@ export default function TableStatusPage() {
     });
     setOverlayMessage(`卓【${selectedTable}】に着席：${entries.join('、')}`);
     setTimeout(() => setOverlayMessage(''), 1000);
-
-    // “初回”テーブルをマーク
-    setFirstTables(prev =>
-      prev.includes(selectedTable) ? prev : [...prev, selectedTable]
-    );
-
     closeFirstModal();
   };
 
-  // テーブルリストのフィルタリング
+  // テーブルリストフィルタ
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
+        // 割り当て済みのみ
         return tables;
       case 'first':
-        // “初回”にマークされた卓のみ
+        // 初回来店のみ
         return tables.filter(t => firstTables.includes(t.tableNumber));
       case 'empty':
+        // 空卓のみ
         return tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
           .map(num => ({
@@ -112,6 +114,7 @@ export default function TableStatusPage() {
           }));
       case 'all':
       default:
+        // 全卓（割り当て済み＋空卓）
         const empty = tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
           .map(num => ({
@@ -125,7 +128,7 @@ export default function TableStatusPage() {
     }
   }, [filter, tables, tableSettings, firstTables]);
 
-  // テーブルカードのレンダリング
+  // 卓の描画
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => (
       <div
@@ -145,19 +148,17 @@ export default function TableStatusPage() {
             {deletingId === table.id ? '削除中...' : '削除'}
           </button>
         )}
-        {/* 卓番号に “(初回)” を追記 */}
+
+        {/* 卓番号＋(初回)マーク */}
         <p className="text-center font-bold">
           {table.tableNumber}
           {firstTables.includes(table.tableNumber) && ' (初回)'}
         </p>
+
         {table.princess ? (
           <>
-            <p className="text-sm mt-2">
-              <strong>姫名:</strong> {table.princess}
-            </p>
-            <p className="text-sm">
-              <strong>開始:</strong> {table.time.slice(0,5)}
-            </p>
+            <p className="text-sm mt-2"><strong>姫名:</strong> {table.princess}</p>
+            <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
             <p className="text-sm">
               <strong>予算:</strong>{' '}
               {table.budget === 0
@@ -260,7 +261,7 @@ export default function TableStatusPage() {
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：卓と人数を選択
                 </h3>
-                {/* 既存フォーム部分 */}
+                {/* 既存フォーム部分はそのまま */}
                 <div className="flex justify-end space-x-2">
                   <button
                     onClick={closeFirstModal}
@@ -279,10 +280,8 @@ export default function TableStatusPage() {
               </>
             ) : (
               <>
-                {/* 既存フォーム部分 */}
-                <div className="flex justify-end space-x-2">
-                  {/* ... */}
-                </div>
+                {/* 既存フォーム部分はそのまま */}
+                <div className="flex justify-end space-x-2">{/* ... */}</div>
               </>
             )}
           </div>
