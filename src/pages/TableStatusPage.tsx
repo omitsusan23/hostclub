@@ -131,6 +131,12 @@ export default function TableStatusPage() {
       <main id="main-content" className="p-4 pb-16">
         <div className="flex items-center justify-center mb-4 relative">
           <h2 className="text-2xl font-bold text-center">卓状況</h2>
+          <button
+            onClick={openFirstModal}
+            className="absolute right-0 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            初回
+          </button>
         </div>
 
         {tables.length === 0 ? (
