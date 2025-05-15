@@ -135,7 +135,7 @@ export default function ReservationPage({
     setStartTime('')
   }
 
-  // ★修正：ASSIGN_TABLE の payload に tableNumber を渡すように
+  // 修正：ASSIGN_TABLE の payload に requestedTable を渡すように
   const handleReflectConfirm = () => {
     if (
       !selectedRes ||
@@ -148,7 +148,7 @@ export default function ReservationPage({
       type: 'ASSIGN_TABLE',
       payload: {
         id: selectedRes.id,
-        tableNumber: reflectTable,
+        requestedTable: reflectTable,
         princess: selectedRes.princess,
         budget: selectedRes.budget,
         time: startTime,
@@ -206,9 +206,7 @@ export default function ReservationPage({
         className="p-4 pb-16"
         onKeyDown={handleKeyDown}
       >
-        <h2 className="text-2xl font-bold mb-4 text-center">
-          来店予約表
-        </h2>
+        <h2 className="text-2xl font-bold mb-4 text-center">来店予約表</h2>
 
         {/* 追加モーダル */}
         {isOpen && (
