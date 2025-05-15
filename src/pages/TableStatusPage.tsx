@@ -3,6 +3,8 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
 import Footer from '../components/Footer';
 
+type Filter = 'all' | 'occupied' | 'empty' | 'first';
+
 const positionLabelsByCount: Record<number, string[]> = {
   1: [], // 一名時はラベルなし
   2: ['左', '右'],
@@ -15,11 +17,13 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
+  // フィルタリング state
+  const [filter, setFilter] = useState<Filter>('all');
+
+  // モーダル等既存 state
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage]   = useState('');
   const [deletingId, setDeletingId]         = useState<number | null>(null);
-
-  // ―― 初回来店モーダル管理 ――
   const [firstModalOpen, setFirstModalOpen] = useState(false);
   const [step1,         setStep1]           = useState(true);
   const [selectedTable, setSelectedTable]   = useState('');
@@ -32,7 +36,6 @@ export default function TableStatusPage() {
     const now  = new Date();
     const hhmm = now.toTimeString().slice(0,5);
     setFirstStartTime(hhmm);
-
     setStep1(true);
     setSelectedTable('');
     setSelectedCount(0);
@@ -41,7 +44,6 @@ export default function TableStatusPage() {
     setFirstModalOpen(true);
   };
   const closeFirstModal = () => setFirstModalOpen(false);
-
   const nextStep = () => {
     if (!selectedTable || selectedCount < 1) return;
     setNames(Array(selectedCount).fill(''));
@@ -70,7 +72,6 @@ export default function TableStatusPage() {
         time: firstStartTime,
       },
     });
-
     const entries = names.map((n, i) => {
       const label = positionLabelsByCount[selectedCount][i];
       const pname = n || 'お客様';
@@ -79,35 +80,46 @@ export default function TableStatusPage() {
     });
     setOverlayMessage(`卓【${selectedTable}】に着席：${entries.join('、')}`);
     setTimeout(() => setOverlayMessage(''), 1000);
-
     closeFirstModal();
   };
 
-  const renderedTables = useMemo(() => tables.map(table => (
+  // フィルタ適用
+  const filteredTables = useMemo(() => {
+    switch (filter) {
+      case 'occupied':
+        return tables;
+      case 'first':
+        return tables.filter(t => t.budget === 0);
+      case 'empty':
+        return tableSettings
+          .filter(n => !tables.some(t => t.tableNumber === n))
+          .map(n => ({ tableNumber: n, princess: '', budget: 0, time: '' }));
+      case 'all':
+      default:
+        const empty = tableSettings
+          .filter(n => !tables.some(t => t.tableNumber === n))
+          .map(n => ({ tableNumber: n, princess: '', budget: 0, time: '' }));
+        return [...tables, ...empty];
+    }
+  }, [filter, tables, tableSettings]);
+
+  const renderedTables = useMemo(() => filteredTables.map((table, idx) => (
     <div
-      key={table.id}
-      className="border rounded p-4 shadow-sm bg-white flex justify-between items-start"
+      key={`${table.tableNumber}-${idx}`}
+      className="border rounded p-4 shadow-sm bg-white flex flex-col justify-between"
     >
-      <div>
-        <p className="text-center"><strong>卓番号:</strong> {table.tableNumber}</p>
-        <p className="text-center"><strong>姫名:</strong> {table.princess}</p>
-        <p className="text-center">
-          <strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
-        </p>
-        <p className="text-center"><strong>開始時間:</strong> {table.time.slice(0,5)}</p>
-      </div>
-      <button
-        onClick={() => handleDelete(table.id)}
-        disabled={deletingId === table.id}
-        className={`text-sm hover:underline ${
-          deletingId === table.id ? 'text-gray-400' : 'text-red-500'
-        }`}
-        aria-label={`卓 ${table.tableNumber} を削除`}
-      >
-        {deletingId === table.id ? '削除中...' : '削除'}
-      </button>
+      <p className="text-center font-bold">{table.tableNumber}</p>
+      {table.princess ? (
+        <>
+          <p className="text-sm mt-2"><strong>姫名:</strong> {table.princess}</p>
+          <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
+          <p className="text-sm"><strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}</p>
+        </>
+      ) : (
+        <p className="text-sm mt-4 text-gray-400 text-center">空卓</p>
+      )}
     </div>
-  )), [tables, handleDelete, deletingId]);
+  )), [filteredTables, tables, filter, deletingId, handleDelete]);
 
   return (
     <>
@@ -128,18 +140,30 @@ export default function TableStatusPage() {
         </div>
       )}
 
-      <main id="main-content" className="p-4 pb-16">
-        <div className="flex items-center justify-center mb-4 relative">
-          <h2 className="text-2xl font-bold text-center">卓状況</h2>
-        </div>
+      {/* 見出し */}
+      <div className="px-4 pt-4">
+        <h2 className="text-2xl font-bold text-center">卓状況</h2>
+      </div>
 
-        {tables.length === 0 ? (
-          <p className="text-gray-500 text-center">まだ反映された卓はありません。</p>
-        ) : (
-          <div className="space-y-3">{renderedTables}</div>
-        )}
+      {/* フィルターバー */}
+      <div className="flex justify-between items-center px-4 py-2 bg-gray-100 space-x-2">
+        {(['all','occupied','empty','first'] as Filter[]).map(f => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`px-3 py-1 rounded ${filter===f?'bg-blue-500 text-white':'bg-white text-gray-700'}`}
+          >
+            {{ all: '全卓', occupied: '使用中', empty: '空卓', first: '初回' }[f]}
+          </button>
+        ))}
+      </div>
+
+      {/* グリッド表示（常に3列） */}
+      <main id="main-content" className="p-4 grid grid-cols-3 gap-4">
+        {renderedTables}
       </main>
 
+      {/* 初回来店モーダル */}
       {firstModalOpen && (
         <div
           role="dialog"
@@ -177,98 +201,3 @@ export default function TableStatusPage() {
                 <label className="block text-sm mb-2">人数を選択</label>
                 <select
                   value={selectedCount}
-                  onChange={e => setSelectedCount(Number(e.target.value))}
-                  className="border p-2 w-full rounded mb-4"
-                >
-                  <option value={0}>人数を選択してください</option>
-                  {[1,2,3,4,5,6].map(n => (
-                    <option key={n} value={n}>{n} 名</option>
-                  ))}
-                </select>
-
-                <div className="flex justify-end space-x-2">
-                  <button
-                    onClick={closeFirstModal}
-                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                  >
-                    キャンセル
-                  </button>
-                  <button
-                    onClick={nextStep}
-                    disabled={!selectedTable || selectedCount < 1}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-                  >
-                    次へ
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <h3 className="text-lg font-semibold mb-4 text-center">
-                  初回来店：お客様情報
-                </h3>
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  {names.map((_, i) => (
-                    <div key={i}>
-                      {positionLabelsByCount[selectedCount][i] && (
-                        <label className="block text-xs text-gray-500 mb-1">
-                          {positionLabelsByCount[selectedCount][i]}
-                        </label>
-                      )}
-                      <input
-                        type="text"
-                        placeholder="名前"
-                        value={names[i]}
-                        onChange={e => {
-                          const a = [...names];
-                          a[i] = e.target.value.slice(0,6);
-                          setNames(a);
-                        }}
-                        className="border p-2 rounded w-full"
-                      />
-                      <select
-                        value={photos[i]}
-                        onChange={e => {
-                          const b = [...photos];
-                          b[i] = e.target.value;
-                          setPhotos(b);
-                        }}
-                        className="border p-2 rounded w-full mt-1"
-                      >
-                        <option value="なし">写真指名なし</option>
-                        {casts.map(c => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
-                      </select>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex justify-end space-x-2">
-                  <button
-                    onClick={() => setStep1(true)}
-                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                  >
-                    戻る
-                  </button>
-                  <button
-                    onClick={confirmFirst}
-                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                  >
-                    반映
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ページ固有のフッター */}
-      <Footer
-        currentUser={null}
-        onOpenAddReservation={() => {}}
-        onOpenFirst={openFirstModal}
-      />
-    </>
-  );
-}
