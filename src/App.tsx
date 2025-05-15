@@ -21,7 +21,7 @@ const CastDashboard = lazy(() => import('./pages/CastDashboard'))
 const MyPage = lazy(() => import('./pages/MyPage'))
 
 function AppInner() {
-  const { state: { tables, tableSettings, casts }, dispatch, state } = useAppContext()
+  const { dispatch } = useAppContext()
   // any を User | null 型に変更
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     const stored = localStorage.getItem('user')
@@ -32,50 +32,6 @@ function AppInner() {
   const [isResModalOpen, setResModalOpen] = useState(false)
   const openResModal = useCallback(() => setResModalOpen(true), [])
   const closeResModal = useCallback(() => setResModalOpen(false), [])
-
-  // ―― 初回来店モーダル制御をリフトアップ ――
-  const [firstModalOpen, setFirstModalOpen] = useState(false)
-  const [step1,         setStep1]           = useState(true)
-  const [selectedTable, setSelectedTable]   = useState('')
-  const [selectedCount, setSelectedCount]   = useState(0)
-  const [names,         setNames]           = useState<string[]>([])
-  const [photos,        setPhotos]          = useState<string[]>([])
-  const [firstStartTime, setFirstStartTime] = useState('')
-
-  const openFirstModal = () => {
-    const now  = new Date()
-    const hhmm = now.toTimeString().slice(0,5)
-    setFirstStartTime(hhmm)
-    setStep1(true)
-    setSelectedTable('')
-    setSelectedCount(0)
-    setNames([])
-    setPhotos([])
-    setFirstModalOpen(true)
-  }
-  const closeFirstModal = () => setFirstModalOpen(false)
-
-  const nextStep = () => {
-    if (!selectedTable || selectedCount < 1) return
-    setNames(Array(selectedCount).fill(''))
-    setPhotos(Array(selectedCount).fill('なし'))
-    setStep1(false)
-  }
-
-  const confirmFirst = () => {
-    dispatch({
-      type: 'ASSIGN_TABLE',
-      payload: {
-        id: Date.now(),
-        princess: names.join('、'),
-        requestedTable: selectedTable,
-        budget: 0,
-        time: firstStartTime,
-      },
-    })
-    // 省略：オーバーレイ表示など既存ロジックそのまま
-    closeFirstModal()
-  }
 
   // currentUser を Context と localStorage に同期
   useEffect(() => {
@@ -100,37 +56,90 @@ function AppInner() {
         <Suspense fallback={<div className="p-4 text-center">Loading…</div>}>
           <div className="min-h-screen flex flex-col pb-16">
             <Routes>
-              {/* 既存の Route 設定はそのまま */}
+              <Route
+                path="/"
+                element={
+                  currentUser ? (
+                    <Navigate to="/table-status" replace />
+                  ) : (
+                    <Login setCurrentUser={setCurrentUser} />
+                  )
+                }
+              />
+              <Route
+                path="/reservations"
+                element={
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin','cast']}>
+                    <ReservationPage
+                      isOpen={isResModalOpen}
+                      onClose={closeResModal}
+                      currentUser={currentUser}
+                    />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/table-status"
+                element={
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin','cast']}>
+                    <TableStatusPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/cast-list"
+                element={
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin']}>
+                    <CastListPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin-settings"
+                element={
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin']}>
+                    <AdminTableSettings setCurrentUser={setCurrentUser} />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin']}>
+                    <AdminDashboard
+                      user={currentUser}
+                      setCurrentUser={setCurrentUser}
+                    />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/cast"
+                element={
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['cast']}>
+                    <CastDashboard
+                      user={currentUser}
+                      setCurrentUser={setCurrentUser}
+                    />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/my-page"
+                element={
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['cast']}>
+                    <MyPage setCurrentUser={setCurrentUser} />
+                  </PrivateRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
 
-            {/* 全ページ共通：グローバル Footer に onOpenFirst を渡す */}
             {currentUser && (
               <Footer
                 currentUser={currentUser}
                 onOpenAddReservation={openResModal}
-                onOpenFirst={openFirstModal}
               />
-            )}
-
-            {/* 初回モーダルは AppInner 配下で共通描画 */}
-            {firstModalOpen && (
-              <div
-                role="dialog"
-                aria-modal="true"
-                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-              >
-                {/* ここに TableStatusPage.tsx からコピーしたモーダルの JSX 全体を貼り付けてください */}
-                {/* 例： */}
-                <div className="bg-white p-6 rounded-lg w-full max-w-md">
-                  {step1 ? (
-                    /* Step1 JSX */
-                    <></>
-                  ) : (
-                    /* Step2 JSX */
-                    <></>
-                  )}
-                </div>
-              </div>
             )}
           </div>
         </Suspense>
