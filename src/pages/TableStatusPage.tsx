@@ -119,6 +119,7 @@ export default function TableStatusPage() {
         key={idx}
         className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between"
       >
+        {/* 削除ボタン（姫がいる卓のみ） */}
         {table.princess && (
           <button
             onClick={() => handleDelete(table.id)}
@@ -179,7 +180,7 @@ export default function TableStatusPage() {
         {/* 左端: 初回 */}
         <button
           onClick={() => setFilter('first')}
-          className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+          className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
             filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
           }`}
         >
@@ -258,9 +259,7 @@ export default function TableStatusPage() {
             ) : (
               <>
                 {/* 既存フォーム部分 */}
-                <div className="flex justify-end space-x-2">
-                  {/* ... */}
-                </div>
+                <div className="flex justify-end space-x-2">{/* ... */}</div>
               </>
             )}
           </div>
