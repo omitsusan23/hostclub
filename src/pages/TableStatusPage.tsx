@@ -94,7 +94,7 @@ export default function TableStatusPage() {
         <p className="text-center">
           <strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
         </p>
-        <p className="text-center"><strong>開始時間:</strong> {table.time}</p>
+        <p className="text-center"><strong>開始時間:</strong> {table.time.slice(0,5)}</p>
       </div>
       <button
         onClick={() => handleDelete(table.id)}
@@ -254,7 +254,7 @@ export default function TableStatusPage() {
                     onClick={confirmFirst}
                     className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                   >
-                    反映
+                    반映
                   </button>
                 </div>
               </>
