@@ -119,7 +119,6 @@ export default function TableStatusPage() {
         key={idx}
         className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between"
       >
-        {/* 削除ボタン（姫がいる卓のみ表示） */}
         {table.princess && (
           <button
             onClick={() => handleDelete(table.id)}
@@ -173,8 +172,9 @@ export default function TableStatusPage() {
 
       {/* 固定ヘッダー */}
       <header
-        className="sticky top-0 bg-white z-50 border-b px-4 py-5
-                   grid grid-cols-[auto_1fr_auto] items-baseline"
+        className="sticky top-0 bg-white z-50 border-b
+                   px-4 py-5
+                   grid grid-cols-[1fr_auto_1fr] items-baseline"
       >
         {/* 左端: 初回 */}
         <button
@@ -186,13 +186,13 @@ export default function TableStatusPage() {
           初回
         </button>
 
-        {/* 中央: 「卓状況」 */}
+        {/* 中央: 卓状況 */}
         <h2 className="justify-self-center text-2xl font-bold">
           卓状況
         </h2>
 
         {/* 右端: 全卓・使用中・空卓 */}
-        <div className="flex space-x-1">
+        <div className="flex space-x-1 justify-self-end">
           <button
             onClick={() => setFilter('all')}
             className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
@@ -259,7 +259,7 @@ export default function TableStatusPage() {
               <>
                 {/* 既存フォーム部分 */}
                 <div className="flex justify-end space-x-2">
-                  {/* … */}
+                  {/* ... */}
                 </div>
               </>
             )}
