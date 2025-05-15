@@ -174,7 +174,8 @@ export default function TableStatusPage() {
 
       {/* 固定ヘッダー */}
       <header className="sticky top-0 bg-white z-50">
-        <div className="px-4 pt-4">
+        {/* 上下の余白を均一に py-2 に */}
+        <div className="px-4 py-2">
           <h2 className="text-2xl font-bold text-center">卓状況</h2>
         </div>
         <div className="flex justify-center px-4 pb-2 bg-white border-b">
