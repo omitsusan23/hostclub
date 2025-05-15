@@ -159,26 +159,26 @@ export default function TableStatusPage() {
         <div className="px-4 pt-4">
           <h2 className="text-2xl font-bold text-center">卓状況</h2>
         </div>
-        <div className="flex justify-end space-x-1 px-4 pb-2 bg-white border-b">
-          {(['all', 'occupied', 'empty', 'first'] as Filter[]).map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`
-                px-1
-                py-0.5
-                text-xs
-                ${filter === f ? 'font-bold text-black' : 'text-gray-700'}
-              `}
-            >
-              {{ all: '全卓', occupied: '使用中', empty: '空卓', first: '初回' }[f]}
-            </button>
-          ))}
+        {/* フィルターを見出しの直下に収め、幅いっぱいではなく中央寄せ */}
+        <div className="flex justify-center px-4 pb-2 bg-white border-b">
+          <div className="bg-gray-100 rounded-full inline-flex space-x-1 px-1 py-0.5">
+            {(['all', 'occupied', 'empty', 'first'] as Filter[]).map(f => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-1 py-0.5 text-xs ${
+                  filter === f ? 'font-bold text-black' : 'text-gray-700'
+                }`}
+              >
+                {{ all: '全卓', occupied: '使用中', empty: '空卓', first: '初回' }[f]}
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
       {/* テーブルグリッド（3列） */}
-      <main id="main-content" className="p-4 grid grid-cols-3 gap-4">
+      <main id="main-content" className="px-4 py-4 grid grid-cols-3 gap-4">
         {renderedTables}
       </main>
 
