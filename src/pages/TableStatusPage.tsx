@@ -17,9 +17,6 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
-  // ―― 初回フォームで出した卓のリスト ――
-  const [firstTables, setFirstTables] = useState<string[]>([]);
-
   // フィルタリング
   const [filter, setFilter] = useState<Filter>('all');
 
@@ -64,7 +61,6 @@ export default function TableStatusPage() {
   }, [dispatch, tables]);
 
   const confirmFirst = () => {
-    // Context に登録
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
@@ -75,9 +71,6 @@ export default function TableStatusPage() {
         time: firstStartTime,
       },
     });
-    // この卓を「初回卓」としてマーク
-    setFirstTables(prev => [...prev, selectedTable]);
-
     const entries = names.map((n, i) => {
       const label = positionLabelsByCount[selectedCount][i];
       const pname = n || 'お客様';
@@ -89,13 +82,12 @@ export default function TableStatusPage() {
     closeFirstModal();
   };
 
-  // テーブルリストフィルタ
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
-      case 'first':
-        return tables.filter(t => firstTables.includes(t.tableNumber));
       case 'occupied':
         return tables;
+      case 'first':
+        return tables.filter(t => t.budget === 0);
       case 'empty':
         return tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
@@ -119,7 +111,7 @@ export default function TableStatusPage() {
           }));
         return [...tables, ...empty];
     }
-  }, [filter, tables, tableSettings, firstTables]);
+  }, [filter, tables, tableSettings]);
 
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => (
@@ -127,7 +119,7 @@ export default function TableStatusPage() {
         key={idx}
         className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between"
       >
-        {/* 削除ボタン（姫がいる卓のみ表示） */}
+        {/* 削除ボタン（姫がいる卓のみ） */}
         {table.princess && (
           <button
             onClick={() => handleDelete(table.id)}
@@ -140,11 +132,7 @@ export default function TableStatusPage() {
             {deletingId === table.id ? '削除中...' : '削除'}
           </button>
         )}
-        {/* 卓番号に (初回) を追加 */}
-        <p className="text-center font-bold">
-          {table.tableNumber}
-          {firstTables.includes(table.tableNumber) && ' (初回)'}
-        </p>
+        <p className="text-center font-bold">{table.tableNumber}</p>
         {table.princess ? (
           <>
             <p className="text-sm mt-2"><strong>姫名:</strong> {table.princess}</p>
@@ -161,7 +149,7 @@ export default function TableStatusPage() {
         )}
       </div>
     )),
-  [filteredTables, handleDelete, deletingId, firstTables]);
+  [filteredTables, handleDelete, deletingId]);
 
   return (
     <>
@@ -184,20 +172,31 @@ export default function TableStatusPage() {
       )}
 
       {/* 固定ヘッダー */}
-      <header className="sticky top-0 bg-white z-50 border-b px-4 py-2 flex items-center justify-between">
-        <h2 className="text-2xl font-bold">卓状況</h2>
-        <div className="flex space-x-1">
-          <button
-            onClick={() => setFilter('first')}
-            className={`bg-gray-100 rounded-full px-2 py-0.5 text-xs ${
-              filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
-            }`}
-          >
-            初回
-          </button>
+      <header
+        className="sticky top-0 bg-white z-50 border-b
+                   px-4 py-5
+                   grid grid-cols-[1fr_auto_1fr] items-baseline"
+      >
+        {/* 左端: 初回 */}
+        <button
+          onClick={() => setFilter('first')}
+          className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+            filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
+          }`}
+        >
+          初回
+        </button>
+
+        {/* 中央: 卓状況 */}
+        <h2 className="justify-self-center text-2xl font-bold">
+          卓状況
+        </h2>
+
+        {/* 右端: 全卓・使用中・空卓 */}
+        <div className="flex space-x-1 justify-self-end">
           <button
             onClick={() => setFilter('all')}
-            className={`bg-gray-100 rounded-full px-2 py-0.5 text-xs ${
+            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
               filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
             }`}
           >
@@ -205,7 +204,7 @@ export default function TableStatusPage() {
           </button>
           <button
             onClick={() => setFilter('occupied')}
-            className={`bg-gray-100 rounded-full px-2 py-0.5 text-xs ${
+            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
               filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
             }`}
           >
@@ -213,7 +212,7 @@ export default function TableStatusPage() {
           </button>
           <button
             onClick={() => setFilter('empty')}
-            className={`bg-gray-100 rounded-full px-2 py-0.5 text-xs ${
+            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
               filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
             }`}
           >
@@ -260,9 +259,7 @@ export default function TableStatusPage() {
             ) : (
               <>
                 {/* 既存フォーム部分 */}
-                <div className="flex justify-end space-x-2">
-                  {/* ... */}
-                </div>
+                <div className="flex justify-end space-x-2">{/* ... */}</div>
               </>
             )}
           </div>
