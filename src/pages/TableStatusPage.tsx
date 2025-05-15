@@ -177,8 +177,8 @@ export default function TableStatusPage() {
         <div className="px-4 py-2">
           <h2 className="text-2xl font-bold text-center">卓状況</h2>
         </div>
-        <div className="flex justify-between px-4 pb-2 bg-white border-b">
-          {/* 初回を左端に */}
+        {/* 左端に初回、右端に他3種 */}
+        <div className="flex justify-between px-4 py-2 bg-white border-b">
           <div className="bg-gray-100 rounded-full inline-flex space-x-1 px-1 py-0.5">
             <button
               onClick={() => setFilter('first')}
@@ -189,7 +189,6 @@ export default function TableStatusPage() {
               初回
             </button>
           </div>
-          {/* 他三つを右端に */}
           <div className="bg-gray-100 rounded-full inline-flex space-x-1 px-1 py-0.5">
             <button
               onClick={() => setFilter('all')}
