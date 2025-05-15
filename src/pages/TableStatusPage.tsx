@@ -172,50 +172,51 @@ export default function TableStatusPage() {
       )}
 
       {/* 固定ヘッダー */}
-      <header className="sticky top-0 bg-white z-50 border-b px-4 py-5">
-        <div className="flex items-baseline justify-between">
-          {/* 左端: 初回 */}
+      <header
+        className="sticky top-0 bg-white z-50 border-b px-4 py-5
+                   grid grid-cols-[auto_1fr_auto] items-baseline"
+      >
+        {/* 左端: 初回 */}
+        <button
+          onClick={() => setFilter('first')}
+          className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+            filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
+          }`}
+        >
+          初回
+        </button>
+
+        {/* 中央: タイトル */}
+        <h2 className="justify-self-center text-2xl font-bold">
+          卓状況
+        </h2>
+
+        {/* 右端: 全卓・使用中・空卓 */}
+        <div className="flex space-x-1">
           <button
-            onClick={() => setFilter('first')}
+            onClick={() => setFilter('all')}
             className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-              filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
+              filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
             }`}
           >
-            初回
+            全卓
           </button>
-
-          {/* 真ん中: タイトル */}
-          <div className="flex-1 text-center">
-            <h2 className="inline-block text-2xl font-bold">卓状況</h2>
-          </div>
-
-          {/* 右端: 全卓・使用中・空卓 */}
-          <div className="flex items-baseline space-x-1">
-            <button
-              onClick={() => setFilter('all')}
-              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              全卓
-            </button>
-            <button
-              onClick={() => setFilter('occupied')}
-              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              使用中
-            </button>
-            <button
-              onClick={() => setFilter('empty')}
-              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              空卓
-            </button>
-          </div>
+          <button
+            onClick={() => setFilter('occupied')}
+            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+              filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
+            }`}
+          >
+            使用中
+          </button>
+          <button
+            onClick={() => setFilter('empty')}
+            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+              filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
+            }`}
+          >
+            空卓
+          </button>
         </div>
       </header>
 
