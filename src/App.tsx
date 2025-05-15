@@ -5,6 +5,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from 'react-router-dom'
 import PrivateRoute from './components/PrivateRoute'
 import Footer from './components/Footer'
@@ -21,7 +22,9 @@ const CastDashboard = lazy(() => import('./pages/CastDashboard'))
 const MyPage = lazy(() => import('./pages/MyPage'))
 
 function AppInner() {
+  
   const { dispatch } = useAppContext()
+  const loc = useLocation()
   // any を User | null 型に変更
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     const stored = localStorage.getItem('user')
@@ -135,7 +138,7 @@ function AppInner() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
 
-            {currentUser && (
+            {currentUser && loc.pathname !== '/table-status' && (
               <Footer
                 currentUser={currentUser}
                 onOpenAddReservation={openResModal}
