@@ -1,6 +1,7 @@
 // src/pages/TableStatusPage.tsx
 import React, { useState, useCallback, useMemo } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
+import Footer from '../components/Footer';
 
 const positionLabelsByCount: Record<number, string[]> = {
   1: [], // 一名時はラベルなし
@@ -59,7 +60,6 @@ export default function TableStatusPage() {
   }, [dispatch, tables]);
 
   const confirmFirst = () => {
-    // ここを ASSIGN_TABLE に戻し、requestedTable を渡す
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
@@ -262,6 +262,13 @@ export default function TableStatusPage() {
           </div>
         </div>
       )}
+
+      {/* ページ固有のフッター */}
+      <Footer
+        currentUser={null}
+        onOpenAddReservation={() => {}}
+        onOpenFirst={openFirstModal}
+      />
     </>
   );
 }
