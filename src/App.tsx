@@ -69,7 +69,7 @@ function AppInner() {
               <Route
                 path="/reservations"
                 element={
-                  <PrivateRoute currentUser={currentUser} allowedRoles={["admin","cast"]}>
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin','cast']}>
                     <ReservationPage
                       isOpen={isResModalOpen}
                       onClose={closeResModal}
@@ -81,7 +81,7 @@ function AppInner() {
               <Route
                 path="/table-status"
                 element={
-                  <PrivateRoute currentUser={currentUser} allowedRoles={["admin","cast"]}>
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin','cast']}>
                     <TableStatusPage />
                   </PrivateRoute>
                 }
@@ -89,7 +89,7 @@ function AppInner() {
               <Route
                 path="/cast-list"
                 element={
-                  <PrivateRoute currentUser={currentUser} allowedRoles={["admin"]}>
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin']}>
                     <CastListPage />
                   </PrivateRoute>
                 }
@@ -97,7 +97,7 @@ function AppInner() {
               <Route
                 path="/admin-settings"
                 element={
-                  <PrivateRoute currentUser={currentUser} allowedRoles={["admin"]}>
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin']}>
                     <AdminTableSettings setCurrentUser={setCurrentUser} />
                   </PrivateRoute>
                 }
@@ -105,7 +105,7 @@ function AppInner() {
               <Route
                 path="/admin"
                 element={
-                  <PrivateRoute currentUser={currentUser} allowedRoles={["admin"]}>
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin']}>
                     <AdminDashboard
                       user={currentUser}
                       setCurrentUser={setCurrentUser}
@@ -116,7 +116,7 @@ function AppInner() {
               <Route
                 path="/cast"
                 element={
-                  <PrivateRoute currentUser={currentUser} allowedRoles={["cast"]}>
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['cast']}>
                     <CastDashboard
                       user={currentUser}
                       setCurrentUser={setCurrentUser}
@@ -127,7 +127,7 @@ function AppInner() {
               <Route
                 path="/my-page"
                 element={
-                  <PrivateRoute currentUser={currentUser} allowedRoles={["cast"]}>
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['cast']}>
                     <MyPage setCurrentUser={setCurrentUser} />
                   </PrivateRoute>
                 }
@@ -135,7 +135,7 @@ function AppInner() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
 
-            {currentUser && window.location.pathname !== '/table-status' && (
+            {currentUser && (
               <Footer
                 currentUser={currentUser}
                 onOpenAddReservation={openResModal}
