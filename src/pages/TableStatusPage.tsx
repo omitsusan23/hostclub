@@ -171,7 +171,7 @@ export default function TableStatusPage() {
       )}
 
       {/* 固定ヘッダー */}
-      <header className="sticky top-0 bg-white z-50 px-4 py-2 border-b flex items-center justify-between">
+      <header className="sticky top-0 bg-white z-50 px-4 py-3 border-b flex items-center justify-between">
         {/* 見出しを中央に */}
         <h2 className="absolute left-1/2 transform -translate-x-1/2 text-2xl font-bold">
           卓状況
