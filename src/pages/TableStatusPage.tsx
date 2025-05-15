@@ -132,7 +132,6 @@ export default function TableStatusPage() {
             {deletingId === table.id ? '削除中...' : '削除'}
           </button>
         )}
-
         <p className="text-center font-bold">{table.tableNumber}</p>
         {table.princess ? (
           <>
@@ -178,19 +177,44 @@ export default function TableStatusPage() {
         <div className="px-4 py-2">
           <h2 className="text-2xl font-bold text-center">卓状況</h2>
         </div>
-        <div className="flex justify-center px-4 pb-2 bg-white border-b">
+        <div className="flex justify-between px-4 pb-2 bg-white border-b">
+          {/* 初回を左端に */}
           <div className="bg-gray-100 rounded-full inline-flex space-x-1 px-1 py-0.5">
-            {(['all', 'occupied', 'empty', 'first'] as Filter[]).map(f => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-1 py-0.5 text-xs ${
-                  filter === f ? 'font-bold text-black' : 'text-gray-700'
-                }`}
-              >
-                {{ all: '全卓', occupied: '使用中', empty: '空卓', first: '初回' }[f]}
-              </button>
-            ))}
+            <button
+              onClick={() => setFilter('first')}
+              className={`px-1 py-0.5 text-xs ${
+                filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              初回
+            </button>
+          </div>
+          {/* 他三つを右端に */}
+          <div className="bg-gray-100 rounded-full inline-flex space-x-1 px-1 py-0.5">
+            <button
+              onClick={() => setFilter('all')}
+              className={`px-1 py-0.5 text-xs ${
+                filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              全卓
+            </button>
+            <button
+              onClick={() => setFilter('occupied')}
+              className={`px-1 py-0.5 text-xs ${
+                filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              使用中
+            </button>
+            <button
+              onClick={() => setFilter('empty')}
+              className={`px-1 py-0.5 text-xs ${
+                filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              空卓
+            </button>
           </div>
         </div>
       </header>
