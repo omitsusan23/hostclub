@@ -22,15 +22,15 @@ export default function TableStatusPage() {
 
   // オーバーレイ／モーダル機能
   const [overlayMessage, setOverlayMessage] = useState('');
-  const [deleteMessage, setDeleteMessage]     = useState('');
-  const [deletingId, setDeletingId]           = useState<number | null>(null);
-  const [firstModalOpen, setFirstModalOpen]   = useState(false);
-  const [step1, setStep1]                     = useState(true);
-  const [selectedTable, setSelectedTable]     = useState('');
-  const [selectedCount, setSelectedCount]     = useState(0);
-  const [names, setNames]                     = useState<string[]>([]);
-  const [photos, setPhotos]                   = useState<string[]>([]);
-  const [firstStartTime, setFirstStartTime]   = useState('');
+  const [deleteMessage, setDeleteMessage]   = useState('');
+  const [deletingId, setDeletingId]         = useState<number | null>(null);
+  const [firstModalOpen, setFirstModalOpen] = useState(false);
+  const [step1, setStep1]                   = useState(true);
+  const [selectedTable, setSelectedTable]   = useState('');
+  const [selectedCount, setSelectedCount]   = useState(0);
+  const [names, setNames]                   = useState<string[]>([]);
+  const [photos, setPhotos]                 = useState<string[]>([]);
+  const [firstStartTime, setFirstStartTime] = useState('');
 
   const openFirstModal = () => {
     const now = new Date();
@@ -135,12 +135,12 @@ export default function TableStatusPage() {
         <div className="px-4 pt-4">
           <h2 className="text-2xl font-bold text-center">卓状況</h2>
         </div>
-        <div className="flex justify-end space-x-0 px-4 pb-2 bg-white border-b">
+        <div className="flex justify-end space-x-1 px-4 pb-2 bg-white border-b">
           {(['all', 'occupied', 'empty', 'first'] as Filter[]).map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-1 py-1 text-xs ${filter === f ? 'font-bold text-black' : 'text-gray-700'}`}
+              className={`px-2 py-1 text-xs ${filter === f ? 'font-bold text-black' : 'text-gray-700'}`}
             >
               {{ all: '全卓', occupied: '使用中', empty: '空卓', first: '初回' }[f]}
             </button>
@@ -167,10 +167,11 @@ export default function TableStatusPage() {
                   className="border p-2 w-full rounded mb-4"
                 >
                   <option value="">選択してください</option>
-                  {tableSettings.map(t => tables.some(tab => tab.tableNumber === t)
-                    ? <option key={t} value={t} disabled>{t}（使用中）</option>
-                    : <option key={t} value={t}>{t}</option>
-                  )}
+                  {tableSettings.map(t => (
+                    tables.some(tab => tab.tableNumber === t)
+                      ? <option key={t} value={t} disabled>{t}（使用中）</option>
+                      : <option key={t} value={t}>{t}</option>
+                  ))}
                 </select>
                 <label className="block text-sm mb-2">開始時間</label>
                 <input
