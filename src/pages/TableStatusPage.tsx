@@ -172,20 +172,21 @@ export default function TableStatusPage() {
       )}
 
       {/* 固定ヘッダー */}
-      <header className="sticky top-0 bg-white z-50 px-4 py-2 border-b grid grid-cols-3 items-baseline">
-        {/* 左端: 初回 */}
-        <button
-          onClick={() => setFilter('first')}
-          className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-            filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
-          }`}
-        >
-          初回
-        </button>
-        {/* 中央: 見出し */}
-        <h2 className="text-2xl font-bold justify-self-center">卓状況</h2>
-        {/* 右端: 全卓, 使用中, 空卓 */}
-        <div className="flex justify-end space-x-1 items-baseline">
+      <header className="sticky top-0 bg-white z-50 px-4 py-2 border-b flex items-center justify-between">
+        {/* タイトルを上下中央に */}
+        <h2 className="text-2xl font-bold">卓状況</h2>
+        {/* フィルターグループ */}
+        <div className="flex space-x-1">
+          {/* 初回 */}
+          <button
+            onClick={() => setFilter('first')}
+            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+              filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
+            }`}
+          >
+            初回
+          </button>
+          {/* 全卓・使用中・空卓 */}
           <button
             onClick={() => setFilter('all')}
             className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
