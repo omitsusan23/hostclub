@@ -20,7 +20,10 @@ export default function TableStatusPage() {
   // フィルタリング
   const [filter, setFilter] = useState<Filter>('all');
 
-  // オーバーレイ／モーダル機能
+  // “初回”で反映した卓番号を保持
+  const [firstTables, setFirstTables] = useState<string[]>([]);
+
+  // ―― オーバーレイ／モーダル機能 ――
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage]   = useState('');
   const [deletingId, setDeletingId]         = useState<number | null>(null);
@@ -71,6 +74,7 @@ export default function TableStatusPage() {
         time: firstStartTime,
       },
     });
+    // モーダルの内容表示
     const entries = names.map((n, i) => {
       const label = positionLabelsByCount[selectedCount][i];
       const pname = n || 'お客様';
@@ -79,15 +83,23 @@ export default function TableStatusPage() {
     });
     setOverlayMessage(`卓【${selectedTable}】に着席：${entries.join('、')}`);
     setTimeout(() => setOverlayMessage(''), 1000);
+
+    // “初回”テーブルをマーク
+    setFirstTables(prev =>
+      prev.includes(selectedTable) ? prev : [...prev, selectedTable]
+    );
+
     closeFirstModal();
   };
 
+  // テーブルリストのフィルタリング
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
         return tables;
       case 'first':
-        return tables.filter(t => t.budget === 0);
+        // “初回”にマークされた卓のみ
+        return tables.filter(t => firstTables.includes(t.tableNumber));
       case 'empty':
         return tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
@@ -111,8 +123,9 @@ export default function TableStatusPage() {
           }));
         return [...tables, ...empty];
     }
-  }, [filter, tables, tableSettings]);
+  }, [filter, tables, tableSettings, firstTables]);
 
+  // テーブルカードのレンダリング
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => (
       <div
@@ -132,11 +145,19 @@ export default function TableStatusPage() {
             {deletingId === table.id ? '削除中...' : '削除'}
           </button>
         )}
-        <p className="text-center font-bold">{table.tableNumber}</p>
+        {/* 卓番号に “(初回)” を追記 */}
+        <p className="text-center font-bold">
+          {table.tableNumber}
+          {firstTables.includes(table.tableNumber) && ' (初回)'}
+        </p>
         {table.princess ? (
           <>
-            <p className="text-sm mt-2"><strong>姫名:</strong> {table.princess}</p>
-            <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
+            <p className="text-sm mt-2">
+              <strong>姫名:</strong> {table.princess}
+            </p>
+            <p className="text-sm">
+              <strong>開始:</strong> {table.time.slice(0,5)}
+            </p>
             <p className="text-sm">
               <strong>予算:</strong>{' '}
               {table.budget === 0
@@ -149,7 +170,7 @@ export default function TableStatusPage() {
         )}
       </div>
     )),
-  [filteredTables, handleDelete, deletingId]);
+  [filteredTables, handleDelete, deletingId, firstTables]);
 
   return (
     <>
@@ -259,7 +280,9 @@ export default function TableStatusPage() {
             ) : (
               <>
                 {/* 既存フォーム部分 */}
-                <div className="flex justify-end space-x-2">{/* ... */}</div>
+                <div className="flex justify-end space-x-2">
+                  {/* ... */}
+                </div>
               </>
             )}
           </div>
