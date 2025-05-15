@@ -20,6 +20,16 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const CastDashboard = lazy(() => import('./pages/CastDashboard'))
 const MyPage = lazy(() => import('./pages/MyPage'))
 
+// ―― ここを追加 ――
+const positionLabelsByCount: Record<number, string[]> = {
+  1: [],
+  2: ['左', '右'],
+  3: ['左', '中', '右'],
+  4: ['左端', '左', '右', '右端'],
+  5: ['左端', '左', '中', '右', '右端'],
+  6: ['左端', '左中', '左', '右', '右中', '右端'],
+}
+
 export default function App() {
   return (
     <AppProvider>
@@ -35,19 +45,19 @@ function AppInner() {
     return stored ? (JSON.parse(stored) as User) : null
   })
 
-  // 予約モーダル制御
+  // 予約モーダル
   const [isResModalOpen, setResModalOpen] = useState(false)
   const openResModal = useCallback(() => setResModalOpen(true), [])
   const closeResModal = useCallback(() => setResModalOpen(false), [])
 
-  // 初回来店モーダル制御
+  // 初回来店モーダル
   const [firstModalOpen, setFirstModalOpen] = useState(false)
   const [step1,         setStep1]           = useState(true)
   const [selectedTable, setSelectedTable]   = useState('')
   const [selectedCount, setSelectedCount]   = useState(0)
   const [names,         setNames]           = useState<string[]>([])
   const [photos,        setPhotos]          = useState<string[]>([])
-  const [firstStartTime,setFirstStartTime]  = useState('')
+  const [firstStartTime, setFirstStartTime] = useState('')
 
   const openFirstModal = () => {
     const now = new Date()
@@ -61,14 +71,12 @@ function AppInner() {
     setFirstModalOpen(true)
   }
   const closeFirstModal = () => setFirstModalOpen(false)
-
   const nextStep = () => {
     if (!selectedTable || selectedCount < 1) return
     setNames(Array(selectedCount).fill(''))
     setPhotos(Array(selectedCount).fill('なし'))
     setStep1(false)
   }
-
   const confirmFirst = () => {
     dispatch({
       type: 'ASSIGN_TABLE',
@@ -80,11 +88,10 @@ function AppInner() {
         time: firstStartTime,
       },
     })
-    // オーバーレイなど既存ロジック（省略）
+    // 既存のオーバーレイ表示ロジックなどをここに入れてください
     closeFirstModal()
   }
 
-  // currentUser を Context と localStorage に同期
   useEffect(() => {
     if (currentUser) {
       localStorage.setItem('user', JSON.stringify(currentUser))
@@ -106,6 +113,7 @@ function AppInner() {
         </a>
         <Suspense fallback={<div className="p-4 text-center">Loading…</div>}>
           <div className="min-h-screen flex flex-col pb-16">
+            {/* ↓ 既存の Routes 定義はまったく変更しないでください ↓ */}
             <Routes>
               <Route
                 path="/"
@@ -185,7 +193,9 @@ function AppInner() {
               />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            {/* ↑ 既存 Routes ここまで ↑ */}
 
+            {/* グローバル Footer に両ハンドラ渡し */}
             {currentUser && (
               <Footer
                 currentUser={currentUser}
@@ -194,6 +204,7 @@ function AppInner() {
               />
             )}
 
+            {/* 初回来店モーダル */}
             {firstModalOpen && (
               <div
                 role="dialog"
@@ -264,13 +275,52 @@ function AppInner() {
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         {names.map((_, i) => (
                           <div key={i}>
-                            <input /*以下、既存の入力エリア・セレクトをそのまま*/ />
+                            {positionLabelsByCount[selectedCount][i] && (
+                              <label className="block text-xs text-gray-500 mb-1">
+                                {positionLabelsByCount[selectedCount][i]}
+                              </label>
+                            )}
+                            <input
+                              type="text"
+                              placeholder="名前"
+                              value={names[i]}
+                              onChange={e => {
+                                const a = [...names]
+                                a[i] = e.target.value.slice(0,6)
+                                setNames(a)
+                              }}
+                              className="border p-2 rounded w-full"
+                            />
+                            <select
+                              value={photos[i]}
+                              onChange={e => {
+                                const b = [...photos]
+                                b[i] = e.target.value
+                                setPhotos(b)
+                              }}
+                              className="border p-2 rounded w-full mt-1"
+                            >
+                              <option value="なし">写真指名なし</option>
+                              {casts.map(c => (
+                                <option key={c} value={c}>{c}</option>
+                              ))}
+                            </select>
                           </div>
                         ))}
                       </div>
                       <div className="flex justify-end space-x-2">
-                        <button onClick={() => setStep1(true)} /*...*/>戻る</button>
-                        <button onClick={confirmFirst} /*...*/>反映</button>
+                        <button
+                          onClick={() => setStep1(true)}
+                          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                        >
+                          戻る
+                        </button>
+                        <button
+                          onClick={confirmFirst}
+                          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                        >
+                          反映
+                        </button>
                       </div>
                     </>
                   )}
