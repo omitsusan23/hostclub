@@ -119,7 +119,6 @@ export default function TableStatusPage() {
         key={idx}
         className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between"
       >
-        {/* 削除ボタン（姫がいる卓のみ表示） */}
         {table.princess && (
           <button
             onClick={() => handleDelete(table.id)}
@@ -172,51 +171,48 @@ export default function TableStatusPage() {
       )}
 
       {/* 固定ヘッダー */}
-      <header
-        className="sticky top-0 bg-white z-50 border-b px-4 py-5
-                   grid grid-cols-[auto_1fr_auto] items-baseline"
-      >
-        {/* 左端: 初回 */}
-        <button
-          onClick={() => setFilter('first')}
-          className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-            filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
-          }`}
-        >
-          初回
-        </button>
-
-        {/* 中央: タイトル */}
-        <h2 className="justify-self-center text-2xl font-bold">
+      <header className="sticky top-0 bg-white z-50 border-b relative px-4 py-5">
+        {/* 真ん中に固定 */}
+        <h2 className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl font-bold">
           卓状況
         </h2>
-
-        {/* 右端: 全卓・使用中・空卓 */}
-        <div className="flex space-x-1">
+        <div className="flex justify-between items-baseline">
+          {/* 左端: 初回 */}
           <button
-            onClick={() => setFilter('all')}
+            onClick={() => setFilter('first')}
             className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-              filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
+              filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
             }`}
           >
-            全卓
+            初回
           </button>
-          <button
-            onClick={() => setFilter('occupied')}
-            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-              filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
-            }`}
-          >
-            使用中
-          </button>
-          <button
-            onClick={() => setFilter('empty')}
-            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-              filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
-            }`}
-          >
-            空卓
-          </button>
+          {/* 右端: 全卓・使用中・空卓 */}
+          <div className="flex space-x-1">
+            <button
+              onClick={() => setFilter('all')}
+              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+                filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              全卓
+            </button>
+            <button
+              onClick={() => setFilter('occupied')}
+              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+                filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              使用中
+            </button>
+            <button
+              onClick={() => setFilter('empty')}
+              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+                filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              空卓
+            </button>
+          </div>
         </div>
       </header>
 
@@ -259,7 +255,7 @@ export default function TableStatusPage() {
               <>
                 {/* 既存フォーム部分 */}
                 <div className="flex justify-end space-x-2">
-                  {/* … */}
+                  {/* ... */}
                 </div>
               </>
             )}
