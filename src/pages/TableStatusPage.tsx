@@ -164,16 +164,14 @@ export default function TableStatusPage() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-2 py-1 text-xs ${
-                filter === f ? 'font-bold text-black' : 'text-gray-700'
-              }`}
+              className={`
+                px-1
+                py-0.5
+                text-xs
+                ${filter === f ? 'font-bold text-black' : 'text-gray-700'}
+              `}
             >
-              {{
-                all: '全卓',
-                occupied: '使用中',
-                empty: '空卓',
-                first: '初回',
-              }[f]}
+              {{ all: '全卓', occupied: '使用中', empty: '空卓', first: '初回' }[f]}
             </button>
           ))}
         </div>
