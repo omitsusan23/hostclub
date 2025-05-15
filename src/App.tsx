@@ -21,7 +21,6 @@ const CastDashboard = lazy(() => import('./pages/CastDashboard'))
 const MyPage = lazy(() => import('./pages/MyPage'))
 
 function AppInner() {
-  
   const { dispatch } = useAppContext()
   // any を User | null 型に変更
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
@@ -136,7 +135,7 @@ function AppInner() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
 
-            {currentUser && window.location.pathname !== '/table-status' && (
+            {currentUser && (
               <Footer
                 currentUser={currentUser}
                 onOpenAddReservation={openResModal}
