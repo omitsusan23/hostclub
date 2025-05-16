@@ -1,4 +1,8 @@
 // src/pages/TableStatusPage.tsx
+export default function TableStatusPage() {
+  const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
+
+
 import React, { useState, useCallback, useMemo } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
 import Footer from '../components/Footer';
