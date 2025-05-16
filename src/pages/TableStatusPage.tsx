@@ -269,33 +269,36 @@ export default function TableStatusPage() {
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
         >
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
+
+            {/* 初回/初回指名 トグル: stepによらず常に表示 */}
+            <div className="mb-4 flex items-center space-x-4 justify-center">
+              <label className="inline-flex items-center space-x-1">
+                <input
+                  type="radio"
+                  name="firstType"
+                  value="初回"
+                  checked={firstType === '初回'}
+                  onChange={() => setFirstType('初回')}
+                />
+                <span className="text-sm">初回</span>
+              </label>
+              <label className="inline-flex items-center space-x-1">
+                <input
+                  type="radio"
+                  name="firstType"
+                  value="初回指名"
+                  checked={firstType === '初回指名'}
+                  onChange={() => setFirstType('初回指名')}
+                />
+                <span className="text-sm">初回指名</span>
+              </label>
+            </div>
+
             {step1 ? (
-              <>
+              <>  {/* ステップ1: 卓と人数を選択 */}
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：卓と人数を選択
                 </h3>
-
-                {/* 「初回」か「初回指名」を選択 */}
-                <div className="mb-4 flex items-center space-x-4 justify-center">
-                  <label className="inline-flex items-center space-x-1">
-                    <input
-                      type="radio"
-                      value="初回"
-                      checked={firstType === '初回'}
-                      onChange={() => setFirstType('初回')}
-                    />
-                    <span className="text-sm">初回</span>
-                  </label>
-                  <label className="inline-flex items-center space-x-1">
-                    <input
-                      type="radio"
-                      value="初回指名"
-                      checked={firstType === '初回指名'}
-                      onChange={() => setFirstType('初回指名')}
-                    />
-                    <span className="text-sm">初回指名</span>
-                  </label>
-                </div>
 
                 {/* 卓選択フォーム */}
                 <label className="block text-sm mb-2">卓を選択</label>
@@ -312,7 +315,6 @@ export default function TableStatusPage() {
                   )}
                 </select>
 
-                {/* 開始時間・人数選択 */}
                 <label className="block text-sm mb-2">開始時間</label>
                 <input
                   type="time"
@@ -349,10 +351,13 @@ export default function TableStatusPage() {
                 </div>
               </>
             ) : (
-              <>
+              <>  {/* ステップ2: お客様情報入力 */}
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：お客様情報
                 </h3>
+
+                {/* ※必要に応じて名前／指名入力フィールドをここに追加 */}
+
                 <div className="flex justify-end space-x-2">
                   <button
                     onClick={() => setStep1(true)}
