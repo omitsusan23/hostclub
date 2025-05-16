@@ -105,8 +105,19 @@ export default function TableStatusPage() {
     const t = tables.find(x => x.id === id);
     if (!t) return;
     if (!window.confirm(`本当に卓 ${t.tableNumber} を削除しますか？`)) return;
-    setDeletingId(id);
+    // テーブル削除
     dispatch({ type: 'DELETE_TABLE', payload: id });
+    // 初回ラベル削除
+    setFirstLabels(prev => {
+      const next = { ...prev };
+      delete next[t.tableNumber];
+      localStorage.setItem('firstLabels', JSON.stringify(next));
+      // 即時反映
+      window.dispatchEvent(new Event('firstLabelsUpdated'));
+      return next;
+    });
+    // 削除メッセージ
+    setDeletingId(id);
     setDeleteMessage(`卓 ${t.tableNumber} を削除しました`);
     setTimeout(() => setDeleteMessage(''), 1000);
   }, [dispatch, tables]);
