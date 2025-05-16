@@ -17,13 +17,13 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
-  // ── 「初回」で反映した卓番号 を保持 ──
+  // ―― 初回で反映した卓番号リスト ――
   const [firstTables, setFirstTables] = useState<string[]>([]);
 
-  // ── ヘッダーの絞り込み状態 ──
+  // ―― フィルタリング状態 ――
   const [filter, setFilter] = useState<Filter>('all');
 
-  // ── 各種モーダル／オーバーレイ用 state ──
+  // ―― 各種モーダル／オーバーレイ用 state ――
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage]   = useState('');
   const [deletingId, setDeletingId]         = useState<number | null>(null);
@@ -35,7 +35,7 @@ export default function TableStatusPage() {
   const [photos, setPhotos]                 = useState<string[]>([]);
   const [firstStartTime, setFirstStartTime] = useState('');
 
-  // ── モーダル開閉・ステップ制御 ──
+  // モーダル開閉・ステップ管理
   const openFirstModal = () => {
     const now = new Date();
     setFirstStartTime(now.toTimeString().slice(0,5));
@@ -54,7 +54,7 @@ export default function TableStatusPage() {
     setStep1(false);
   };
 
-  // ── 卓削除 ──
+  // 卓削除
   const handleDelete = useCallback((id: number) => {
     const t = tables.find(x => x.id === id);
     if (!t) return;
@@ -65,23 +65,25 @@ export default function TableStatusPage() {
     setTimeout(() => setDeleteMessage(''), 1000);
   }, [dispatch, tables]);
 
-  // ── 「初回」確定 ──
+  // 初回確定
   const confirmFirst = () => {
-    // Context に割り当て
+    // ① Context に割り当て （ここが修正点: requestedTable → tableNumber）
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
         id: Date.now(),
+        tableNumber: selectedTable,
         princess: names.join('、'),
-        requestedTable: selectedTable,
         budget: 0,
         time: firstStartTime,
       },
     });
-    // 初回リストに追加
+
+    // ② 初回リストに追加
     setFirstTables(prev =>
       prev.includes(selectedTable) ? prev : [...prev, selectedTable]
     );
+
     // オーバーレイ表示
     const entries = names.map((n,i) => {
       const label = positionLabelsByCount[selectedCount][i];
@@ -91,16 +93,17 @@ export default function TableStatusPage() {
     });
     setOverlayMessage(`卓【${selectedTable}】に着席：${entries.join('、')}`);
     setTimeout(() => setOverlayMessage(''), 1000);
+
     closeFirstModal();
   };
 
-  // ── 絞り込み済みテーブルリスト ──
+  // テーブルフィルタリング
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
-        return tables;                              // 使用中
+        return tables;
       case 'first':
-        return tables.filter(t => firstTables.includes(t.tableNumber)); // 初回
+        return tables.filter(t => firstTables.includes(t.tableNumber));
       case 'empty':
         return tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
@@ -122,11 +125,11 @@ export default function TableStatusPage() {
             budget: 0,
             time: '',
           }));
-        return [...tables, ...empty];               // 全卓
+        return [...tables, ...empty];
     }
   }, [filter, tables, tableSettings, firstTables]);
 
-  // ── テーブル描画 ──
+  // テーブル描画
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => (
       <div
@@ -259,7 +262,7 @@ export default function TableStatusPage() {
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：卓と人数を選択
                 </h3>
-                {/* 省略せず既存フォームをそのまま */}
+                {/* 既存フォームはそのまま */}
                 <label className="block text-sm mb-2">卓を選択</label>
                 <select
                   value={selectedTable}
