@@ -15,38 +15,42 @@ const positionLabelsByCount: Record<number, string[]> = {
 };
 
 export default function TableStatusPage() {
-  const { state: { user, tables, tableSettings, casts }, dispatch } = useAppContext();
+  const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
-  // ── 初回割り当てテーブルに付与するラベル
+  // 保存されたラベル
   const [firstLabels, setFirstLabels] = useState<Record<string, string>>({});
 
-  // 初期ロード
-  useEffect(() => {
+  // localStorage→state: 全ラベルを読み込み
+  const loadLabels = () => {
     const saved = localStorage.getItem('firstLabels');
     if (saved) {
-      try { setFirstLabels(JSON.parse(saved)); } catch {};
+      try { setFirstLabels(JSON.parse(saved)); } catch {}
     }
-  }, []);
-
-  // イベントで再ロード
+  };
+  useEffect(loadLabels, []);
   useEffect(() => {
-    const handler = () => {
-      const saved = localStorage.getItem('firstLabels');
-      if (saved) {
-        try { setFirstLabels(JSON.parse(saved)); } catch {};
-      }
-    };
-    window.addEventListener('firstLabelsUpdated', handler);
-    return () => window.removeEventListener('firstLabelsUpdated', handler);
+    window.addEventListener('firstLabelsUpdated', loadLabels);
+    return () => window.removeEventListener('firstLabelsUpdated', loadLabels);
   }, []);
+        setFirstLabels(filtered);
+        // 存在しないキーはローカルストレージからも削除
+        localStorage.setItem('firstLabels', JSON.stringify(filtered));
+      } catch {}
+    }
+  };
+  useEffect(loadLabels, [tableSettings]);
+  useEffect(() => {
+    window.addEventListener('firstLabelsUpdated', loadLabels);
+    return () => window.removeEventListener('firstLabelsUpdated', loadLabels);
+  }, [tableSettings]);
 
-  // ── ページフィルター
+  // ページフィルター
   const [filter, setFilter] = useState<Filter>('all');
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage] = useState('');
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  // ── 初回来店モーダル
+  // 初回来店モーダル
   const [firstModalOpen, setFirstModalOpen] = useState(false);
   const [step1, setStep1]                   = useState(true);
   const [selectedTable, setSelectedTable]   = useState('');
@@ -81,7 +85,6 @@ export default function TableStatusPage() {
   };
 
   const confirmFirst = () => {
-    // テーブル割り当て
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
@@ -93,7 +96,6 @@ export default function TableStatusPage() {
         firstType: Array.from(new Set(firstTypes)).join('/'),
       },
     });
-    // ラベル保存 & イベント発火
     const saved = JSON.parse(localStorage.getItem('firstLabels') || '{}');
     saved[selectedTable] = Array.from(new Set(firstTypes)).join('/');
     localStorage.setItem('firstLabels', JSON.stringify(saved));
@@ -105,30 +107,25 @@ export default function TableStatusPage() {
     const t = tables.find(x => x.id === id);
     if (!t) return;
     if (!window.confirm(`本当に卓 ${t.tableNumber} を削除しますか？`)) return;
-    // テーブル削除
     dispatch({ type: 'DELETE_TABLE', payload: id });
-    // 初回ラベル削除
+    // 削除時にもラベルを除外
     setFirstLabels(prev => {
       const next = { ...prev };
       delete next[t.tableNumber];
       localStorage.setItem('firstLabels', JSON.stringify(next));
-      // 即時反映
       window.dispatchEvent(new Event('firstLabelsUpdated'));
       return next;
     });
-    // 削除メッセージ
     setDeletingId(id);
     setDeleteMessage(`卓 ${t.tableNumber} を削除しました`);
     setTimeout(() => setDeleteMessage(''), 1000);
   }, [dispatch, tables]);
 
-  // ── フィルタリング
+  // フィルタリング
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
-      case 'occupied':
-        return tables;
-      case 'first':
-        return tables.filter(t => firstLabels[t.tableNumber] !== undefined);
+      case 'occupied':   return tables;
+      case 'first':      return tables.filter(t => firstLabels[t.tableNumber] !== undefined);
       case 'empty':
         return tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
@@ -142,7 +139,7 @@ export default function TableStatusPage() {
     }
   }, [filter, tables, tableSettings, firstLabels]);
 
-  // ── テーブル描画
+  // テーブル描画
   const renderedTables = filteredTables.map((table, idx) => (
     <div key={idx} className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between">
       {table.princess && (
@@ -150,7 +147,6 @@ export default function TableStatusPage() {
           onClick={() => handleDelete(table.id)}
           disabled={deletingId === table.id}
           className={`absolute top-1 right-1 text-sm hover:underline ${deletingId === table.id ? 'text-gray-400' : 'text-red-500'}`}
-          aria-label={`卓 ${table.tableNumber} を削除`}
         >
           {deletingId === table.id ? '削除中...' : '削除'}
         </button>
@@ -188,7 +184,7 @@ export default function TableStatusPage() {
         <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
         <div className="flex space-x-1 justify-self-end">
           <button onClick={() => setFilter('all')} className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter === 'all' ? 'font-bold text-black' : 'text-gray-700'}`}>全卓</button>
-          <button onClick={() => setFilter('occupied')} className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter === 'occupied' ? 'font:bold text-black' : 'text-gray-700'}`}>使用中</button>
+          <button onClick={() => setFilter('occupied')} className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'}`}>使用中</button>
           <button onClick={() => setFilter('empty')} className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'}`}>空卓</button>
         </div>
       </header>
@@ -196,9 +192,12 @@ export default function TableStatusPage() {
         {renderedTables}
       </main>
 
-      {/* 初回来店モーダル
-          このModal部分はAppInnerと同様のJSXをここに配置してください
-      */}
+      {/* 初回来店モーダル（以下AppInnerと同じ） */}
+      {firstModalOpen && (
+        <div role="dialog" aria-modal="true" className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">[…モーダル内容省略…]</div>
+        </div>
+      )}
 
       <Footer currentUser={null} onOpenAddReservation={() => {}} onOpenFirst={openFirstModal} />
     </>
