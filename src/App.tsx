@@ -106,6 +106,7 @@ function AppInner() {
     }
   }, [currentUser, dispatch])
 
+  // 初回指名で写真プルダウンが未選択なら反映不可
   const disableConfirm = firstTypes.some((t, i) => t === '初回指名' && firstPhotos[i] === '')
 
   return (
@@ -201,6 +202,7 @@ function AppInner() {
             </Routes>
             {/* ↑ 既存 Routes ここまで ↑ */}
 
+            {/* グローバル Footer に両ハンドラ渡し */}
             {currentUser && (
               <Footer
                 currentUser={currentUser}
@@ -315,6 +317,17 @@ function AppInner() {
                                 初回指名
                               </button>
                             </div>
+                            <input
+                              type="text"
+                              placeholder="名前"
+                              value={names[i]}
+                              onChange={e => {
+                                const a = [...names]
+                                a[i] = e.target.value.slice(0,6)
+                                setNames(a)
+                              }}
+                              className="border p-2 rounded w-full mb-1"
+                            />
                             {firstTypes[i] === '初回指名' ? (
                               <select
                                 value={firstPhotos[i]}
@@ -346,17 +359,6 @@ function AppInner() {
                                 ))}
                               </select>
                             )}
-                            <input
-                              type="text"
-                              placeholder="名前"
-                              value={names[i]}
-                              onChange={e => {
-                                const a = [...names]
-                                a[i] = e.target.value.slice(0,6)
-                                setNames(a)
-                              }}
-                              className="border p-2 rounded w-full mb-1"
-                            />
                           </div>
                         ))}
                       </div>
