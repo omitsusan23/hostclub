@@ -95,7 +95,8 @@ export default function TableStatusPage() {
     const saved = JSON.parse(localStorage.getItem('firstLabels')||'{}');
     saved[selectedTable] = Array.from(new Set(firstTypes)).join('/');
     localStorage.setItem('firstLabels', JSON.stringify(saved));
-    window.dispatchEvent(new Event('firstLabelsUpdated'));
+    // ローカルストレージ更新後、次tickでイベント発火
+    setTimeout(() => window.dispatchEvent(new Event('firstLabelsUpdated')), 0);
     closeFirstModal();
   };
 
