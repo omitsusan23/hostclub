@@ -20,10 +20,14 @@ export default function TableStatusPage() {
   // 追加：初回で反映された卓番号のリスト
   const [firstTables, setFirstTables] = useState<string[]>([]);
 
+  // ログで state を確認
+  console.log('テーブル一覧:', tables.map(t => t.tableNumber));
+  console.log('初回来店リスト:', firstTables);
+
   // フィルタリング
   const [filter, setFilter] = useState<Filter>('all');
 
-  // ――オーバーレイ／モーダル管理の state――
+  // ――（省略：オーバーレイ・モーダル管理の state）――
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage]   = useState('');
   const [deletingId, setDeletingId]         = useState<number | null>(null);
@@ -64,18 +68,19 @@ export default function TableStatusPage() {
   }, [dispatch, tables]);
 
   const confirmFirst = () => {
+    // テーブルを割り当て
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
         id: Date.now(),
         princess: names.join('、'),
-        tableNumber: selectedTable,  // requestedTable ではなく tableNumber
+        requestedTable: selectedTable,
         budget: 0,
         time: firstStartTime,
       },
     });
 
-    // 初回リストに追加（重複なし）
+    // 初回リストに追加（既に含まれなければ）
     setFirstTables(prev =>
       prev.includes(selectedTable) ? prev : [...prev, selectedTable]
     );
@@ -91,15 +96,17 @@ export default function TableStatusPage() {
     closeFirstModal();
   };
 
+  // テーブルリストフィルタ
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
+        // 割り当て済みのみ
         return tables;
       case 'first':
-        return tables.filter(t =>
-          firstTables.includes(String(t.tableNumber))
-        );
+        // 初回来店のみ
+        return tables.filter(t => firstTables.includes(t.tableNumber));
       case 'empty':
+        // 空卓のみ
         return tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
           .map(num => ({
@@ -111,6 +118,7 @@ export default function TableStatusPage() {
           }));
       case 'all':
       default:
+        // 全卓（割り当て済み＋空卓）
         const empty = tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
           .map(num => ({
@@ -124,12 +132,14 @@ export default function TableStatusPage() {
     }
   }, [filter, tables, tableSettings, firstTables]);
 
+  // 卓の描画
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => (
       <div
         key={idx}
         className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between"
       >
+        {/* 削除ボタン（姫がいる卓のみ） */}
         {table.princess && (
           <button
             onClick={() => handleDelete(table.id)}
@@ -143,9 +153,10 @@ export default function TableStatusPage() {
           </button>
         )}
 
+        {/* 卓番号＋(初回)マーク */}
         <p className="text-center font-bold">
           {table.tableNumber}
-          {firstTables.includes(String(table.tableNumber)) && ' (初回)'}
+          {firstTables.includes(table.tableNumber) && ' (初回)'}
         </p>
 
         {table.princess ? (
@@ -192,6 +203,7 @@ export default function TableStatusPage() {
                    px-4 py-5
                    grid grid-cols-[1fr_auto_1fr] items-baseline"
       >
+        {/* 左端: 初回 */}
         <button
           onClick={() => setFilter('first')}
           className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
@@ -201,10 +213,12 @@ export default function TableStatusPage() {
           初回
         </button>
 
+        {/* 中央: 卓状況 */}
         <h2 className="justify-self-center text-2xl font-bold">
           卓状況
         </h2>
 
+        {/* 右端: 全卓・使用中・空卓 */}
         <div className="flex space-x-1 justify-self-end">
           <button
             onClick={() => setFilter('all')}
@@ -269,7 +283,10 @@ export default function TableStatusPage() {
                 </div>
               </>
             ) : (
-              <div className="flex justify-end space-x-2">{/* ... */}</div>
+              <>
+                {/* 既存フォーム部分はそのまま */}
+                <div className="flex justify-end space-x-2">{/* ... */}</div>
+              </>
             )}
           </div>
         </div>
