@@ -23,7 +23,7 @@ export default function TableStatusPage() {
   // フィルタリング
   const [filter, setFilter] = useState<Filter>('all');
 
-  // ――（省略：オーバーレイ・モーダル管理の state）――
+  // ――オーバーレイ／モーダル管理の state――
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage]   = useState('');
   const [deletingId, setDeletingId]         = useState<number | null>(null);
@@ -64,19 +64,18 @@ export default function TableStatusPage() {
   }, [dispatch, tables]);
 
   const confirmFirst = () => {
-    // ★ここを修正：requestedTable → tableNumber
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
         id: Date.now(),
         princess: names.join('、'),
-        tableNumber: selectedTable,
+        tableNumber: selectedTable,  // requestedTable ではなく tableNumber
         budget: 0,
         time: firstStartTime,
       },
     });
 
-    // 初回リストに追加（重複なければ）
+    // 初回リストに追加（重複なし）
     setFirstTables(prev =>
       prev.includes(selectedTable) ? prev : [...prev, selectedTable]
     );
@@ -97,7 +96,9 @@ export default function TableStatusPage() {
       case 'occupied':
         return tables;
       case 'first':
-        return tables.filter(t => firstTables.includes(t.tableNumber));
+        return tables.filter(t =>
+          firstTables.includes(String(t.tableNumber))
+        );
       case 'empty':
         return tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
@@ -144,7 +145,7 @@ export default function TableStatusPage() {
 
         <p className="text-center font-bold">
           {table.tableNumber}
-          {firstTables.includes(table.tableNumber) && ' (初回)'}
+          {firstTables.includes(String(table.tableNumber)) && ' (初回)'}
         </p>
 
         {table.princess ? (
@@ -167,6 +168,7 @@ export default function TableStatusPage() {
 
   return (
     <>
+      {/* 削除メッセージ */}
       {deleteMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded">
@@ -175,6 +177,7 @@ export default function TableStatusPage() {
         </div>
       )}
 
+      {/* 着席メッセージ */}
       {overlayMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded max-w-md text-center">
@@ -183,6 +186,7 @@ export default function TableStatusPage() {
         </div>
       )}
 
+      {/* 固定ヘッダー */}
       <header
         className="sticky top-0 bg-white z-50 border-b
                    px-4 py-5
@@ -229,10 +233,12 @@ export default function TableStatusPage() {
         </div>
       </header>
 
+      {/* テーブルグリッド（3列） */}
       <main id="main-content" className="px-4 py-4 grid grid-cols-3 gap-4">
         {renderedTables}
       </main>
 
+      {/* 初回来店モーダル */}
       {firstModalOpen && (
         <div
           role="dialog"
@@ -269,6 +275,7 @@ export default function TableStatusPage() {
         </div>
       )}
 
+      {/* フッター */}
       <Footer
         currentUser={null}
         onOpenAddReservation={() => {}}
