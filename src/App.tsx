@@ -29,6 +29,7 @@ const positionLabelsByCount: Record<number, string[]> = {
   5: ['左端', '左', '中', '右', '右端'],
   6: ['左端', '左中', '左', '右', '右中', '右端'],
 }
+// ―― ここまで追加 ――
 
 export default function App() {
   return (
@@ -58,6 +59,9 @@ function AppInner() {
   const [names,         setNames]           = useState<string[]>([])
   const [photos,        setPhotos]          = useState<string[]>([])
   const [firstStartTime, setFirstStartTime] = useState('')
+  // ―― ここを追加 ――
+  const [firstTypes,    setFirstTypes]      = useState<string[]>([])
+  // ―― ここまで追加 ――
 
   const openFirstModal = () => {
     const now = new Date()
@@ -74,6 +78,9 @@ function AppInner() {
   const nextStep = () => {
     if (!selectedTable || selectedCount < 1) return
     setNames(Array(selectedCount).fill(''))
+    // ―― ここを追加 ――
+    setFirstTypes(Array(selectedCount).fill('初回'))
+    // ―― ここまで追加 ――
     setPhotos(Array(selectedCount).fill('なし'))
     setStep1(false)
   }
@@ -275,6 +282,20 @@ function AppInner() {
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         {names.map((_, i) => (
                           <div key={i}>
+                            {/* ―― ここを追加 ―― */}
+                            <select
+                              value={firstTypes[i]}
+                              onChange={e => {
+                                const c = [...firstTypes]
+                                c[i] = e.target.value
+                                setFirstTypes(c)
+                              }}
+                              className="border p-2 rounded w-full mb-1"
+                            >
+                              <option value="初回">初回</option>
+                              <option value="初回指名">初回指名</option>
+                            </select>
+                            {/* ―― ここまで追加 ―― */}
                             {positionLabelsByCount[selectedCount][i] && (
                               <label className="block text-xs text-gray-500 mb-1">
                                 {positionLabelsByCount[selectedCount][i]}
