@@ -17,17 +17,13 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
-  // 追加：初回で反映された卓番号のリスト
+  // ① 初回で反映された卓番号のリストを保持
   const [firstTables, setFirstTables] = useState<string[]>([]);
 
-  // ログで state を確認
-  console.log('テーブル一覧:', tables.map(t => t.tableNumber));
-  console.log('初回来店リスト:', firstTables);
-
-  // フィルタリング
+  // ② フィルタリング
   const [filter, setFilter] = useState<Filter>('all');
 
-  // ――（省略：オーバーレイ・モーダル管理の state）――
+  // ③ オーバーレイ／モーダル管理の state
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage]   = useState('');
   const [deletingId, setDeletingId]         = useState<number | null>(null);
@@ -67,8 +63,8 @@ export default function TableStatusPage() {
     setTimeout(() => setDeleteMessage(''), 1000);
   }, [dispatch, tables]);
 
+  // ④ 初回確定時にテーブル割り当てと firstTables への追加を行う
   const confirmFirst = () => {
-    // テーブルを割り当て
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
@@ -79,12 +75,9 @@ export default function TableStatusPage() {
         time: firstStartTime,
       },
     });
-
-    // 初回リストに追加（既に含まれなければ）
     setFirstTables(prev =>
       prev.includes(selectedTable) ? prev : [...prev, selectedTable]
     );
-
     const entries = names.map((n, i) => {
       const label = positionLabelsByCount[selectedCount][i];
       const pname = n || 'お客様';
@@ -96,17 +89,14 @@ export default function TableStatusPage() {
     closeFirstModal();
   };
 
-  // テーブルリストフィルタ
+  // ⑤ テーブルリストフィルタ
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
-        // 割り当て済みのみ
         return tables;
       case 'first':
-        // 初回来店のみ
         return tables.filter(t => firstTables.includes(t.tableNumber));
       case 'empty':
-        // 空卓のみ
         return tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
           .map(num => ({
@@ -118,7 +108,6 @@ export default function TableStatusPage() {
           }));
       case 'all':
       default:
-        // 全卓（割り当て済み＋空卓）
         const empty = tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
           .map(num => ({
@@ -132,14 +121,13 @@ export default function TableStatusPage() {
     }
   }, [filter, tables, tableSettings, firstTables]);
 
-  // 卓の描画
+  // ⑥ 卓の描画
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => (
       <div
         key={idx}
         className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between"
       >
-        {/* 削除ボタン（姫がいる卓のみ） */}
         {table.princess && (
           <button
             onClick={() => handleDelete(table.id)}
@@ -153,7 +141,7 @@ export default function TableStatusPage() {
           </button>
         )}
 
-        {/* 卓番号＋(初回)マーク */}
+        {/* 卓番号と(初回)マーク */}
         <p className="text-center font-bold">
           {table.tableNumber}
           {firstTables.includes(table.tableNumber) && ' (初回)'}
@@ -265,7 +253,46 @@ export default function TableStatusPage() {
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：卓と人数を選択
                 </h3>
-                {/* 既存フォーム部分はそのまま */}
+                {/* 既存フォーム部分 */}
+                <label className="block text-sm mb-2">卓を選択</label>
+                <select
+                  value={selectedTable}
+                  onChange={e => setSelectedTable(e.target.value)}
+                  className="border p-2 w-full rounded mb-4"
+                >
+                  <option value="">選択してください</option>
+                  {tableSettings.map(t =>
+                    tables.some(tab => tab.tableNumber === t) ? (
+                      <option key={t} value={t} disabled>
+                        {t}（使用中）
+                      </option>
+                    ) : (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    )
+                  )}
+                </select>
+                <label className="block text-sm mb-2">開始時間</label>
+                <input
+                  type="time"
+                  value={firstStartTime}
+                  onChange={e => setFirstStartTime(e.target.value)}
+                  className="border p-2 w-full rounded mb-4"
+                />
+                <label className="block text-sm mb-2">人数を選択</label>
+                <select
+                  value={selectedCount}
+                  onChange={e => setSelectedCount(Number(e.target.value))}
+                  className="border p-2 w-full rounded mb-4"
+                >
+                  <option value={0}>人数を選択してください</option>
+                  {[1, 2, 3, 4, 5, 6].map(n => (
+                    <option key={n} value={n}>
+                      {n} 名
+                    </option>
+                  ))}
+                </select>
                 <div className="flex justify-end space-x-2">
                   <button
                     onClick={closeFirstModal}
@@ -284,8 +311,60 @@ export default function TableStatusPage() {
               </>
             ) : (
               <>
-                {/* 既存フォーム部分はそのまま */}
-                <div className="flex justify-end space-x-2">{/* ... */}</div>
+                <h3 className="text-lg font-semibold mb-4 text-center">
+                  初回来店：お客様情報
+                </h3>
+                {/* ▼ ここが変更ポイント ▼ */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  {names.map((_, i) => (
+                    <div key={i}>
+                      {positionLabelsByCount[selectedCount][i] && (
+                        <label className="block text-xs text-gray-500 mb-1">
+                          {positionLabelsByCount[selectedCount][i]}
+                        </label>
+                      )}
+                      <input
+                        type="text"
+                        placeholder="名前"
+                        value={names[i]}
+                        onChange={e => {
+                          const a = [...names];
+                          a[i] = e.target.value.slice(0,6);
+                          setNames(a);
+                        }}
+                        className="border p-2 rounded w-full"
+                      />
+                      <select
+                        value={photos[i]}
+                        onChange={e => {
+                          const b = [...photos];
+                          b[i] = e.target.value;
+                          setPhotos(b);
+                        }}
+                        className="border p-2 rounded w-full mt-1"
+                      >
+                        <option value="なし">写真指名なし</option>
+                        {casts.map(c => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <button
+                    onClick={() => setStep1(true)}
+                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                  >
+                    戻る
+                  </button>
+                  <button
+                    onClick={confirmFirst}
+                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                  >
+                    反映
+                  </button>
+                </div>
               </>
             )}
           </div>
