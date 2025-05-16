@@ -42,7 +42,7 @@ export default function TableStatusPage() {
     const saved = localStorage.getItem('firstLabels');
     if (saved) {
       try { setFirstLabels(JSON.parse(saved)); }
-      catch { }
+      catch { /* malformed を無視 */ }
     }
   }, []);
 
@@ -76,6 +76,7 @@ export default function TableStatusPage() {
   }, [dispatch, tables]);
 
   const confirmFirst = () => {
+    // 1) テーブル割り当て
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
@@ -86,12 +87,16 @@ export default function TableStatusPage() {
         time: firstStartTime,
       },
     });
+
+    // 2) firstLabels に追加 & localStorage に保存
     setFirstLabels(prev => {
       if (prev[selectedTable] === firstType) return prev;
       const next = { ...prev, [selectedTable]: firstType };
       localStorage.setItem('firstLabels', JSON.stringify(next));
       return next;
     });
+
+    // 3) オーバーレイ表示
     const entries = names.map((n, i) => {
       const label = positionLabelsByCount[selectedCount][i];
       const pname = n || 'お客様';
@@ -100,51 +105,88 @@ export default function TableStatusPage() {
     });
     setOverlayMessage(`卓【${selectedTable}】に着席：${entries.join('、')}`);
     setTimeout(() => setOverlayMessage(''), 1000);
+
     closeFirstModal();
   };
 
-  const filteredTables = useMemo(() => {
+  // ── フィルタリング
+  const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
-      case 'occupied': return tables;
-      case 'first':    return tables.filter(t => firstLabels[t.tableNumber] !== undefined);
+      case 'occupied':
+        return tables;
+      case 'first':
+        return tables.filter(t => firstLabels[t.tableNumber] !== undefined);
       case 'empty':
         return tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
-          .map(num => ({ id: Date.now()+num.length, tableNumber: num, princess: '', budget: 0, time: '' }));
+          .map(num => ({
+            id: Date.now() + num.length,
+            tableNumber: num,
+            princess: '',
+            budget: 0,
+            time: '',
+          }));
       case 'all':
       default:
         const empty = tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
-          .map(num => ({ id: Date.now()+num.length, tableNumber: num, princess: '', budget: 0, time: '' }));
+          .map(num => ({
+            id: Date.now() + num.length,
+            tableNumber: num,
+            princess: '',
+            budget: 0,
+            time: '',
+          }));
         return [...tables, ...empty];
     }
   }, [filter, tables, tableSettings, firstLabels]);
 
   return (
     <>
+      {/* 削除メッセージ */}
       {deleteMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="bg-black bg-opacity-75 text-white p-4 rounded">{deleteMessage}</div>
+          <div className="bg-black bg-opacity-75 text-white p-4 rounded">
+            {deleteMessage}
+          </div>
         </div>
       )}
+
+      {/* 着席オーバーレイ */}
       {overlayMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="bg-black bg-opacity-75 text-white p-4 rounded max-w-md text-center">{overlayMessage}</div>
+          <div className="bg-black bg-opacity-75 text-white p-4 rounded max-w-md text-center">
+            {overlayMessage}
+          </div>
         </div>
       )}
-      <header className="sticky top-0 bg-white z-50 border-b px-4 py-5 grid grid-cols-[1fr_auto_1fr] items-baseline">
-        <button onClick={()=>setFilter('first')} className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter==='first'?'font-bold text-black':'text-gray-700'}`}>初回</button>
+
+      {/* 固定ヘッダー */}
+      <header
+        className="sticky top-0 bg-white z-50 border-b px-4 py-5 grid grid-cols-[1fr_auto_1fr] items-baseline"
+      >
+        <button
+          onClick={() => setFilter('first')}
+          className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+            filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
+          }`}
+        >初回</button>
         <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
         <div className="flex space-x-1 justify-self-end">
-          <button onClick={()=>setFilter('all')}      className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter==='all'?'font-bold text-black':'text-gray-700'}`}>全卓</button>
-          <button onClick={()=>setFilter('occupied')} className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter==='occupied'?'font-bold text-black':'text-gray-700'}`}>使用中</button>
-          <button onClick={()=>setFilter('empty')}    className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter==='empty'?'font-bold text-black':'text-gray-700'}`}>空卓</button>
+          <button onClick={() => setFilter('all')} className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter==='all'?'font-bold text-black':'text-gray-700'}`}>全卓</button>
+          <button onClick={() => setFilter('occupied')} className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter==='occupied'?'font-bold text-black':'text-gray-700'}`}>使用中</button>
+          <button onClick={() => setFilter('empty')} className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter==='empty'?'font-bold text-black':'text-gray-700'}`}>空卓</button>
         </div>
       </header>
+
       <main id="main-content" className="px-4 py-4 grid grid-cols-3 gap-4">
         {filteredTables.map((table, idx) => (
           <div key={idx} className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between">
-            {table.princess && <button onClick={()=>handleDelete(table.id)} disabled={deletingId===table.id} className={`absolute top-1 right-1 text-sm hover:underline ${deletingId===table.id?'text-gray-400':'text-red-500'}`}>{deletingId===table.id?'削除中...':'削除'}</button>}
+            {table.princess && (
+              <button onClick={() => handleDelete(table.id)} disabled={deletingId===table.id} className={`absolute top-1 right-1 text-sm hover:underline ${deletingId===table.id?'text-gray-400':'text-red-500'}`} aria-label={`卓 ${table.tableNumber} を削除`}>
+                {deletingId===table.id?'削除中...':'削除'}
+              </button>
+            )}
             <p className="text-center font-bold">{table.tableNumber}{firstLabels[table.tableNumber] && ` (${firstLabels[table.tableNumber]})`}</p>
             {table.princess ? (
               <>
@@ -152,31 +194,29 @@ export default function TableStatusPage() {
                 <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
                 <p className="text-sm"><strong>予算:</strong> {table.budget===0?'未定':`${table.budget.toLocaleString()}円`}</p>
               </>
-            ) : (<p className="text-sm mt-4 text-gray-400 text-center">空卓</p>)}
+            ) : (
+              <p className="text-sm mt-4 text-gray-400 text-center">空卓</p>
+            )}
           </div>
         ))}
       </main>
+
+      {/* 初回来店モーダル */}
       {firstModalOpen && (
         <div role="dialog" aria-modal="true" className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            {/* 初回／初回指名 トグル */}
+            <div className="mb-4 flex items-center space-x-4 justify-center">
+              <label className="inline-flex items-center space-x-1"><input type="radio" name="firstType" value="初回" checked={firstType==='初回'} onChange={()=>setFirstType('初回')} /> <span className="text-sm">初回</span></label>
+              <label className="inline-flex items-center space-x-1"><input type="radio" name="firstType" value="初回指名" checked={firstType==='初回指名'} onChange={()=>setFirstType('初回指名')} /> <span className="text-sm">初回指名</span></label>
+            </div>
             {step1 ? (
               <>
                 <h3 className="text-lg font-semibold mb-4 text-center">初回来店：卓と人数を選択</h3>
-                {/* 初回／初回指名 トグル */}
-                <div className="mb-4 flex items-center space-x-4 justify-center">
-                  <label className="inline-flex items-center space-x-1">
-                    <input type="radio" value="初回" checked={firstType==='初回'} onChange={()=>setFirstType('初回')} />
-                    <span className="text-sm">初回</span>
-                  </label>
-                  <label className="inline-flex items-center space-x-1">
-                    <input type="radio" value="初回指名" checked={firstType==='初回指名'} onChange={()=>setFirstType('初回指名')} />
-                    <span className="text-sm">初回指名</span>
-                  </label>
-                </div>
                 <label className="block text-sm mb-2">卓を選択</label>
                 <select value={selectedTable} onChange={e=>setSelectedTable(e.target.value)} className="border p-2 w-full rounded mb-4">
                   <option value="">選択してください</option>
-                  {tableSettings.map(t=>tables.some(tab=>tab.tableNumber===t)?<option key={t} value={t} disabled>{t}（使用中）</option>:<option key={t} value={t}>{t}</option>)}
+                  {tableSettings.map(t=> tables.some(tab=>tab.tableNumber===t)?<option key={t} value={t} disabled>{t}（使用中）</option>:<option key={t} value={t}>{t}</option>)}
                 </select>
                 <label className="block text-sm mb-2">開始時間</label>
                 <input type="time" value={firstStartTime} onChange={e=>setFirstStartTime(e.target.value)} className="border p-2 w-full rounded mb-4" />
@@ -193,6 +233,18 @@ export default function TableStatusPage() {
             ) : (
               <>
                 <h3 className="text-lg font-semibold mb-4 text-center">初回来店：お客様情報</h3>
-                {/* 名前・指名入力フィールド追加可 */}
+                {/* ここにお客様名前・指名入力フィールドを追加可能 */}
                 <div className="flex justify-end space-x-2">
-                  <button onClick={()=>setStep1(true)} className="px-4 py-2 bg-gray-300
+                  <button onClick={()=>setStep1(true)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">戻る</button>
+                  <button onClick={confirmFirst} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">反映</button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      <Footer currentUser={null} onOpenAddReservation={()=>{}} onOpenFirst={openFirstModal} />
+    </>
+  );
+}
