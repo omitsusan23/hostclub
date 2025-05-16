@@ -56,8 +56,8 @@ function AppInner() {
   const [selectedCount, setSelectedCount]   = useState(0)
   const [names,         setNames]           = useState<string[]>([])
   const [photos,        setPhotos]          = useState<string[]>([])
+  const [firstTypes,    setFirstTypes]      = useState<string[]>([])  // ← 追加
   const [firstStartTime, setFirstStartTime] = useState('')
-  const [firstTypes,    setFirstTypes]      = useState<string[]>([]) // 追加
 
   const openFirstModal = () => {
     const now = new Date()
@@ -74,7 +74,7 @@ function AppInner() {
   const nextStep = () => {
     if (!selectedTable || selectedCount < 1) return
     setNames(Array(selectedCount).fill(''))
-    setFirstTypes(Array(selectedCount).fill('初回')) // 追加
+    setFirstTypes(Array(selectedCount).fill('初回'))  // ← 追加
     setPhotos(Array(selectedCount).fill('なし'))
     setStep1(false)
   }
@@ -113,8 +113,88 @@ function AppInner() {
         </a>
         <Suspense fallback={<div className="p-4 text-center">Loading…</div>}>
           <div className="min-h-screen flex flex-col pb-16">
-            {/* 既存 Routes 定義は変更なし */}
-            <Routes>{/* ... */}</Routes>
+            {/* ↓ 既存の Routes 定義はまったく変更しないでください ↓ */}
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  currentUser ? (
+                    <Navigate to="/table-status" replace />
+                  ) : (
+                    <Login setCurrentUser={setCurrentUser} />
+                  )
+                }
+              />
+              <Route
+                path="/reservations"
+                element={
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin','cast']}>
+                    <ReservationPage
+                      isOpen={isResModalOpen}
+                      onClose={closeResModal}
+                      currentUser={currentUser}
+                    />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/table-status"
+                element={
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin','cast']}>
+                    <TableStatusPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/cast-list"
+                element={
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin']}>
+                    <CastListPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin-settings"
+                element={
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin']}>
+                    <AdminTableSettings setCurrentUser={setCurrentUser} />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin']}>
+                    <AdminDashboard
+                      user={currentUser}
+                      setCurrentUser={setCurrentUser}
+                    />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/cast"
+                element={
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['cast']}>
+                    <CastDashboard
+                      user={currentUser}
+                      setCurrentUser={setCurrentUser}
+                    />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/my-page"
+                element={
+                  <PrivateRoute currentUser={currentUser} allowedRoles={['cast']}>
+                    <MyPage setCurrentUser={setCurrentUser} />
+                  </PrivateRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+            {/* ↑ 既存 Routes ここまで ↑ */}
+
             {currentUser && (
               <Footer
                 currentUser={currentUser}
@@ -122,13 +202,70 @@ function AppInner() {
                 onOpenFirst={openFirstModal}
               />
             )}
+
             {/* 初回来店モーダル */}
             {firstModalOpen && (
-              <div role="dialog" className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div
+                role="dialog"
+                aria-modal="true"
+                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+              >
                 <div className="bg-white p-6 rounded-lg w-full max-w-md">
                   {step1 ? (
-                    // ステップ1は変更なし
-                    <>{/* ... */}</>
+                    <>
+                      <h3 className="text-lg font-semibold mb-4 text-center">
+                        初回来店：卓と人数を選択
+                      </h3>
+                      <label className="block text-sm mb-2">卓選択</label>
+                      <select
+                        value={selectedTable}
+                        onChange={e => setSelectedTable(e.target.value)}
+                        className="border p-2 w-full rounded mb-4"
+                      >
+                        <option value="">選択してください</option>
+                        {tableSettings.map(t =>
+                          tables.some(tab => tab.tableNumber === t)
+                            ? <option key={t} value={t} disabled>{t}（使用中）</option>
+                            : <option key={t} value={t}>{t}</option>
+                        )}
+                      </select>
+
+                      <label className="block text-sm mb-2">開始時間</label>
+                      <input
+                        type="time"
+                        value={firstStartTime}
+                        onChange={e => setFirstStartTime(e.target.value)}
+                        className="border p-2 w-full rounded mb-4"
+                      />
+
+                      <label className="block text-sm mb-2">人数を選択</label>
+                      <select
+                        value={selectedCount}
+                        onChange={e => setSelectedCount(Number(e.target.value))}
+                        className="border p-2 w-full rounded mb-4"
+                      >
+                        <option value={0}>人数を選択してください</option>
+                        {[1,2,3,4,5,6].map(n => (
+                          <option key={n} value={n}>{n} 名</option>
+                        ))}
+                      </select>
+
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={closeFirstModal}
+                          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                        >
+                          キャンセル
+                        </button>
+                        <button
+                          onClick={nextStep}
+                          disabled={!selectedTable || selectedCount < 1}
+                          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                        >
+                          次へ
+                        </button>
+                      </div>
+                    </>
                   ) : (
                     <>
                       <h3 className="text-lg font-semibold mb-4 text-center">
@@ -137,13 +274,13 @@ function AppInner() {
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         {names.map((_, i) => (
                           <div key={i}>
-                            {/* 変更：位置ラベルを上に */}
+                            {/* 位置ラベルを最上部に */}
                             {positionLabelsByCount[selectedCount][i] && (
                               <div className="text-center text-sm font-medium mb-2">
                                 {positionLabelsByCount[selectedCount][i]}
                               </div>
                             )}
-                            {/* 変更：セグメントトグルに */}
+                            {/* セグメントトグル */}
                             <div className="inline-flex mb-2 border border-gray-300 rounded">
                               <button
                                 onClick={() => {
@@ -174,7 +311,6 @@ function AppInner() {
                                 初回指名
                               </button>
                             </div>
-                            {/* 以下、既存の名前入力・写真選択 */}
                             <input
                               type="text"
                               placeholder="名前"
