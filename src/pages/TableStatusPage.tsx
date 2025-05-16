@@ -17,7 +17,7 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
-  // 初回で反映された卓番号のリスト
+  // 追加：初回で反映された卓番号のリスト
   const [firstTables, setFirstTables] = useState<string[]>([]);
 
   // フィルタリング
@@ -64,19 +64,19 @@ export default function TableStatusPage() {
   }, [dispatch, tables]);
 
   const confirmFirst = () => {
-    // ★ここを元に戻し：requestedTable フィールドで渡す
+    // ★ここを修正：requestedTable → tableNumber
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
         id: Date.now(),
         princess: names.join('、'),
-        requestedTable: selectedTable,
+        tableNumber: selectedTable,
         budget: 0,
         time: firstStartTime,
       },
     });
 
-    // 初回リストに追加（既に含まれなければ）
+    // 初回リストに追加（重複なければ）
     setFirstTables(prev =>
       prev.includes(selectedTable) ? prev : [...prev, selectedTable]
     );
@@ -129,7 +129,6 @@ export default function TableStatusPage() {
         key={idx}
         className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between"
       >
-        {/* 削除ボタン */}
         {table.princess && (
           <button
             onClick={() => handleDelete(table.id)}
@@ -143,7 +142,6 @@ export default function TableStatusPage() {
           </button>
         )}
 
-        {/* 卓番号＋(初回)マーク */}
         <p className="text-center font-bold">
           {table.tableNumber}
           {firstTables.includes(table.tableNumber) && ' (初回)'}
@@ -247,7 +245,7 @@ export default function TableStatusPage() {
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：卓と人数を選択
                 </h3>
-                {/* 既存フォーム部分 */}
+                {/* 既存フォーム部分はそのまま */}
                 <div className="flex justify-end space-x-2">
                   <button
                     onClick={closeFirstModal}
@@ -265,9 +263,7 @@ export default function TableStatusPage() {
                 </div>
               </>
             ) : (
-              <>
-                <div className="flex justify-end space-x-2">{/* ... */}</div>
-              </>
+              <div className="flex justify-end space-x-2">{/* ... */}</div>
             )}
           </div>
         </div>
