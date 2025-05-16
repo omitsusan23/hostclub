@@ -217,7 +217,7 @@ function AppInner() {
                       <h3 className="text-lg font-semibold mb-4 text-center">
                         初回来店：卓と人数を選択
                       </h3>
-                      <label className="block text-sm mb-2">卓を選択</label>
+                      <label className="block text-sm mb-2">卓選択</label>
                       <select
                         value={selectedTable}
                         onChange={e => setSelectedTable(e.target.value)}
