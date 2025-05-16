@@ -17,13 +17,13 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
-  // 追加：初回で反映された卓番号（数値）リスト
+  // --- 初回で反映された卓番号のリスト（数値配列に変更） ---
   const [firstTables, setFirstTables] = useState<number[]>([]);
 
   // フィルタリング
   const [filter, setFilter] = useState<Filter>('all');
 
-  // ―― モーダル＆オーバーレイ管理 ――
+  // ――（省略：オーバーレイ・モーダル管理の state）――
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage]   = useState('');
   const [deletingId, setDeletingId]         = useState<number | null>(null);
@@ -70,16 +70,17 @@ export default function TableStatusPage() {
       payload: {
         id: Date.now(),
         princess: names.join('、'),
-        requestedTable: selectedTable,
+        tableNumber: selectedTable, // 既存のまま、context が受け取る形に
         budget: 0,
         time: firstStartTime,
       },
     });
-    // 「初回」マーク用に数値で保持
-    const tableNum = Number(selectedTable);
-    setFirstTables(prev =>
-      prev.includes(tableNum) ? prev : [...prev, tableNum]
-    );
+
+    // 初回リストに追加（数値化して追加）
+    setFirstTables(prev => {
+      const num = Number(selectedTable);
+      return prev.includes(num) ? prev : [...prev, num];
+    });
 
     const entries = names.map((n, i) => {
       const label = positionLabelsByCount[selectedCount][i];
@@ -98,7 +99,8 @@ export default function TableStatusPage() {
       case 'occupied':
         return tables;
       case 'first':
-        return tables.filter(t => firstTables.includes(Number(t.tableNumber)));
+        // 初回来店のみ：数値比較
+        return tables.filter(t => firstTables.includes(t.tableNumber));
       case 'empty':
         return tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
@@ -148,7 +150,7 @@ export default function TableStatusPage() {
         {/* 卓番号＋(初回)マーク */}
         <p className="text-center font-bold">
           {table.tableNumber}
-          {firstTables.includes(Number(table.tableNumber)) && ' (初回)'}
+          {firstTables.includes(table.tableNumber) && ' (初回)'}
         </p>
 
         {table.princess ? (
@@ -157,7 +159,9 @@ export default function TableStatusPage() {
             <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
             <p className="text-sm">
               <strong>予算:</strong>{' '}
-              {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
+              {table.budget === 0
+                ? '未定'
+                : `${table.budget.toLocaleString()}円`}
             </p>
           </>
         ) : (
