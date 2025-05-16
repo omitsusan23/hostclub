@@ -17,7 +17,7 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
-  // 追加：初回で反映された卓番号のリストを管理
+  // 追加：初回で反映された卓番号のリスト
   const [firstTables, setFirstTables] = useState<string[]>([]);
 
   // フィルタリング
@@ -64,18 +64,19 @@ export default function TableStatusPage() {
   }, [dispatch, tables]);
 
   const confirmFirst = () => {
-    // ★ここを修正：payload に tableNumber フィールドを渡す
+    // ★ここを修正：必ず requestedTable を渡すように
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
         id: Date.now(),
-        tableNumber: selectedTable,
+        requestedTable: selectedTable,  // <- これが必要
         princess: names.join('、'),
         budget: 0,
         time: firstStartTime,
       },
     });
-    // ★初回リストにも selectedTable を追加
+
+    // 初回リストにも selectedTable を追加
     setFirstTables(prev =>
       prev.includes(selectedTable) ? prev : [...prev, selectedTable]
     );
@@ -97,7 +98,6 @@ export default function TableStatusPage() {
       case 'occupied':
         return tables;
       case 'first':
-        // 初回マークのある卓だけ
         return tables.filter(t => firstTables.includes(t.tableNumber));
       case 'empty':
         return tableSettings
