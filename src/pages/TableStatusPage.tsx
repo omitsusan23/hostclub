@@ -17,13 +17,13 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
-  // ① 初回で反映された卓番号のリストを保持
+  // 初回で反映された卓番号のリスト
   const [firstTables, setFirstTables] = useState<string[]>([]);
 
-  // ② フィルタリング
+  // フィルタリング
   const [filter, setFilter] = useState<Filter>('all');
 
-  // ③ オーバーレイ／モーダル管理の state
+  // ―― オーバーレイ／モーダル管理の state ――
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage]   = useState('');
   const [deletingId, setDeletingId]         = useState<number | null>(null);
@@ -63,7 +63,7 @@ export default function TableStatusPage() {
     setTimeout(() => setDeleteMessage(''), 1000);
   }, [dispatch, tables]);
 
-  // ④ 初回確定時にテーブル割り当てと firstTables への追加を行う
+  // 初回確定時にテーブル割り当て＆firstTables へ追加
   const confirmFirst = () => {
     dispatch({
       type: 'ASSIGN_TABLE',
@@ -89,7 +89,7 @@ export default function TableStatusPage() {
     closeFirstModal();
   };
 
-  // ⑤ テーブルリストフィルタ
+  // テーブルリストフィルタ
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
@@ -121,13 +121,14 @@ export default function TableStatusPage() {
     }
   }, [filter, tables, tableSettings, firstTables]);
 
-  // ⑥ 卓の描画
+  // 卓の描画
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => (
       <div
         key={idx}
         className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between"
       >
+        {/* 削除ボタン（姫がいる卓のみ） */}
         {table.princess && (
           <button
             onClick={() => handleDelete(table.id)}
@@ -141,7 +142,7 @@ export default function TableStatusPage() {
           </button>
         )}
 
-        {/* 卓番号と(初回)マーク */}
+        {/* 卓番号＋(初回)マーク */}
         <p className="text-center font-bold">
           {table.tableNumber}
           {firstTables.includes(table.tableNumber) && ' (初回)'}
@@ -253,7 +254,6 @@ export default function TableStatusPage() {
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：卓と人数を選択
                 </h3>
-                {/* 既存フォーム部分 */}
                 <label className="block text-sm mb-2">卓を選択</label>
                 <select
                   value={selectedTable}
@@ -314,7 +314,6 @@ export default function TableStatusPage() {
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：お客様情報
                 </h3>
-                {/* ▼ ここが変更ポイント ▼ */}
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   {names.map((_, i) => (
                     <div key={i}>
