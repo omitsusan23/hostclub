@@ -6,9 +6,7 @@ import Footer from '../components/Footer';
 type Filter = 'all' | 'occupied' | 'empty' | 'first';
 
 const positionLabelsByCount: Record<number, string[]> = {
-  1: [],
-  2: ['左', '右'],
-  3: ['左', '中', '右'],
+  1: [], 2: ['左', '右'], 3: ['左', '中', '右'],
   4: ['左端', '左', '右', '右端'],
   5: ['左端', '左', '中', '右', '右端'],
   6: ['左端', '左中', '左', '右', '右中', '右端'],
@@ -54,6 +52,7 @@ export default function TableStatusPage() {
     setSelectedCount(0);
     setNames([]);
     setPhotos([]);
+    setFirstType('初回');
     setFirstModalOpen(true);
   };
   const closeFirstModal = () => setFirstModalOpen(false);
@@ -75,7 +74,7 @@ export default function TableStatusPage() {
   }, [dispatch, tables]);
 
   const confirmFirst = () => {
-    // 1) テーブル割り当て
+    // 1) テーブル割り当て（既存の ASSIGN_TABLE）
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
@@ -95,7 +94,7 @@ export default function TableStatusPage() {
       return next;
     });
 
-    // 3) オーバーレイ表示
+    // 3) オーバーレイ表示（既存）
     const entries = names.map((n, i) => {
       const label = positionLabelsByCount[selectedCount][i];
       const pname = n || 'お客様';
@@ -114,6 +113,7 @@ export default function TableStatusPage() {
       case 'occupied':
         return tables;
       case 'first':
+        // firstLabels に含まれるテーブルのみ
         return tables.filter(t => firstLabels[t.tableNumber] !== undefined);
       case 'empty':
         return tableSettings
@@ -211,7 +211,7 @@ export default function TableStatusPage() {
                    px-4 py-5
                    grid grid-cols-[1fr_auto_1fr] items-baseline"
       >
-        {/* 左端: 初回ボタン */}
+        {/* 左端: 初回フィルター */}
         <button
           onClick={() => setFilter('first')}
           className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
@@ -273,6 +273,7 @@ export default function TableStatusPage() {
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：卓と人数を選択
                 </h3>
+
                 {/* ここで「初回」か「初回指名」を選択 */}
                 <div className="mb-4 flex items-center space-x-4 justify-center">
                   <label className="inline-flex items-center space-x-1">
@@ -294,6 +295,7 @@ export default function TableStatusPage() {
                     <span className="text-sm">初回指名</span>
                   </label>
                 </div>
+
                 {/* 既存：卓選択フォーム */}
                 <label className="block text-sm mb-2">卓を選択</label>
                 <select
