@@ -17,13 +17,13 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
-  // 初回で反映された卓番号のリスト
+  // ── 「初回」で反映した卓番号 を保持 ──
   const [firstTables, setFirstTables] = useState<string[]>([]);
 
-  // フィルタリング
+  // ── ヘッダーの絞り込み状態 ──
   const [filter, setFilter] = useState<Filter>('all');
 
-  // ―― オーバーレイ／モーダル管理の state ――
+  // ── 各種モーダル／オーバーレイ用 state ──
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage]   = useState('');
   const [deletingId, setDeletingId]         = useState<number | null>(null);
@@ -35,6 +35,7 @@ export default function TableStatusPage() {
   const [photos, setPhotos]                 = useState<string[]>([]);
   const [firstStartTime, setFirstStartTime] = useState('');
 
+  // ── モーダル開閉・ステップ制御 ──
   const openFirstModal = () => {
     const now = new Date();
     setFirstStartTime(now.toTimeString().slice(0,5));
@@ -53,6 +54,7 @@ export default function TableStatusPage() {
     setStep1(false);
   };
 
+  // ── 卓削除 ──
   const handleDelete = useCallback((id: number) => {
     const t = tables.find(x => x.id === id);
     if (!t) return;
@@ -63,8 +65,9 @@ export default function TableStatusPage() {
     setTimeout(() => setDeleteMessage(''), 1000);
   }, [dispatch, tables]);
 
-  // 初回確定時にテーブル割り当て＆firstTables へ追加
+  // ── 「初回」確定 ──
   const confirmFirst = () => {
+    // Context に割り当て
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
@@ -75,10 +78,12 @@ export default function TableStatusPage() {
         time: firstStartTime,
       },
     });
+    // 初回リストに追加
     setFirstTables(prev =>
       prev.includes(selectedTable) ? prev : [...prev, selectedTable]
     );
-    const entries = names.map((n, i) => {
+    // オーバーレイ表示
+    const entries = names.map((n,i) => {
       const label = positionLabelsByCount[selectedCount][i];
       const pname = n || 'お客様';
       const pcast = photos[i] !== 'なし' ? `（指名：${photos[i]}）` : '';
@@ -89,13 +94,13 @@ export default function TableStatusPage() {
     closeFirstModal();
   };
 
-  // テーブルリストフィルタ
+  // ── 絞り込み済みテーブルリスト ──
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
-        return tables;
+        return tables;                              // 使用中
       case 'first':
-        return tables.filter(t => firstTables.includes(t.tableNumber));
+        return tables.filter(t => firstTables.includes(t.tableNumber)); // 初回
       case 'empty':
         return tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
@@ -117,11 +122,11 @@ export default function TableStatusPage() {
             budget: 0,
             time: '',
           }));
-        return [...tables, ...empty];
+        return [...tables, ...empty];               // 全卓
     }
   }, [filter, tables, tableSettings, firstTables]);
 
-  // 卓の描画
+  // ── テーブル描画 ──
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => (
       <div
@@ -177,7 +182,7 @@ export default function TableStatusPage() {
         </div>
       )}
 
-      {/* 着席メッセージ */}
+      {/* 着席オーバーレイ */}
       {overlayMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded max-w-md text-center">
@@ -254,6 +259,7 @@ export default function TableStatusPage() {
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：卓と人数を選択
                 </h3>
+                {/* 省略せず既存フォームをそのまま */}
                 <label className="block text-sm mb-2">卓を選択</label>
                 <select
                   value={selectedTable}
@@ -267,9 +273,7 @@ export default function TableStatusPage() {
                         {t}（使用中）
                       </option>
                     ) : (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
+                      <option key={t} value={t}>{t}</option>
                     )
                   )}
                 </select>
@@ -287,26 +291,20 @@ export default function TableStatusPage() {
                   className="border p-2 w-full rounded mb-4"
                 >
                   <option value={0}>人数を選択してください</option>
-                  {[1, 2, 3, 4, 5, 6].map(n => (
-                    <option key={n} value={n}>
-                      {n} 名
-                    </option>
+                  {[1,2,3,4,5,6].map(n => (
+                    <option key={n} value={n}>{n} 名</option>
                   ))}
                 </select>
                 <div className="flex justify-end space-x-2">
                   <button
                     onClick={closeFirstModal}
                     className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                  >
-                    キャンセル
-                  </button>
+                  >キャンセル</button>
                   <button
                     onClick={nextStep}
-                    disabled={!selectedTable || selectedCount < 1}
+                    disabled={!selectedTable||selectedCount<1}
                     className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-                  >
-                    次へ
-                  </button>
+                  >次へ</button>
                 </div>
               </>
             ) : (
@@ -315,7 +313,7 @@ export default function TableStatusPage() {
                   初回来店：お客様情報
                 </h3>
                 <div className="grid grid-cols-2 gap-4 mb-4">
-                  {names.map((_, i) => (
+                  {names.map((_,i) => (
                     <div key={i}>
                       {positionLabelsByCount[selectedCount][i] && (
                         <label className="block text-xs text-gray-500 mb-1">
@@ -327,8 +325,7 @@ export default function TableStatusPage() {
                         placeholder="名前"
                         value={names[i]}
                         onChange={e => {
-                          const a = [...names];
-                          a[i] = e.target.value.slice(0,6);
+                          const a = [...names]; a[i] = e.target.value.slice(0,6);
                           setNames(a);
                         }}
                         className="border p-2 rounded w-full"
@@ -336,16 +333,13 @@ export default function TableStatusPage() {
                       <select
                         value={photos[i]}
                         onChange={e => {
-                          const b = [...photos];
-                          b[i] = e.target.value;
+                          const b = [...photos]; b[i] = e.target.value;
                           setPhotos(b);
                         }}
                         className="border p-2 rounded w-full mt-1"
                       >
                         <option value="なし">写真指名なし</option>
-                        {casts.map(c => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
+                        {casts.map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
                   ))}
@@ -354,15 +348,11 @@ export default function TableStatusPage() {
                   <button
                     onClick={() => setStep1(true)}
                     className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                  >
-                    戻る
-                  </button>
+                  >戻る</button>
                   <button
                     onClick={confirmFirst}
                     className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                  >
-                    反映
-                  </button>
+                  >反映</button>
                 </div>
               </>
             )}
