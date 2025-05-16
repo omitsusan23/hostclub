@@ -64,19 +64,18 @@ export default function TableStatusPage() {
   }, [dispatch, tables]);
 
   const confirmFirst = () => {
-    // ← ここを修正：payload.tableNumber に selectedTable をセット
+    // ① テーブルを割り当て
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
         id: Date.now(),
-        tableNumber: selectedTable,    // ← ここ
+        tableNumber: selectedTable,      // ← ここがポイント
         princess: names.join('、'),
         budget: 0,
         time: firstStartTime,
       },
     });
-
-    // 初回リストにも追加
+    // ② 初回リストにも追加
     setFirstTables(prev =>
       prev.includes(selectedTable) ? prev : [...prev, selectedTable]
     );
@@ -131,6 +130,7 @@ export default function TableStatusPage() {
         key={idx}
         className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between"
       >
+        {/* 削除ボタン（姫がいる卓のみ） */}
         {table.princess && (
           <button
             onClick={() => handleDelete(table.id)}
@@ -143,12 +143,15 @@ export default function TableStatusPage() {
             {deletingId === table.id ? '削除中...' : '削除'}
           </button>
         )}
+
+        {/* 卓番号＋(初回)マーク */}
         <p className="text-center font-bold">
           {table.tableNumber}
           {firstTables.includes(table.tableNumber) && (
             <span className="text-red-500"> (初回)</span>
           )}
         </p>
+
         {table.princess ? (
           <>
             <p className="text-sm mt-2"><strong>姫名:</strong> {table.princess}</p>
@@ -177,6 +180,7 @@ export default function TableStatusPage() {
           </div>
         </div>
       )}
+
       {/* 着席メッセージ */}
       {overlayMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
@@ -185,6 +189,7 @@ export default function TableStatusPage() {
           </div>
         </div>
       )}
+
       {/* 固定ヘッダー */}
       <header
         className="sticky top-0 bg-white z-50 border-b
@@ -200,10 +205,12 @@ export default function TableStatusPage() {
         >
           初回
         </button>
+
         {/* 中央: 卓状況 */}
         <h2 className="justify-self-center text-2xl font-bold">
           卓状況
         </h2>
+
         {/* 右端: 全卓・使用中・空卓 */}
         <div className="flex space-x-1 justify-self-end">
           <button
@@ -232,10 +239,12 @@ export default function TableStatusPage() {
           </button>
         </div>
       </header>
+
       {/* テーブルグリッド（3列） */}
       <main id="main-content" className="px-4 py-4 grid grid-cols-3 gap-4">
         {renderedTables}
       </main>
+
       {/* 初回来店モーダル */}
       {firstModalOpen && (
         <div
@@ -275,6 +284,7 @@ export default function TableStatusPage() {
           </div>
         </div>
       )}
+
       {/* フッター */}
       <Footer
         currentUser={null}
