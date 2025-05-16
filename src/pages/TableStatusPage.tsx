@@ -301,7 +301,7 @@ export default function TableStatusPage() {
                 </h3>
 
                 {/* 卓選択フォーム */}
-                <label className="block text-sm mb-2">卓を選択</label>
+                <label className="block text-sm mb-2">卓選択</label>
                 <select
                   value={selectedTable}
                   onChange={e => setSelectedTable(e.target.value)}
