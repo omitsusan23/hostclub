@@ -50,14 +50,15 @@ function AppInner() {
   const closeResModal = useCallback(() => setResModalOpen(false), [])
 
   // 初回来店モーダル
-  const [firstModalOpen, setFirstModalOpen] = useState(false)
-  const [step1,         setStep1]           = useState(true)
-  const [selectedTable, setSelectedTable]   = useState('')
-  const [selectedCount, setSelectedCount]   = useState(0)
-  const [names,         setNames]           = useState<string[]>([])
-  const [photos,        setPhotos]          = useState<string[]>([])
-  const [firstTypes,    setFirstTypes]      = useState<string[]>([])  // ← 追加
-  const [firstStartTime, setFirstStartTime] = useState('')
+  const [firstModalOpen, setFirstModalOpen]   = useState(false)
+  const [step1,         setStep1]             = useState(true)
+  const [selectedTable, setSelectedTable]     = useState('')
+  const [selectedCount, setSelectedCount]     = useState(0)
+  const [names,         setNames]             = useState<string[]>([])
+  const [firstTypes,    setFirstTypes]        = useState<string[]>([])
+  const [firstPhotos,   setFirstPhotos]       = useState<string[]>([]) // ← 追加
+  const [photos,        setPhotos]            = useState<string[]>([])
+  const [firstStartTime, setFirstStartTime]   = useState('')
 
   const openFirstModal = () => {
     const now = new Date()
@@ -67,6 +68,8 @@ function AppInner() {
     setSelectedTable('')
     setSelectedCount(0)
     setNames([])
+    setFirstTypes([])
+    setFirstPhotos([]) // ← リセット
     setPhotos([])
     setFirstModalOpen(true)
   }
@@ -74,7 +77,8 @@ function AppInner() {
   const nextStep = () => {
     if (!selectedTable || selectedCount < 1) return
     setNames(Array(selectedCount).fill(''))
-    setFirstTypes(Array(selectedCount).fill('初回'))  // ← 追加
+    setFirstTypes(Array(selectedCount).fill('初回'))
+    setFirstPhotos(Array(selectedCount).fill('')) // ← 初期値は空＝「指名してください」
     setPhotos(Array(selectedCount).fill('なし'))
     setStep1(false)
   }
@@ -89,6 +93,7 @@ function AppInner() {
         time: firstStartTime,
       },
     })
+    // 既存のオーバーレイ表示ロジックなどをここに入れてください
     closeFirstModal()
   }
 
@@ -101,6 +106,9 @@ function AppInner() {
       dispatch({ type: 'SET_USER', payload: null })
     }
   }, [currentUser, dispatch])
+
+  // 初回指名で写真プルダウンが未選択なら反映不可
+  const disableConfirm = firstTypes.some((t, i) => t === '初回指名' && firstPhotos[i] === '')
 
   return (
     <Router>
@@ -195,6 +203,7 @@ function AppInner() {
             </Routes>
             {/* ↑ 既存 Routes ここまで ↑ */}
 
+            {/* グローバル Footer に両ハンドラ渡し */}
             {currentUser && (
               <Footer
                 currentUser={currentUser}
@@ -280,7 +289,7 @@ function AppInner() {
                                 {positionLabelsByCount[selectedCount][i]}
                               </div>
                             )}
-                            {/* セグメントトグル */}
+                            {/* 初回／初回指名トグル */}
                             <div className="inline-flex mb-2 border border-gray-300 rounded">
                               <button
                                 onClick={() => {
@@ -311,6 +320,24 @@ function AppInner() {
                                 初回指名
                               </button>
                             </div>
+                            {/* 初回指名時のみ：写真指名プルダウン */}
+                            {firstTypes[i] === '初回指名' && (
+                              <select
+                                value={firstPhotos[i]}
+                                onChange={e => {
+                                  const p = [...firstPhotos]
+                                  p[i] = e.target.value
+                                  setFirstPhotos(p)
+                                }}
+                                className="border p-2 rounded w-full mb-1"
+                              >
+                                <option value="">指名してください</option>
+                                {casts.map(c => (
+                                  <option key={c} value={c}>{c}</option>
+                                ))}
+                              </select>
+                            )}
+                            {/* 名前入力 */}
                             <input
                               type="text"
                               placeholder="名前"
@@ -322,6 +349,7 @@ function AppInner() {
                               }}
                               className="border p-2 rounded w-full mb-1"
                             />
+                            {/* 既存の写真指名 */}
                             <select
                               value={photos[i]}
                               onChange={e => {
@@ -348,7 +376,8 @@ function AppInner() {
                         </button>
                         <button
                           onClick={confirmFirst}
-                          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                          disabled={disableConfirm}
+                          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
                         >
                           反映
                         </button>
