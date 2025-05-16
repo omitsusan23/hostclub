@@ -36,18 +36,14 @@ export default function TableStatusPage() {
 
   // フィルター状態
   const [filter, setFilter] = useState<Filter>('all');
-  const [overlayMessage, setOverlayMessage] = useState('');
-  const [deleteMessage, setDeleteMessage]   = useState('');
-  const [deletingId, setDeletingId]         = useState<number | null>(null);
-
-  // 削除メッセージの自動消去
+  const [deleteMessage, setDeleteMessage] = useState('');
   useEffect(() => {
     if (!deleteMessage) return;
     const h = setTimeout(() => setDeleteMessage(''), 1000);
     return () => clearTimeout(h);
   }, [deleteMessage]);
 
-  // 3種類のフィルタリング
+  // テーブルリストのフィルタリング
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
@@ -74,30 +70,28 @@ export default function TableStatusPage() {
         key={idx}
         className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between"
       >
-        {/* 削除ボタン（姫がいる卓のみ） */}
-        {table.princess && (
-          <button
-            onClick={() => { setDeletingId(table.id); handleDelete(table.id); }}
-            disabled={deletingId === table.id}
-            className={`absolute top-1 right-1 text-sm hover:underline ${
-              deletingId === table.id ? 'text-gray-400' : 'text-red-500'
-            }`}
-            aria-label={`卓 ${table.tableNumber} を削除`}
-          >
-            {deletingId === table.id ? '削除中...' : '削除'}
-          </button>
-        )}
+        {/* ヘッダー部：番号・初回ラベル・削除ボタン */}
+        <div className="flex items-center justify-center space-x-2 mb-2">
+          <span className="text-lg font-bold">{table.tableNumber}</span>
+          {firstLabels[table.tableNumber] && (
+            <span className="px-2 py-1 bg-gray-200 rounded-full text-sm">
+              {firstLabels[table.tableNumber]}
+            </span>
+          )}
+          {table.princess && (
+            <button
+              onClick={() => { setDeleteMessage(`卓 ${table.tableNumber} を削除しました`); handleDelete(table.id); }}
+              className="text-red-500 hover:text-red-700"
+            >
+              🗑
+            </button>
+          )}
+        </div>
 
-        {/* 卓番号 + 初回ラベル */}
-        <p className="text-center font-bold">
-          {table.tableNumber}
-          {firstLabels[table.tableNumber] && ` (${firstLabels[table.tableNumber]})`}
-        </p>
-
-        {/* 詳細 */}
+        {/* 詳細表示 */}
         {table.princess ? (
-          <>
-            <p className="text-sm mt-2"><strong>姫名:</strong> {table.princess}</p>
+          <>  
+            <p className="text-sm"><strong>姫名:</strong> {table.princess}</p>
             <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
             <p className="text-sm"><strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}</p>
           </>
@@ -105,8 +99,8 @@ export default function TableStatusPage() {
           <p className="text-sm mt-4 text-gray-400 text-center">空卓</p>
         )}
       </div>
-    )),
-  [filteredTables, handleDelete, deletingId, firstLabels]);
+    )), [filteredTables, handleDelete, firstLabels]
+  );
 
   return (
     <>
@@ -119,7 +113,7 @@ export default function TableStatusPage() {
         </div>
       )}
 
-      {/* フィルター＆ヘッダー */}
+      {/* フィルター＆ヘッダー（変更なし） */}
       <header
         className="sticky top-0 bg-white z-50 border-b px-4 py-5
                    grid grid-cols-[1fr_auto_1fr] items-baseline"
