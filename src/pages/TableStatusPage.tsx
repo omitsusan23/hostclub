@@ -130,7 +130,7 @@ export default function TableStatusPage() {
 
   const renderedTables = filteredTables.map((table, idx) => (
     <div key={idx} className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between">
-      {table.princess && (
+      {tables.some(t => t.id === table.id) && (
         <button
           onClick={() => handleDelete(table.id)}
           disabled={deletingId === table.id}
