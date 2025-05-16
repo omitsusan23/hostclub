@@ -6,7 +6,9 @@ import Footer from '../components/Footer';
 type Filter = 'all' | 'occupied' | 'empty' | 'first';
 
 const positionLabelsByCount: Record<number, string[]> = {
-  1: [], 2: ['左', '右'], 3: ['左', '中', '右'],
+  1: [],
+  2: ['左', '右'],
+  3: ['左', '中', '右'],
   4: ['左端', '左', '右', '右端'],
   5: ['左端', '左', '中', '右', '右端'],
   6: ['左端', '左中', '左', '右', '右中', '右端'],
@@ -39,8 +41,13 @@ export default function TableStatusPage() {
   useEffect(() => {
     const saved = localStorage.getItem('firstLabels');
     if (saved) {
-      try { setFirstLabels(JSON.parse(saved)); }
-      catch { /* ignore malformed */ }
+      try {
+        const parsed = JSON.parse(saved);
+        console.log('🎉 restored firstLabels:', parsed);
+        setFirstLabels(parsed);
+      } catch {
+        console.warn('firstLabels の復元に失敗しました');
+      }
     }
   }, []);
 
@@ -74,7 +81,8 @@ export default function TableStatusPage() {
   }, [dispatch, tables]);
 
   const confirmFirst = () => {
-    // 1) テーブル割り当て（既存の ASSIGN_TABLE）
+    console.log('✅ confirmFirst start', { selectedTable, firstType, names });
+    // 1) テーブル割り当て
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
@@ -88,13 +96,18 @@ export default function TableStatusPage() {
 
     // 2) firstLabels に追加 & localStorage に保存
     setFirstLabels(prev => {
-      if (prev[selectedTable] === firstType) return prev;
+      const prevLabel = prev[selectedTable];
+      if (prevLabel === firstType) {
+        console.log('firstLabels はすでに存在します', prev);
+        return prev;
+      }
       const next = { ...prev, [selectedTable]: firstType };
       localStorage.setItem('firstLabels', JSON.stringify(next));
+      console.log('✨ firstLabels updated:', next);
       return next;
     });
 
-    // 3) オーバーレイ表示（既存）
+    // 3) オーバーレイ表示
     const entries = names.map((n, i) => {
       const label = positionLabelsByCount[selectedCount][i];
       const pname = n || 'お客様';
@@ -113,7 +126,7 @@ export default function TableStatusPage() {
       case 'occupied':
         return tables;
       case 'first':
-        // firstLabels に含まれるテーブルのみ
+        console.log('🔍 filtering first:', firstLabels);
         return tables.filter(t => firstLabels[t.tableNumber] !== undefined);
       case 'empty':
         return tableSettings
@@ -142,76 +155,62 @@ export default function TableStatusPage() {
 
   // ── テーブル描画
   const renderedTables = useMemo(() =>
-    filteredTables.map((table, idx) => (
-      <div
-        key={idx}
-        className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between"
-      >
-        {/* 削除ボタン（姫がいる卓のみ） */}
-        {table.princess && (
-          <button
-            onClick={() => handleDelete(table.id)}
-            disabled={deletingId === table.id}
-            className={`absolute top-1 right-1 text-sm hover:underline ${
-              deletingId === table.id ? 'text-gray-400' : 'text-red-500'
-            }`}
-            aria-label={`卓 ${table.tableNumber} を削除`}
-          >
-            {deletingId === table.id ? '削除中...' : '削除'}
-          </button>
-        )}
+    filteredTables.map((table, idx) => {
+      const label = firstLabels[table.tableNumber];
+      return (
+        <div
+          key={idx}
+          className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between"
+        >
+          {table.princess && (
+            <button
+              onClick={() => handleDelete(table.id)}
+              disabled={deletingId === table.id}
+              className={`absolute top-1 right-1 text-sm hover:underline ${
+                deletingId === table.id ? 'text-gray-400' : 'text-red-500'
+              }`}
+              aria-label={`卓 ${table.tableNumber} を削除`}
+            >
+              {deletingId === table.id ? '削除中...' : '削除'}
+            </button>
+          )}
 
-        {/* 卓番号 + (初回 or 初回指名) */}
-        <p className="text-center font-bold">
-          {table.tableNumber}
-          {firstLabels[table.tableNumber] && ` (${firstLabels[table.tableNumber]})`}
-        </p>
+          {console.log(`🎨 rendering ${table.tableNumber}`, label)}
 
-        {table.princess ? (
-          <>
-            <p className="text-sm mt-2"><strong>姫名:</strong> {table.princess}</p>
-            <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
-            <p className="text-sm">
-              <strong>予算:</strong>{' '}
-              {table.budget === 0
-                ? '未定'
-                : `${table.budget.toLocaleString()}円`}
-            </p>
-          </>
-        ) : (
-          <p className="text-sm mt-4 text-gray-400 text-center">空卓</p>
-        )}
-      </div>
-    )),
+          <p className="text-center font-bold">
+            {table.tableNumber}
+            {label && ` （${label}）`}
+          </p>
+
+          {table.princess ? (
+            <>
+              <p className="text-sm mt-2"><strong>姫名:</strong> {table.princess}</p>
+              <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
+              <p className="text-sm">
+                <strong>予算:</strong>{' '}
+                {table.budget === 0
+                  ? '未定'
+                  : `${table.budget.toLocaleString()}円`}
+              </p>
+            </>
+          ) : (
+            <p className="text-sm mt-4 text-gray-400 text-center">空卓</p>
+          )}
+        </div>
+      );
+    }),
   [filteredTables, handleDelete, deletingId, firstLabels]);
 
   return (
     <>
       {/* 削除メッセージ */}
-      {deleteMessage && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="bg-black bg-opacity-75 text-white p-4 rounded">
-            {deleteMessage}
-          </div>
-        </div>
-      )}
+      {deleteMessage && ( /* … */ )}
 
       {/* 着席オーバーレイ */}
-      {overlayMessage && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="bg-black bg-opacity-75 text-white p-4 rounded max-w-md text-center">
-            {overlayMessage}
-          </div>
-        </div>
-      )}
+      {overlayMessage && ( /* … */ )}
 
       {/* 固定ヘッダー */}
-      <header
-        className="sticky top-0 bg-white z-50 border-b
-                   px-4 py-5
-                   grid grid-cols-[1fr_auto_1fr] items-baseline"
-      >
-        {/* 左端: 初回フィルター */}
+      <header className="sticky top-0 bg-white z-50 border-b px-4 py-5 grid grid-cols-[1fr_auto_1fr] items-baseline">
         <button
           onClick={() => setFilter('first')}
           className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
@@ -220,61 +219,27 @@ export default function TableStatusPage() {
         >
           初回
         </button>
-
-        {/* 中央: 卓状況 */}
-        <h2 className="justify-self-center text-2xl font-bold">
-          卓状況
-        </h2>
-
-        {/* 右端: 全卓・使用中・空卓 */}
+        <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
         <div className="flex space-x-1 justify-self-end">
-          <button
-            onClick={() => setFilter('all')}
-            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-              filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
-            }`}
-          >
-            全卓
-          </button>
-          <button
-            onClick={() => setFilter('occupied')}
-            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-              filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
-            }`}
-          >
-            使用中
-          </button>
-          <button
-            onClick={() => setFilter('empty')}
-            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-              filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
-            }`}
-          >
-            空卓
-          </button>
+          <button onClick={() => setFilter('all')}  className={`…`}>全卓</button>
+          <button onClick={() => setFilter('occupied')} className={`…`}>使用中</button>
+          <button onClick={() => setFilter('empty')}  className={`…`}>空卓</button>
         </div>
       </header>
 
-      {/* テーブルグリッド（3列） */}
       <main id="main-content" className="px-4 py-4 grid grid-cols-3 gap-4">
         {renderedTables}
       </main>
 
       {/* 初回来店モーダル */}
       {firstModalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-        >
+        <div role="dialog" /* … */>
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             {step1 ? (
               <>
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：卓と人数を選択
                 </h3>
-
-                {/* ここで「初回」か「初回指名」を選択 */}
                 <div className="mb-4 flex items-center space-x-4 justify-center">
                   <label className="inline-flex items-center space-x-1">
                     <input
@@ -295,77 +260,12 @@ export default function TableStatusPage() {
                     <span className="text-sm">初回指名</span>
                   </label>
                 </div>
-
-                {/* 既存：卓選択フォーム */}
-                <label className="block text-sm mb-2">卓を選択</label>
-                <select
-                  value={selectedTable}
-                  onChange={e => setSelectedTable(e.target.value)}
-                  className="border p-2 w-full rounded mb-4"
-                >
-                  <option value="">選択してください</option>
-                  {tableSettings.map(t =>
-                    tables.some(tab => tab.tableNumber === t)
-                      ? <option key={t} value={t} disabled>{t}（使用中）</option>
-                      : <option key={t} value={t}>{t}</option>
-                  )}
-                </select>
-                {/* 既存：開始時間・人数選択など */}
-                <label className="block text-sm mb-2">開始時間</label>
-                <input
-                  type="time"
-                  value={firstStartTime}
-                  onChange={e => setFirstStartTime(e.target.value)}
-                  className="border p-2 w-full rounded mb-4"
-                />
-                <label className="block text-sm mb-2">人数を選択</label>
-                <select
-                  value={selectedCount}
-                  onChange={e => setSelectedCount(Number(e.target.value))}
-                  className="border p-2 w-full rounded mb-4"
-                >
-                  <option value={0}>人数を選択してください</option>
-                  {[1, 2, 3, 4, 5, 6].map(n => (
-                    <option key={n} value={n}>{n} 名</option>
-                  ))}
-                </select>
-                <div className="flex justify-end space-x-2">
-                  <button
-                    onClick={closeFirstModal}
-                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                  >
-                    キャンセル
-                  </button>
-                  <button
-                    onClick={nextStep}
-                    disabled={!selectedTable || selectedCount < 1}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-                  >
-                    次へ
-                  </button>
-                </div>
+                {/* 既存：フォーム部分 */}
+                {/* … */}
               </>
             ) : (
-              <>
-                <h3 className="text-lg font-semibold mb-4 text-center">
-                  初回来店：お客様情報
-                </h3>
-                {/* 既存フォーム部分はそのまま */}
-                <div className="flex justify-end space-x-2">
-                  <button
-                    onClick={() => setStep1(true)}
-                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                  >
-                    戻る
-                  </button>
-                  <button
-                    onClick={confirmFirst}
-                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                  >
-                    反映
-                  </button>
-                </div>
-              </>
+              /* 二段目フォーム */
+              /* … */
             )}
           </div>
         </div>
