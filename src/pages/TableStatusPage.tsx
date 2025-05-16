@@ -5,7 +5,6 @@ import Footer from '../components/Footer';
 
 type Filter = 'all' | 'occupied' | 'empty' | 'first';
 
-// 位置ラベル定義（未変更）
 const positionLabelsByCount: Record<number, string[]> = {
   1: [],
   2: ['左', '右'],
@@ -18,130 +17,167 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
-  // localStorage から初回ラベル取得
+  // localStorageから直接読み込み、テーブル/設定変更時に再計算
   const firstLabels = useMemo<Record<string,string>>(() => {
-    const raw = localStorage.getItem('firstLabels');
-    return raw ? JSON.parse(raw) : {};
+    const saved = localStorage.getItem('firstLabels');
+    if (saved) {
+      try { return JSON.parse(saved); } catch {}
+    }
+    return {};
   }, [tables, tableSettings]);
 
-  // テーブル削除時に初回ラベルも消去
-  const handleDelete = useCallback((id: number) => {
-    const t = tables.find(x => x.id === id);
-    if (!t) return;
-    if (!confirm(`本当に卓 ${t.tableNumber} を削除しますか？`)) return;
-    dispatch({ type: 'DELETE_TABLE', payload: id });
-    const saved = JSON.parse(localStorage.getItem('firstLabels') || '{}') as Record<string,string>;
-    delete saved[t.tableNumber];
-    localStorage.setItem('firstLabels', JSON.stringify(saved));
-  }, [dispatch, tables]);
+  // テーブル設定から外れたキーのラベルをクリア
+  useEffect(() => {
+    const savedRaw = JSON.parse(localStorage.getItem('firstLabels') || '{}') as Record<string,string>;
+    let changed = false;
+    const filtered: Record<string,string> = {};
+    Object.entries(savedRaw).forEach(([key, val]) => {
+      if (tableSettings.includes(key)) filtered[key] = val;
+      else changed = true;
+    });
+    if (changed) {
+      localStorage.setItem('firstLabels', JSON.stringify(filtered));
+    }
+  }, [tableSettings]);
 
   // フィルター状態
   const [filter, setFilter] = useState<Filter>('all');
+  const [overlayMessage, setOverlayMessage] = useState('');
+  const [deleteMessage, setDeleteMessage] = useState('');
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  // 初回来店モーダル
+  const [firstModalOpen, setFirstModalOpen] = useState(false);
+  const [step1, setStep1] = useState(true);
+  const [selectedTable, setSelectedTable] = useState('');
+  const [selectedCount, setSelectedCount] = useState(0);
+  const [names, setNames] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [firstTypes, setFirstTypes] = useState<string[]>([]);
+  const [firstPhotos, setFirstPhotos] = useState<string[]>([]);
+  const [firstStartTime, setFirstStartTime] = useState('');
+
+  const openFirstModal = () => {
+    const now = new Date();
+    setFirstStartTime(now.toTimeString().slice(0,5));
+    setStep1(true);
+    setSelectedTable('');
+    setSelectedCount(0);
+    setNames([]);
+    setPhotos([]);
+    setFirstTypes([]);
+    setFirstPhotos([]);
+    setFirstModalOpen(true);
+  };
+  const closeFirstModal = () => setFirstModalOpen(false);
+
+  const nextStep = () => {
+    if (!selectedTable || selectedCount < 1) return;
+    setNames(Array(selectedCount).fill(''));
+    setPhotos(Array(selectedCount).fill('なし'));
+    setFirstTypes(Array(selectedCount).fill('初回'));
+    setFirstPhotos(Array(selectedCount).fill(''));
+    setStep1(false);
+  };
+
+  const confirmFirst = () => {
+    dispatch({
+      type: 'ASSIGN_TABLE',
+      payload: {
+        id: Date.now(),
+        tableNumber: selectedTable,
+        princess: names.join('、'),
+        budget: 0,
+        time: firstStartTime,
+        firstType: Array.from(new Set(firstTypes)).join('/'),
+      },
+    });
+    const saved = JSON.parse(localStorage.getItem('firstLabels') || '{}');
+    saved[selectedTable] = Array.from(new Set(firstTypes)).join('/');
+    localStorage.setItem('firstLabels', JSON.stringify(saved));
+    closeFirstModal();
+  };
+
+  const handleDelete = useCallback((id: number) => {
+    const t = tables.find(x => x.id === id);
+    if (!t) return;
+    if (!window.confirm(`本当に卓 ${t.tableNumber} を削除しますか？`)) return;
+    dispatch({ type: 'DELETE_TABLE', payload: id });
+    const savedRaw = JSON.parse(localStorage.getItem('firstLabels') || '{}') as Record<string,string>;
+    delete savedRaw[t.tableNumber];
+    localStorage.setItem('firstLabels', JSON.stringify(savedRaw));
+    setDeletingId(id);
+    setDeleteMessage(`卓 ${t.tableNumber} を削除しました`);
+    setTimeout(() => setDeleteMessage(''), 1000);
+  }, [dispatch, tables]);
+
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied': return tables;
       case 'first':    return tables.filter(t => firstLabels[t.tableNumber] !== undefined);
-      case 'empty':    return tableSettings
-          .filter(n => !tables.some(t => t.tableNumber === n))
-          .map(n => ({ id: Date.now()+Number(n), tableNumber: n, princess: '', budget: 0, time: '' } as Table));
+      case 'empty':
+        return tableSettings
+          .filter(num => !tables.some(t => t.tableNumber === num))
+          .map(num => ({ id: Date.now() + Number(num), tableNumber: num, princess: '', budget: 0, time: '' } as Table));
       case 'all':
-      default:         return [
-        ...tables,
-        ...tableSettings
-          .filter(n => !tables.some(t => t.tableNumber === n))
-          .map(n => ({ id: Date.now()+Number(n), tableNumber: n, princess: '', budget: 0, time: '' } as Table))
-      ];
+      default:
+        const empty = tableSettings
+          .filter(num => !tables.some(t => t.tableNumber === num))
+          .map(num => ({ id: Date.now() + Number(num), tableNumber: num, princess: '', budget: 0, time: '' } as Table));
+        return [...tables, ...empty];
     }
   }, [filter, tables, tableSettings, firstLabels]);
 
-  // 削除通知メッセージ
-  const [deleteMessage, setDeleteMessage] = useState('');
-  useEffect(() => {
-    if (deleteMessage) {
-      const h = setTimeout(() => setDeleteMessage(''), 1000);
-      return () => clearTimeout(h);
-    }
-  }, [deleteMessage]);
+  const renderedTables = filteredTables.map((table, idx) => (
+    <div key={idx} className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between">
+      {tables.some(t => t.id === table.id) && (
+        <button
+          onClick={() => handleDelete(table.id)}
+          disabled={deletingId === table.id}
+          className={`absolute top-1 right-1 text-sm hover:underline ${deletingId === table.id ? 'text-gray-400' : 'text-red-500'}`}
+          aria-label={`卓 ${table.tableNumber} を削除`}
+        >
+          {deletingId === table.id ? '削除中...' : '削除'}
+        </button>
+      )}
+      <p className="text-center font-bold">
+        {table.tableNumber}
+        {firstLabels[table.tableNumber] && ` (${firstLabels[table.tableNumber]})`}
+      </p>
+      {table.princess ? (
+        <>
+          <p className="text-sm mt-2"><strong>姫名:</strong> {table.princess}</p>
+          <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
+          <p className="text-sm"><strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}</p>
+        </>
+      ) : (
+        <p className="text-sm mt-4 text-gray-400 text-center">空卓</p>
+      )}
+    </div>
+  ));
 
   return (
     <>
-      {/* 固定ヘッダー（変更なし） */}
-      <header className="sticky top-0 bg-white z-50 border-b px-4 py-5 grid grid-cols-[1fr_auto_1fr] items-baseline">
-        <button
-          onClick={() => setFilter('first')}
-          className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter==='first'?'font-bold text-black':'text-gray-700'}`}>
-          初回
-        </button>
-        <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
-        <div className="flex space-x-1 justify-self-end">
-          <button onClick={() => setFilter('all')}    className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter==='all'?'font-bold text-black':'text-gray-700'}`}>全卓</button>
-          <button onClick={() => setFilter('occupied')}className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter==='occupied'?'font-bold text-black':'text-gray-700'}`}>使用中</button>
-          <button onClick={() => setFilter('empty')}   className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter==='empty'?'font-bold text-black':'text-gray-700'}`}>空卓</button>
-        </div>
-      </header>
-
-      {/* 削除通知 */}
       {deleteMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded">{deleteMessage}</div>
         </div>
       )}
-
-      {/* レスポンシブグリッド */}
-      <main id="main-content" className="p-2 grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredTables.map(table => (
-          <div
-            key={table.id}
-            className={`${table.princess ? 'bg-yellow-500' : 'bg-gray-800'} text-white rounded-xl shadow-lg overflow-hidden flex flex-col min-h-[200px]`}
-          >
-            {/* カードヘッダー */}
-            <div className="flex items-center justify-between px-3 py-2">
-              <span className="text-xl font-bold">{table.tableNumber}</span>
-              {firstLabels[table.tableNumber] && (
-                <span className="ml-2 bg-yellow-300 text-yellow-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                  {firstLabels[table.tableNumber]}
-                </span>
-              )}
-              {tables.some(t => t.id === table.id) && (
-                <button
-                  onClick={() => handleDelete(table.id)}
-                  className="text-white text-lg ml-2"
-                >
-                  🗑
-                </button>
-              )}
-            </div>
-            {/* カードボディ */}
-            <div className="flex-1 px-3 py-2 space-y-1 text-sm">
-              {table.princess ? (
-                <>                
-                  <div className="flex items-center">
-                    <span className="mr-2">⭐</span>
-                    <span>姫名: {table.princess}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="mr-2">⏰</span>
-                    <span>開始: {table.time.slice(0,5)}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="mr-2">💰</span>
-                    <span>予算: {table.budget===0?'未定':`${table.budget.toLocaleString()}円`}</span>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center text-gray-400">空卓</div>
-              )}
-            </div>
-          </div>
-        ))}
+      <header className="sticky top-0 bg-white z-50 border-b px-4 py-5 grid grid-cols-[1fr_auto_1fr] items-baseline">
+        <button onClick={() => setFilter('first')} className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter === 'first' ? 'font-bold text-black' : 'text-gray-700'}`}>初回</button>
+        <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
+        <div className="flex space-x-1 justify-self-end">
+          <button onClick={() => setFilter('all')} className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter === 'all' ? 'font-bold text-black' : 'text-gray-700'}`}>全卓</button>
+          <button onClick={() => setFilter('occupied')} className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'}`}>使用中</button>
+          <button onClick={() => setFilter('empty')} className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'}`}>空卓</button>
+        </div>
+      </header>
+      <main id="main-content" className="px-4 py-4 grid grid-cols-3 gap-4">
+        {renderedTables}
       </main>
 
-      {/* フッター */}
-      <Footer
-        currentUser={null}
-        onOpenAddReservation={() => {} }
-        onOpenFirst={() => {} }
-      />
+      {/* 初回来店モーダル は AppInner に定義 */}
+      <Footer currentUser={null} onOpenAddReservation={() => {}} onOpenFirst={openFirstModal} />
     </>
   );
 }
