@@ -56,7 +56,7 @@ function AppInner() {
   const [selectedCount, setSelectedCount]     = useState(0)
   const [names,         setNames]             = useState<string[]>([])
   const [firstTypes,    setFirstTypes]        = useState<string[]>([])
-  const [firstPhotos,   setFirstPhotos]       = useState<string[]>([]) // ← 追加
+  const [firstPhotos,   setFirstPhotos]       = useState<string[]>([])
   const [photos,        setPhotos]            = useState<string[]>([])
   const [firstStartTime, setFirstStartTime]   = useState('')
 
@@ -69,7 +69,7 @@ function AppInner() {
     setSelectedCount(0)
     setNames([])
     setFirstTypes([])
-    setFirstPhotos([]) // ← リセット
+    setFirstPhotos([])
     setPhotos([])
     setFirstModalOpen(true)
   }
@@ -78,7 +78,7 @@ function AppInner() {
     if (!selectedTable || selectedCount < 1) return
     setNames(Array(selectedCount).fill(''))
     setFirstTypes(Array(selectedCount).fill('初回'))
-    setFirstPhotos(Array(selectedCount).fill('')) // ← 初期値は空＝「指名してください」
+    setFirstPhotos(Array(selectedCount).fill(''))
     setPhotos(Array(selectedCount).fill('なし'))
     setStep1(false)
   }
@@ -93,7 +93,6 @@ function AppInner() {
         time: firstStartTime,
       },
     })
-    // 既存のオーバーレイ表示ロジックなどをここに入れてください
     closeFirstModal()
   }
 
@@ -107,7 +106,6 @@ function AppInner() {
     }
   }, [currentUser, dispatch])
 
-  // 初回指名で写真プルダウンが未選択なら反映不可
   const disableConfirm = firstTypes.some((t, i) => t === '初回指名' && firstPhotos[i] === '')
 
   return (
@@ -203,7 +201,6 @@ function AppInner() {
             </Routes>
             {/* ↑ 既存 Routes ここまで ↑ */}
 
-            {/* グローバル Footer に両ハンドラ渡し */}
             {currentUser && (
               <Footer
                 currentUser={currentUser}
@@ -283,13 +280,11 @@ function AppInner() {
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         {names.map((_, i) => (
                           <div key={i}>
-                            {/* 位置ラベルを最上部に */}
                             {positionLabelsByCount[selectedCount][i] && (
                               <div className="text-center text-sm font-medium mb-2">
                                 {positionLabelsByCount[selectedCount][i]}
                               </div>
                             )}
-                            {/* 初回／初回指名トグル */}
                             <div className="inline-flex mb-2 border border-gray-300 rounded">
                               <button
                                 onClick={() => {
@@ -320,8 +315,7 @@ function AppInner() {
                                 初回指名
                               </button>
                             </div>
-                            {/* 初回指名時のみ：写真指名プルダウン */}
-                            {firstTypes[i] === '初回指名' && (
+                            {firstTypes[i] === '初回指名' ? (
                               <select
                                 value={firstPhotos[i]}
                                 onChange={e => {
@@ -336,8 +330,22 @@ function AppInner() {
                                   <option key={c} value={c}>{c}</option>
                                 ))}
                               </select>
+                            ) : (
+                              <select
+                                value={photos[i]}
+                                onChange={e => {
+                                  const b = [...photos]
+                                  b[i] = e.target.value
+                                  setPhotos(b)
+                                }}
+                                className="border p-2 rounded w-full mb-1"
+                              >
+                                <option value="なし">写真指名なし</option>
+                                {casts.map(c => (
+                                  <option key={c} value={c}>{c}</option>
+                                ))}
+                              </select>
                             )}
-                            {/* 名前入力 */}
                             <input
                               type="text"
                               placeholder="名前"
@@ -349,21 +357,6 @@ function AppInner() {
                               }}
                               className="border p-2 rounded w-full mb-1"
                             />
-                            {/* 既存の写真指名 */}
-                            <select
-                              value={photos[i]}
-                              onChange={e => {
-                                const b = [...photos]
-                                b[i] = e.target.value
-                                setPhotos(b)
-                              }}
-                              className="border p-2 rounded w-full"
-                            >
-                              <option value="なし">写真指名なし</option>
-                              {casts.map(c => (
-                                <option key={c} value={c}>{c}</option>
-                              ))}
-                            </select>
                           </div>
                         ))}
                       </div>
