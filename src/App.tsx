@@ -11,6 +11,7 @@ import Footer from './components/Footer'
 import ErrorBoundary from './components/ErrorBoundary'
 import { AppProvider, useAppContext, type User } from './context/AppContext'
 
+// ページコンポーネントの遅延読み込み
 const Login = lazy(() => import('./pages/Login'))
 const ReservationPage = lazy(() => import('./pages/ReservationPage'))
 const TableStatusPage = lazy(() => import('./pages/TableStatusPage'))
@@ -20,6 +21,7 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const CastDashboard = lazy(() => import('./pages/CastDashboard'))
 const MyPage = lazy(() => import('./pages/MyPage'))
 
+// モーダル内で使用する位置ラベル
 const positionLabelsByCount: Record<number, string[]> = {
   1: [],
   2: ['左', '右'],
@@ -74,6 +76,7 @@ function AppInner() {
     setFirstModalOpen(true)
   }
   const closeFirstModal = () => setFirstModalOpen(false)
+
   const nextStep = () => {
     if (!selectedTable || selectedCount < 1) return
     setNames(Array(selectedCount).fill(''))
@@ -82,6 +85,7 @@ function AppInner() {
     setPhotos(Array(selectedCount).fill('なし'))
     setStep1(false)
   }
+
   const confirmFirst = () => {
     dispatch({
       type: 'ASSIGN_TABLE',
@@ -93,6 +97,10 @@ function AppInner() {
         time: firstStartTime,
       },
     })
+    // firstLabels を更新
+    const saved = JSON.parse(localStorage.getItem('firstLabels') || '{}')
+    saved[selectedTable] = Array.from(new Set(firstTypes)).join('/')
+    localStorage.setItem('firstLabels', JSON.stringify(saved))
     closeFirstModal()
   }
 
@@ -106,103 +114,54 @@ function AppInner() {
     }
   }, [currentUser, dispatch])
 
-  // 初回指名で写真プルダウンが未選択なら反映不可
   const disableConfirm = firstTypes.some((t, i) => t === '初回指名' && firstPhotos[i] === '')
 
   return (
     <Router>
       <ErrorBoundary>
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only p-2 bg-blue-500 text-white"
-        >
+        <a href="#main-content" className="sr-only focus:not-sr-only p-2 bg-blue-500 text-white">
           Skip to main content
         </a>
         <Suspense fallback={<div className="p-4 text-center">Loading…</div>}>
           <div className="min-h-screen flex flex-col pb-16">
-            {/* ↓ 既存の Routes 定義はまったく変更しないでください ↓ */}
+            {/* ↓ Routes は変更なし ↓ */}
             <Routes>
               <Route
                 path="/"
-                element={
-                  currentUser ? (
-                    <Navigate to="/table-status" replace />
-                  ) : (
-                    <Login setCurrentUser={setCurrentUser} />
-                  )
-                }
+                element={currentUser ? <Navigate to="/table-status" replace /> : <Login setCurrentUser={setCurrentUser} />}
               />
               <Route
                 path="/reservations"
-                element={
-                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin','cast']}>
-                    <ReservationPage
-                      isOpen={isResModalOpen}
-                      onClose={closeResModal}
-                      currentUser={currentUser}
-                    />
-                  </PrivateRoute>
-                }
+                element={<PrivateRoute currentUser={currentUser} allowedRoles={[ 'admin','cast' ]}><ReservationPage isOpen={isResModalOpen} onClose={closeResModal} currentUser={currentUser} /></PrivateRoute>}
               />
               <Route
                 path="/table-status"
-                element={
-                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin','cast']}>
-                    <TableStatusPage />
-                  </PrivateRoute>
-                }
+                element={<PrivateRoute currentUser={currentUser} allowedRoles={[ 'admin','cast' ]}><TableStatusPage /></PrivateRoute>}
               />
               <Route
                 path="/cast-list"
-                element={
-                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin']}>
-                    <CastListPage />
-                  </PrivateRoute>
-                }
+                element={<PrivateRoute currentUser={currentUser} allowedRoles={[ 'admin' ]}><CastListPage /></PrivateRoute>}
               />
               <Route
                 path="/admin-settings"
-                element={
-                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin']}>
-                    <AdminTableSettings setCurrentUser={setCurrentUser} />
-                  </PrivateRoute>
-                }
+                element={<PrivateRoute currentUser={currentUser} allowedRoles={[ 'admin' ]}><AdminTableSettings setCurrentUser={setCurrentUser} /></PrivateRoute>}
               />
               <Route
                 path="/admin"
-                element={
-                  <PrivateRoute currentUser={currentUser} allowedRoles={['admin']}>
-                    <AdminDashboard
-                      user={currentUser}
-                      setCurrentUser={setCurrentUser}
-                    />
-                  </PrivateRoute>
-                }
+                element={<PrivateRoute currentUser={currentUser} allowedRoles={[ 'admin' ]}><AdminDashboard user={currentUser} setCurrentUser={setCurrentUser} /></PrivateRoute>}
               />
               <Route
                 path="/cast"
-                element={
-                  <PrivateRoute currentUser={currentUser} allowedRoles={['cast']}>
-                    <CastDashboard
-                      user={currentUser}
-                      setCurrentUser={setCurrentUser}
-                    />
-                  </PrivateRoute>
-                }
+                element={<PrivateRoute currentUser={currentUser} allowedRoles={[ 'cast' ]}><CastDashboard user={currentUser} setCurrentUser={setCurrentUser} /></PrivateRoute>}
               />
               <Route
                 path="/my-page"
-                element={
-                  <PrivateRoute currentUser={currentUser} allowedRoles={['cast']}>
-                    <MyPage setCurrentUser={setCurrentUser} />
-                  </PrivateRoute>
-                }
+                element={<PrivateRoute currentUser={currentUser} allowedRoles={[ 'cast' ]}><MyPage setCurrentUser={setCurrentUser} /></PrivateRoute>}
               />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-            {/* ↑ 既存 Routes ここまで ↑ */}
+            {/* ↑ Routes は変更なし ↑ */}
 
-            {/* グローバル Footer に両ハンドラ渡し */}
             {currentUser && (
               <Footer
                 currentUser={currentUser}
@@ -213,17 +172,11 @@ function AppInner() {
 
             {/* 初回来店モーダル */}
             {firstModalOpen && (
-              <div
-                role="dialog"
-                aria-modal="true"
-                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-              >
+              <div role="dialog" aria-modal="true" className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white p-6 rounded-lg w-full max-w-md">
                   {step1 ? (
                     <>
-                      <h3 className="text-lg font-semibold mb-4 text-center">
-                        初回来店：卓と人数を選択
-                      </h3>
+                      <h3 className="text-lg font-semibold mb-4 text-center">初回来店：卓と人数を選択</h3>
                       <label className="block text-sm mb-2">卓選択</label>
                       <select
                         value={selectedTable}
@@ -273,46 +226,26 @@ function AppInner() {
                           次へ
                         </button>
                       </div>
-                    </>
+                    </>  
                   ) : (
                     <>
-                      <h3 className="text-lg font-semibold mb-4 text-center">
-                        初回来店：お客様情報
-                      </h3>
+                      <h3 className="text-lg font-semibold mb-4 text-center">初回来店：お客様情報</h3>
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         {names.map((_, i) => (
                           <div key={i}>
                             {positionLabelsByCount[selectedCount][i] && (
-                              <div className="text-center text-sm font-medium mb-2">
-                                {positionLabelsByCount[selectedCount][i]}
-                              </div>
+                              <label className="block text-xs text-gray-500 mb-1">{positionLabelsByCount[selectedCount][i]}</label>
                             )}
                             <div className="inline-flex mb-2 border border-gray-300 rounded">
                               <button
-                                onClick={() => {
-                                  const c = [...firstTypes]
-                                  c[i] = '初回'
-                                  setFirstTypes(c)
-                                }}
-                                className={`px-3 py-1 rounded-l ${
-                                  firstTypes[i] === '初回'
-                                    ? 'bg-blue-500 text-white'
-                                    : 'bg-white text-gray-700'
-                                }`}
+                                onClick={() => { const c = [...firstTypes]; c[i] = '初回'; setFirstTypes(c) }}
+                                className={`px-3 py-1 rounded-l ${firstTypes[i] === '初回' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
                               >
                                 初回
                               </button>
                               <button
-                                onClick={() => {
-                                  const c = [...firstTypes]
-                                  c[i] = '初回指名'
-                                  setFirstTypes(c)
-                                }}
-                                className={`px-3 py-1 rounded-r ${
-                                  firstTypes[i] === '初回指名'
-                                    ? 'bg-blue-500 text-white'
-                                    : 'bg-white text-gray-700'
-                                }`}
+                                onClick={() => { const c = [...firstTypes]; c[i] = '初回指名'; setFirstTypes(c) }}
+                                className={`px-3 py-1 rounded-r ${firstTypes[i] === '初回指名' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
                               >
                                 初回指名
                               </button>
@@ -321,61 +254,29 @@ function AppInner() {
                               type="text"
                               placeholder="名前"
                               value={names[i]}
-                              onChange={e => {
-                                const a = [...names]
-                                a[i] = e.target.value.slice(0,6)
-                                setNames(a)
-                              }}
+                              onChange={e => { const a = [...names]; a[i] = e.target.value.slice(0,6); setNames(a) }}
                               className="border p-2 rounded w-full mb-1"
                             />
-                            {firstTypes[i] === '初回指名' ? (
-                              <select
-                                value={firstPhotos[i]}
-                                onChange={e => {
-                                  const p = [...firstPhotos]
-                                  p[i] = e.target.value
-                                  setFirstPhotos(p)
-                                }}
-                                className="border p-2 rounded w-full mb-1"
-                              >
-                                <option value="">指名してください</option>
-                                {casts.map(c => (
-                                  <option key={c} value={c}>{c}</option>
-                                ))}
-                              </select>
-                            ) : (
-                              <select
-                                value={photos[i]}
-                                onChange={e => {
-                                  const b = [...photos]
-                                  b[i] = e.target.value
-                                  setPhotos(b)
-                                }}
-                                className="border p-2 rounded w-full mb-1"
-                              >
-                                <option value="なし">写真指名なし</option>
-                                {casts.map(c => (
-                                  <option key={c} value={c}>{c}</option>
-                                ))}
-                              </select>
-                            )}
+                            <select
+                              value={firstTypes[i] === '初回指名' ? firstPhotos[i] : photos[i]}
+                              onChange={e => {
+                                const arr = firstTypes[i] === '初回指名' ? [...firstPhotos] : [...photos]
+                                arr[i] = e.target.value
+                                firstTypes[i] === '初回指名' ? setFirstPhotos(arr) : setPhotos(arr)
+                              }}
+                              className="border p-2 rounded w-full mb-1"
+                            >
+                              {firstTypes[i] === '初回指名'
+                                ? <><option value="">指名してください</option>{casts.map(c => (<option key={c} value={c}>{c}</option>))}</>
+                                : <><option value="なし">写真指名なし</option>{casts.map(c => (<option key={c} value={c}>{c}</option>))}</>
+                              }
+                            </select>
                           </div>
                         ))}
                       </div>
                       <div className="flex justify-end space-x-2">
-                        <button
-                          onClick={() => setStep1(true)}
-                          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                        >
-                          戻る
-                        </button>
-                        <button
-                          onClick={confirmFirst}
-                          disabled={disableConfirm}
-                          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
-                        >
-                          反映
-                        </button>
+                        <button onClick={() => setStep1(true)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">戻る</button>
+                        <button onClick={confirmFirst} disabled={disableConfirm} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50">反映</button>
                       </div>
                     </>
                   )}
