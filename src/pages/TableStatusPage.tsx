@@ -15,7 +15,7 @@ const positionLabelsByCount: Record<number, string[]> = {
 };
 
 export default function TableStatusPage() {
-  const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
+  const { state: { user, tables, tableSettings, casts }, dispatch } = useAppContext();
 
   // ── 初回割り当てテーブルに付与するラベル
   const [firstLabels, setFirstLabels] = useState<Record<string, string>>({});
