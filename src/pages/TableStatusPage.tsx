@@ -17,13 +17,13 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
-  // 初回来店で割り当てられた卓番号のリスト
+  // ← 追加：初回で反映された卓番号のリストを管理
   const [firstTables, setFirstTables] = useState<string[]>([]);
 
   // フィルタリング
   const [filter, setFilter] = useState<Filter>('all');
 
-  // オーバーレイ／モーダル管理の state
+  // ―― オーバーレイ／モーダル管理の state ――
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage]   = useState('');
   const [deletingId, setDeletingId]         = useState<number | null>(null);
@@ -69,16 +69,14 @@ export default function TableStatusPage() {
       type: 'ASSIGN_TABLE',
       payload: {
         id: Date.now(),
-        // 両方とも渡して、reducer が求めるキーで正しく処理されるように
-        requestedTable: selectedTable,
-        tableNumber: selectedTable,
         princess: names.join('、'),
+        requestedTable: selectedTable,
         budget: 0,
         time: firstStartTime,
       },
     });
 
-    // 初回リストに追加（既に含まれなければ）
+    // 初回リストに追加（重複なければ）
     setFirstTables(prev =>
       prev.includes(selectedTable) ? prev : [...prev, selectedTable]
     );
@@ -100,6 +98,7 @@ export default function TableStatusPage() {
       case 'occupied':
         return tables;
       case 'first':
+        // ← 初回で着席した卓のみ返す
         return tables.filter(t => firstTables.includes(t.tableNumber));
       case 'empty':
         return tableSettings
@@ -150,7 +149,9 @@ export default function TableStatusPage() {
         {/* 卓番号＋(初回)マーク */}
         <p className="text-center font-bold">
           {table.tableNumber}
-          {firstTables.includes(table.tableNumber) && ' (初回)'}
+          {firstTables.includes(table.tableNumber) && (
+            <span className="text-red-500"> (初回)</span>
+          )}
         </p>
 
         {table.princess ? (
@@ -193,8 +194,8 @@ export default function TableStatusPage() {
 
       {/* 固定ヘッダー */}
       <header
-        className="sticky top-0 bg-white z-50
-                   border-b px-4 py-5
+        className="sticky top-0 bg-white z-50 border-b
+                   px-4 py-5
                    grid grid-cols-[1fr_auto_1fr] items-baseline"
       >
         {/* 左端: 初回 */}
