@@ -17,13 +17,13 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
-  // 追加：初回で反映された卓番号のリスト
+  // 初回来店で割り当てられた卓番号のリスト
   const [firstTables, setFirstTables] = useState<string[]>([]);
 
   // フィルタリング
   const [filter, setFilter] = useState<Filter>('all');
 
-  // ―― オーバーレイ／モーダル管理の state ――
+  // オーバーレイ／モーダル管理の state
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage]   = useState('');
   const [deletingId, setDeletingId]         = useState<number | null>(null);
@@ -69,7 +69,9 @@ export default function TableStatusPage() {
       type: 'ASSIGN_TABLE',
       payload: {
         id: Date.now(),
-        tableNumber: selectedTable,   // ← ここを requestedTable から tableNumber に変更
+        // 両方とも渡して、reducer が求めるキーで正しく処理されるように
+        requestedTable: selectedTable,
+        tableNumber: selectedTable,
         princess: names.join('、'),
         budget: 0,
         time: firstStartTime,
