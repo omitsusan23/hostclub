@@ -17,54 +17,15 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
-  // ── 初回割り当てテーブルに付与するラベル (「初回」 or 「初回指名」)
-  const [firstLabels, setFirstLabels] = useState<Record<string, string>>({});
-  // ── モーダル内の切り替え状態
-  const [firstType, setFirstType] = useState<'初回' | '初回指名'>('初回');
-
   // ── フィルター
   const [filter, setFilter] = useState<Filter>('all');
 
-  // ── オーバーレイ／モーダル関連
+  // ── オーバーレイ／モーダル関連（省略）
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage]   = useState('');
   const [deletingId, setDeletingId]         = useState<number | null>(null);
-  const [firstModalOpen, setFirstModalOpen] = useState(false);
-  const [step1, setStep1]                   = useState(true);
-  const [selectedTable, setSelectedTable]   = useState('');
-  const [selectedCount, setSelectedCount]   = useState(0);
-  const [names, setNames]                   = useState<string[]>([]);
-  const [photos, setPhotos]                 = useState<string[]>([]);
-  const [firstStartTime, setFirstStartTime] = useState('');
 
-  // ── localStorage から firstLabels を復元
-  useEffect(() => {
-    const saved = localStorage.getItem('firstLabels');
-    if (saved) {
-      try { setFirstLabels(JSON.parse(saved)); }
-      catch { /* malformed を無視 */ }
-    }
-  }, []);
-
-  const openFirstModal = () => {
-    const now = new Date();
-    setFirstStartTime(now.toTimeString().slice(0,5));
-    setStep1(true);
-    setSelectedTable('');
-    setSelectedCount(0);
-    setNames([]);
-    setPhotos([]);
-    setFirstType('初回');
-    setFirstModalOpen(true);
-  };
-  const closeFirstModal = () => setFirstModalOpen(false);
-  const nextStep = () => {
-    if (!selectedTable || selectedCount < 1) return;
-    setNames(Array(selectedCount).fill(''));
-    setPhotos(Array(selectedCount).fill('なし'));
-    setStep1(false);
-  };
-
+  // ── 削除処理
   const handleDelete = useCallback((id: number) => {
     const t = tables.find(x => x.id === id);
     if (!t) return;
@@ -75,58 +36,25 @@ export default function TableStatusPage() {
     setTimeout(() => setDeleteMessage(''), 1000);
   }, [dispatch, tables]);
 
-  const confirmFirst = () => {
-    // 1) テーブル割り当て
-    dispatch({
-      type: 'ASSIGN_TABLE',
-      payload: {
-        id: Date.now(),
-        tableNumber: selectedTable,
-        princess: names.join('、'),
-        budget: 0,
-        time: firstStartTime,
-      },
-    });
-
-    // 2) firstLabels に追加 & localStorage に保存
-    setFirstLabels(prev => {
-      const next = { ...prev, [selectedTable]: firstType };
-      localStorage.setItem('firstLabels', JSON.stringify(next));
-      return next;
-    });
-
-    // 3) オーバーレイ表示
-    const entries = names.map((n, i) => {
-      const label = positionLabelsByCount[selectedCount][i];
-      const pname = n || 'お客様';
-      const pcast = photos[i] !== 'なし' ? `（指名：${photos[i]}）` : '';
-      return (label ? `${label}: ` : '') + `${pname}${pcast}`;
-    });
-    setOverlayMessage(`卓【${selectedTable}】に着席：${entries.join('、')}`);
-    setTimeout(() => setOverlayMessage(''), 1000);
-
-    closeFirstModal();
-  };
-
   // ── フィルタリング
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
         return tables;
       case 'first':
-        return tables.filter(t => firstLabels[t.tableNumber] !== undefined);
+        return tables.filter(t => !!t.firstType);
       case 'empty':
         return tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
-          .map(num => ({ id: Date.now() + num.length, tableNumber: num, princess: '', budget: 0, time: '' }));
+          .map(num => ({ id: Number(num), tableNumber: num, princess: '', budget: 0, time: '', firstType: undefined } as Table));
       case 'all':
       default:
         const empty = tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
-          .map(num => ({ id: Date.now() + num.length, tableNumber: num, princess: '', budget: 0, time: '' }));
+          .map(num => ({ id: Number(num), tableNumber: num, princess: '', budget: 0, time: '', firstType: undefined } as Table));
         return [...tables, ...empty];
     }
-  }, [filter, tables, tableSettings, firstLabels]);
+  }, [filter, tables, tableSettings]);
 
   // ── テーブル描画
   const renderedTables = useMemo(() =>
@@ -143,10 +71,10 @@ export default function TableStatusPage() {
           </button>
         )}
 
-        {/* 卓番号 + 初回タイプの表示 */}
+        {/* 卓番号 + firstType があれば表示 */}
         <p className="text-center font-bold">
           {table.tableNumber}
-          {firstLabels[table.tableNumber] && ` (${firstLabels[table.tableNumber]})`}
+          {table.firstType && ` (${table.firstType})`}
         </p>
 
         {table.princess ? (
@@ -160,22 +88,25 @@ export default function TableStatusPage() {
         )}
       </div>
     )),
-  [filteredTables, handleDelete, deletingId, firstLabels]);
+  [filteredTables, handleDelete, deletingId]);
 
   return (
     <>
+      {/* 削除メッセージ */}
       {deleteMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded">{deleteMessage}</div>
         </div>
       )}
 
+      {/* 着席オーバーレイ */}
       {overlayMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded max-w-md text-center">{overlayMessage}</div>
         </div>
       )}
 
+      {/* 固定ヘッダー */}
       <header className="sticky top-0 bg-white z-50 border-b px-4 py-5 grid grid-cols-[1fr_auto_1fr] items-baseline">
         <button onClick={() => setFilter('first')} className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter === 'first' ? 'font-bold text-black' : 'text-gray-700'}`}>初回</button>
         <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
@@ -186,41 +117,13 @@ export default function TableStatusPage() {
         </div>
       </header>
 
+      {/* テーブルグリッド */}
       <main id="main-content" className="px-4 py-4 grid grid-cols-3 gap-4">
         {renderedTables}
       </main>
 
-      {firstModalOpen && (
-        <div role="dialog" aria-modal="true" className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md">
-
-            <div className="mb-4 flex items-center space-x-4 justify-center">
-              <label className="inline-flex items-center space-x-1">
-                <input type="radio" name="firstType" value="初回" checked={firstType === '初回'} onChange={() => setFirstType('初回')} />
-                <span className="text-sm">初回</span>
-              </label>
-              <label className="inline-flex items-center space-x-1">
-                <input type="radio" name="firstType" value="初回指名" checked={firstType === '初回指名'} onChange={() => setFirstType('初回指名')} />
-                <span className="text-sm">初回指名</span>
-              </label>
-            </div>
-
-            {step1 ? (
-              <>  {/* ...existing step1 JSX unchanged... */}
-                <h3 className="text-lg font-semibold mb-4 text-center">初回来店：卓と人数を選択</h3>
-                {/* 卓選択フォーム etc... */}
-              </>
-            ) : (
-              <>  {/* ...existing step2 JSX unchanged... */}
-                <h3 className="text-lg font-semibold mb-4 text-center">初回来店：お客様情報</h3>
-                {/* name/photo inputs unchanged */}
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      <Footer currentUser={null} onOpenAddReservation={() => {}} onOpenFirst={openFirstModal} />
+      {/* フッター */}
+      <Footer currentUser={null} onOpenAddReservation={() => {}} onOpenFirst={() => {}} />
     </>
   );
 }
