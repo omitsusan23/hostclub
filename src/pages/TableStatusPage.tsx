@@ -17,10 +17,13 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
 
-  // ← ここを string[] に戻す
+  // 追加：初回で反映された卓番号のリスト
   const [firstTables, setFirstTables] = useState<string[]>([]);
 
+  // フィルタリング
   const [filter, setFilter] = useState<Filter>('all');
+
+  // ―― オーバーレイ／モーダル管理の state ――
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage]   = useState('');
   const [deletingId, setDeletingId]         = useState<number | null>(null);
@@ -61,19 +64,19 @@ export default function TableStatusPage() {
   }, [dispatch, tables]);
 
   const confirmFirst = () => {
-    // 正しく tableNumber プロパティを渡す
+    // テーブルを割り当て
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
         id: Date.now(),
-        tableNumber: selectedTable,
+        tableNumber: selectedTable,   // ← ここを requestedTable から tableNumber に変更
         princess: names.join('、'),
         budget: 0,
         time: firstStartTime,
       },
     });
 
-    // 文字列として selectedTable を保存
+    // 初回リストに追加（既に含まれなければ）
     setFirstTables(prev =>
       prev.includes(selectedTable) ? prev : [...prev, selectedTable]
     );
@@ -89,6 +92,7 @@ export default function TableStatusPage() {
     closeFirstModal();
   };
 
+  // テーブルリストフィルタ
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
@@ -120,12 +124,14 @@ export default function TableStatusPage() {
     }
   }, [filter, tables, tableSettings, firstTables]);
 
+  // 卓の描画
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => (
       <div
         key={idx}
         className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between"
       >
+        {/* 削除ボタン（姫がいる卓のみ） */}
         {table.princess && (
           <button
             onClick={() => handleDelete(table.id)}
@@ -139,7 +145,7 @@ export default function TableStatusPage() {
           </button>
         )}
 
-        {/* ここで string どうしを比較して "(初回)" を表示 */}
+        {/* 卓番号＋(初回)マーク */}
         <p className="text-center font-bold">
           {table.tableNumber}
           {firstTables.includes(table.tableNumber) && ' (初回)'}
@@ -165,26 +171,31 @@ export default function TableStatusPage() {
 
   return (
     <>
+      {/* 削除メッセージ */}
       {deleteMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="bg-black bg-opacity‐75 text-white p-4 rounded">
+          <div className="bg-black bg-opacity-75 text-white p-4 rounded">
             {deleteMessage}
           </div>
         </div>
       )}
+
+      {/* 着席メッセージ */}
       {overlayMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="bg-black bg-opacity‐75 text-white p-4 rounded max-w-md text-center">
+          <div className="bg-black bg-opacity-75 text-white p-4 rounded max-w-md text-center">
             {overlayMessage}
           </div>
         </div>
       )}
 
+      {/* 固定ヘッダー */}
       <header
-        className="sticky top-0 bg-white z-50 border-b
-                   px-4 py-5
+        className="sticky top-0 bg-white z-50
+                   border-b px-4 py-5
                    grid grid-cols-[1fr_auto_1fr] items-baseline"
       >
+        {/* 左端: 初回 */}
         <button
           onClick={() => setFilter('first')}
           className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
@@ -193,7 +204,13 @@ export default function TableStatusPage() {
         >
           初回
         </button>
-        <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
+
+        {/* 中央: 卓状況 */}
+        <h2 className="justify-self-center text-2xl font-bold">
+          卓状況
+        </h2>
+
+        {/* 右端: 全卓・使用中・空卓 */}
         <div className="flex space-x-1 justify-self-end">
           <button
             onClick={() => setFilter('all')}
@@ -222,10 +239,12 @@ export default function TableStatusPage() {
         </div>
       </header>
 
+      {/* テーブルグリッド（3列） */}
       <main id="main-content" className="px-4 py-4 grid grid-cols-3 gap-4">
         {renderedTables}
       </main>
 
+      {/* 初回来店モーダル */}
       {firstModalOpen && (
         <div
           role="dialog"
@@ -238,7 +257,7 @@ export default function TableStatusPage() {
                 <h3 className="text-lg font-semibold mb-4 text-center">
                   初回来店：卓と人数を選択
                 </h3>
-                {/* 以下フォーム部分は既存のまま */}
+                {/* 既存フォーム部分はそのまま */}
                 <div className="flex justify-end space-x-2">
                   <button
                     onClick={closeFirstModal}
@@ -256,12 +275,16 @@ export default function TableStatusPage() {
                 </div>
               </>
             ) : (
-              <div className="flex justify-end space-x-2">{/* …既存のまま */}</div>
+              <>
+                {/* 既存フォーム部分はそのまま */}
+                <div className="flex justify-end space-x-2">{/* ... */}</div>
+              </>
             )}
           </div>
         </div>
       )}
 
+      {/* フッター */}
       <Footer
         currentUser={null}
         onOpenAddReservation={() => {}}
