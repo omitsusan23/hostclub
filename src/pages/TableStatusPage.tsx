@@ -23,7 +23,7 @@ export default function TableStatusPage() {
   // フィルタリング
   const [filter, setFilter] = useState<Filter>('all');
 
-  // ―― オーバーレイ／モーダル管理の state ――
+  // ――（省略：オーバーレイ・モーダル管理の state）――
   const [overlayMessage, setOverlayMessage] = useState('');
   const [deleteMessage, setDeleteMessage]   = useState('');
   const [deletingId, setDeletingId]         = useState<number | null>(null);
@@ -64,18 +64,19 @@ export default function TableStatusPage() {
   }, [dispatch, tables]);
 
   const confirmFirst = () => {
-    // ① テーブルを割り当て
+    // テーブルを割り当て（tableNumber プロパティで渡すように修正）
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
         id: Date.now(),
-        tableNumber: selectedTable,      // ← ここがポイント
+        tableNumber: selectedTable,
         princess: names.join('、'),
         budget: 0,
         time: firstStartTime,
       },
     });
-    // ② 初回リストにも追加
+
+    // 初回リストに追加（既に含まれなければ）
     setFirstTables(prev =>
       prev.includes(selectedTable) ? prev : [...prev, selectedTable]
     );
@@ -95,10 +96,13 @@ export default function TableStatusPage() {
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
+        // 割り当て済みのみ
         return tables;
       case 'first':
+        // 初回来店のみ
         return tables.filter(t => firstTables.includes(t.tableNumber));
       case 'empty':
+        // 空卓のみ
         return tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
           .map(num => ({
@@ -110,6 +114,7 @@ export default function TableStatusPage() {
           }));
       case 'all':
       default:
+        // 全卓（割り当て済み＋空卓）
         const empty = tableSettings
           .filter(num => !tables.some(t => t.tableNumber === num))
           .map(num => ({
@@ -147,9 +152,7 @@ export default function TableStatusPage() {
         {/* 卓番号＋(初回)マーク */}
         <p className="text-center font-bold">
           {table.tableNumber}
-          {firstTables.includes(table.tableNumber) && (
-            <span className="text-red-500"> (初回)</span>
-          )}
+          {firstTables.includes(table.tableNumber) && ' (初回)'}
         </p>
 
         {table.princess ? (
