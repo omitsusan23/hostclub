@@ -9,7 +9,7 @@ export const Layout: React.FC<Props> = ({ children }) => {
   return (
     <div className="container mx-auto">
       {/* 例：ここにヘッダーを追加してもOK */}
-      <main className="px-4 sm:px-6 md:px-8">
+      <main className="px-2 sm:px-6 md:px-8">
         {children}
       </main>
       {/* 例：ここにフッターを追加してもOK */}
