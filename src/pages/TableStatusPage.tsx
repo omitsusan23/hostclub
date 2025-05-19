@@ -125,7 +125,7 @@ export default function TableStatusPage() {
         </React.Fragment>
       ))}
 
-      <span className="text-[12px] font-semibold">開始:</span>
+      <span className="text-[12px]">開始:</span>
       <span className="text-[14px]">{table.time.slice(0,5)}</span>
 
       {!isInitial && (
