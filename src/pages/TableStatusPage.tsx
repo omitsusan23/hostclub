@@ -1,7 +1,6 @@
 // src/pages/TableStatusPage.tsx
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
-import Footer from '../components/Footer';
 
 type Filter = 'all' | 'occupied' | 'empty' | 'first';
 
@@ -15,7 +14,7 @@ const positionLabelsByCount: Record<number, string[]> = {
 };
 
 export default function TableStatusPage() {
-  const { state: { tables, tableSettings, casts }, dispatch } = useAppContext();
+  const { state: { tables, tableSettings }, dispatch } = useAppContext();
 
   // 初回ラベルを localStorage から取得（テーブル/設定変更ごとに再計算）
   const firstLabels = useMemo<Record<string,string>>(() => {
@@ -71,7 +70,7 @@ export default function TableStatusPage() {
         className="relative border rounded p-2 shadow-sm bg-white flex flex-col justify-between"
       >
         {/* ヘッダー部：番号・初回ラベル・削除ボタン */}
-        <div className="flex items-center justify-between w-full mb-3">
+        <div className="flex items-center justify-between w-full mb-1">
           <span className="text-lg font-bold">{table.tableNumber}</span>
           {firstLabels[table.tableNumber] && (
             <span className="px-0.5 py-0.5 bg-gray-200 rounded-full text-sm">
@@ -90,13 +89,13 @@ export default function TableStatusPage() {
 
         {/* 詳細表示 */}
         {table.princess ? (
-          <>  
+          <>
             <p className="text-sm"><strong>姫名:</strong> {table.princess}</p>
             <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
             <p className="text-sm"><strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}</p>
           </>
         ) : (
-          <p className="text-sm mt-4 text-gray-400 text-center">空卓</p>
+          <p className="text-sm mt-1 text-gray-400 text-center">空卓</p>
         )}
       </div>
     )), [filteredTables, handleDelete, firstLabels]
@@ -116,7 +115,7 @@ export default function TableStatusPage() {
       <div className="relative left-1/2 ml-[-50vw] w-screen">
         {/* フィルター＆ヘッダー（横幅いっぱいに） */}
         <header
-          className="sticky top-0 bg-white z-50 border-b px-4 py-5 grid grid-cols-[1fr_auto_1fr] items-baseline"
+          className="sticky top-0 bg-white z-50 border-b px-2 py-3 grid grid-cols-[1fr_auto_1fr] items-baseline"
         >
           <button
             onClick={() => setFilter('first')}
@@ -165,13 +164,6 @@ export default function TableStatusPage() {
           {renderedTables}
         </main>
       </div>
-
-      {/* フッター */}
-      <Footer
-        currentUser={null}
-        onOpenAddReservation={() => {}}
-        onOpenFirst={() => {}}
-      />
     </>
   );
 }
