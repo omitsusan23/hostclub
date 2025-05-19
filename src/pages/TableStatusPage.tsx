@@ -110,7 +110,7 @@ export default function TableStatusPage() {
       {/* 横スクロール抑制 */}
       <div className="overflow-x-hidden">
         {/* フィルター＆ヘッダー（sticky） */}
-        <header className="sticky top-0 left-0 right-0 bg-white border-b z-50">
+        <header className="sticky top-0 left-0 right-0 w-full bg-white border-b z-50">
           <div className="px-2 py-3 grid grid-cols-[1fr_auto_1fr] items-baseline">
             <button onClick={() => setFilter('first')} className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${filter==='first'?'font-bold text-black':'text-gray-700'}`}>初回</button>
             <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
