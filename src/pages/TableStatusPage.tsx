@@ -115,12 +115,13 @@ export default function TableStatusPage() {
                 <p className="text-sm"><strong>姫名:</strong> {table.princess}</p>
 
                 {/* 初回モーダル発：initialDetails を出力 */}
-                {isInitial && selectedTable?.initialDetails?.map((d, i) => (
-                  <div key={i} className="mb-1">
-                    <p className="text-sm"><strong>{d.type}:</strong> {d.name}</p>
-                    <p className="text-sm"><strong>写真指名:</strong> {d.photo}</p>
-                  </div>
-                ))}
+                {isInitial && table.initialDetails?.map((d, i) => (
+  <div key={i} className="mb-1">
+    <p className="text-sm"><strong>{d.type}:</strong> {d.name}</p>
+    <p className="text-sm"><strong>写真指名:</strong> {d.photo}</p>
+  </div>
+))}
+                
 
                 {/* 開始時刻 */}
                 <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
