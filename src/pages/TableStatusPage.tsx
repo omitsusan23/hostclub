@@ -86,14 +86,14 @@ export default function TableStatusPage() {
           onClick={() => openDetailModal(table)}
         >
           {/* ヘッダー部 */}
-       <div className="bg-gray-200 px-2 py-1 flex items-center justify-between">
-  <div className="flex items-center space-x-1">
+         <div className="bg-gray-200 px-2 py-1 flex items-baseline justify-between">
+  <div className="flex items-baseline space-x-1">
     <span className="sr-only">卓番号:</span>
     <span className="text-lg font-bold leading-none">{table.tableNumber}</span>
     {isInitial ? (
-      <span className="text-xs align-middle leading-none">🔰</span>
+      <span className="text-xs leading-none">🔰</span>
     ) : firstLabels[table.tableNumber] ? (
-      <span className="px-0.5 py-0.5 bg-gray-300 rounded-full text-sm align-middle leading-none">
+      <span className="px-0.5 py-0.5 bg-gray-300 rounded-full text-sm leading-none">
         {firstLabels[table.tableNumber]}
       </span>
     ) : null}
@@ -102,7 +102,7 @@ export default function TableStatusPage() {
     <button
       onClick={e => { e.stopPropagation(); handleDelete(table.id); }}
       aria-label={`卓 ${table.tableNumber} を削除`}
-      className="text-red-500 hover:text-red-700 align-middle leading-none"
+      className="text-red-500 hover:text-red-700 leading-none"
     >
       🗑
     </button>
