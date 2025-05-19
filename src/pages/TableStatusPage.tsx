@@ -86,8 +86,8 @@ export default function TableStatusPage() {
           onClick={() => openDetailModal(table)}
         >
           {/* ヘッダー部 */}
-       <div className="bg-gray-200 px-2 py-1 flex items-end justify-between">
-  <div className="flex items-end space-x-1">
+         <div className="bg-gray-200 px-2 py-1 flex items-baseline justify-between">
+  <div className="flex items-baseline space-x-1">
     {/* テスト用ラベルを画面に出さずにDOMにだけ残す */}
     <span className="sr-only">卓番号:</span>
 
@@ -110,7 +110,6 @@ export default function TableStatusPage() {
     </button>
   )}
 </div>
-
 
 
           {/* 詳細部 */}
