@@ -16,21 +16,24 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings }, dispatch } = useAppContext();
 
-  const firstLabels = useMemo<Record<string,string>>(() => {
+  // 初回ラベルを localStorage から取得（テーブル/設定変更ごとに再計算）
+  const firstLabels = useMemo<Record<string, string>>(() => {
     const raw = localStorage.getItem('firstLabels');
     return raw ? JSON.parse(raw) : {};
   }, [tables, tableSettings]);
 
+  // テーブル削除時に初回ラベルも消去
   const handleDelete = useCallback((id: number) => {
     const t = tables.find(x => x.id === id);
     if (!t) return;
     if (!window.confirm(`本当に卓 ${t.tableNumber} を削除しますか？`)) return;
     dispatch({ type: 'DELETE_TABLE', payload: id });
-    const saved = JSON.parse(localStorage.getItem('firstLabels') || '{}') as Record<string,string>;
+    const saved = JSON.parse(localStorage.getItem('firstLabels') || '{}') as Record<string, string>;
     delete saved[t.tableNumber];
     localStorage.setItem('firstLabels', JSON.stringify(saved));
   }, [dispatch, tables]);
 
+  // フィルター状態
   const [filter, setFilter] = useState<Filter>('all');
   const [deleteMessage, setDeleteMessage] = useState('');
   useEffect(() => {
@@ -39,6 +42,7 @@ export default function TableStatusPage() {
     return () => clearTimeout(h);
   }, [deleteMessage]);
 
+  // テーブルリストのフィルタリング
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
@@ -48,22 +52,36 @@ export default function TableStatusPage() {
       case 'empty':
         return tableSettings
           .filter(n => !tables.some(t => t.tableNumber === n))
-          .map(n => ({ id: Date.now() + Number(n), tableNumber: n, princess: '', budget: 0, time: '' } as Table));
+          .map(n => ({
+            id: Date.now() + Number(n),
+            tableNumber: n,
+            princess: '',
+            budget: 0,
+            time: '',
+          } as Table));
       case 'all':
       default:
         const empty = tableSettings
           .filter(n => !tables.some(t => t.tableNumber === n))
-          .map(n => ({ id: Date.now() + Number(n), tableNumber: n, princess: '', budget: 0, time: '' } as Table));
+          .map(n => ({
+            id: Date.now() + Number(n),
+            tableNumber: n,
+            princess: '',
+            budget: 0,
+            time: '',
+          } as Table));
         return [...tables, ...empty];
     }
   }, [filter, tables, tableSettings, firstLabels]);
 
+  // テーブルカード描画
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => (
       <div
         key={idx}
         className="border rounded p-2 shadow-sm bg-white flex flex-col justify-between"
       >
+        {/* ヘッダー部：番号・初回ラベル・削除ボタン */}
         <div className="flex items-center justify-between w-full mb-1">
           <span className="text-lg font-bold">{table.tableNumber}</span>
           {firstLabels[table.tableNumber] && (
@@ -83,6 +101,8 @@ export default function TableStatusPage() {
             </button>
           )}
         </div>
+
+        {/* 詳細表示 */}
         {table.princess ? (
           <>
             <p className="text-sm"><strong>姫名:</strong> {table.princess}</p>
@@ -99,6 +119,7 @@ export default function TableStatusPage() {
 
   return (
     <>
+      {/* 削除メッセージ */}
       {deleteMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded">
@@ -107,51 +128,51 @@ export default function TableStatusPage() {
         </div>
       )}
 
-      <div className="overflow-x-hidden">
-        <header className="sticky top-0 left-0 z-50 bg-white border-b w-full">
-          <div className="container mx-auto px-2 py-3 grid grid-cols-[1fr_auto_1fr] items-baseline">
+      {/* ヘッダーを overflow 制御外に出し、sticky を有効化 */}
+      <header className="sticky top-0 z-50 bg-white border-b w-full">
+        <div className="container mx-auto px-2 py-3 grid grid-cols-[1fr_auto_1fr] items-baseline">
+          <button
+            onClick={() => setFilter('first')}
+            className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+              filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
+            }`}
+          >
+            初回
+          </button>
+          <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
+          <div className="flex space-x-1 justify-self-end">
             <button
-              onClick={() => setFilter('first')}
-              className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
+              onClick={() => setFilter('all')}
+              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+                filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
               }`}
             >
-              初回
+              全卓
             </button>
-            <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
-            <div className="flex space-x-1 justify-self-end">
-              <button
-                onClick={() => setFilter('all')}
-                className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                  filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
-                }`}
-              >
-                全卓
-              </button>
-              <button
-                onClick={() => setFilter('occupied')}
-                className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                  filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
-                }`}
-              >
-                使用中
-              </button>
-              <button
-                onClick={() => setFilter('empty')}
-                className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                  filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
-                }`}
-              >
-                空卓
-              </button>
-            </div>
+            <button
+              onClick={() => setFilter('occupied')}
+              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+                filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              使用中
+            </button>
+            <button
+              onClick={() => setFilter('empty')}
+              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+                filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              空卓
+            </button>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <main id="main-content" className="container mx-auto px-2 py-2 grid grid-cols-3 gap-2">
-          {renderedTables}
-        </main>
-      </div>
+      {/* 横スクロール抑制を main のみへ */}
+      <main id="main-content" className="overflow-x-hidden container mx-auto px-2 py-2 grid grid-cols-3 gap-2">
+        {renderedTables}
+      </main>
     </>
   );
 }
