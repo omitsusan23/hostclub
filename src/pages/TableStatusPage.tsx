@@ -144,8 +144,6 @@ export default function TableStatusPage() {
   )}
 </div>
 
-
-
         </div>
       );
     }),
