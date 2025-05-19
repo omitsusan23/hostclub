@@ -160,7 +160,7 @@ export default function TableStatusPage() {
         {/* テーブルグリッド（全幅対応済み） */}
         <main
           id="main-content"
-          className="px-2 py-4 grid grid-cols-3 gap-4"
+          className="px-2 py-2 grid grid-cols-3 gap-4"
         >
           {renderedTables}
         </main>
