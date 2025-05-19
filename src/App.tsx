@@ -87,6 +87,7 @@ function AppInner() {
   }
 
   const confirmFirst = () => {
+    // 初回モーダルの入力内容をそのままテーブルデータに含める
     dispatch({
       type: 'ASSIGN_TABLE',
       payload: {
@@ -95,9 +96,15 @@ function AppInner() {
         requestedTable: selectedTable,
         budget: 0,
         time: firstStartTime,
+        // 以下を追加：モーダルで入力した詳細
+        initialDetails: names.map((name, i) => ({
+          name,
+          type: firstTypes[i],
+          photo: firstPhotos[i],
+        })),
       },
     })
-    // firstLabels を更新
+    // firstLabels を更新（表示用ラベルはこれまでどおり）
     const saved = JSON.parse(localStorage.getItem('firstLabels') || '{}')
     saved[selectedTable] = Array.from(new Set(firstTypes)).join('/')
     localStorage.setItem('firstLabels', JSON.stringify(saved))
@@ -226,10 +233,10 @@ function AppInner() {
                           次へ
                         </button>
                       </div>
-                    </>  
+                    </>
                   ) : (
                     <>
-                      <h3 className="text-lg font-semibold mb-4 text-center">初回指名</h3>
+                      <h3 className="text-lg font-semibold mb-4 text-center">初回来店：お客様情報</h3>
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         {names.map((_, i) => (
                           <div key={i}>
