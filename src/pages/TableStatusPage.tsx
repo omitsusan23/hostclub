@@ -113,56 +113,58 @@ export default function TableStatusPage() {
         </div>
       )}
 
-      {/* フィルター＆ヘッダー（横幅いっぱいに） */}
-      <header
-        className="sticky top-0 bg-white z-50 border-b w-screen -mx-4 sm:mx-0 px-4 py-5 grid grid-cols-[1fr_auto_1fr] items-baseline"
-      >
-        <button
-          onClick={() => setFilter('first')}
-          className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-            filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
-          }`}
+      <div className="relative left-1/2 ml-[-50vw] w-screen">
+        {/* フィルター＆ヘッダー（横幅いっぱいに） */}
+        <header
+          className="sticky top-0 bg-white z-50 border-b px-4 py-5 grid grid-cols-[1fr_auto_1fr] items-baseline"
         >
-          初回
-        </button>
-        <h2 className="justify-self-center text-2xl font-bold">
-          卓状況
-        </h2>
-        <div className="flex space-x-1 justify-self-end">
           <button
-            onClick={() => setFilter('all')}
-            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-              filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
+            onClick={() => setFilter('first')}
+            className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+              filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
             }`}
           >
-            全卓
+            初回
           </button>
-          <button
-            onClick={() => setFilter('occupied')}
-            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-              filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
-            }`}
-          >
-            使用中
-          </button>
-          <button
-            onClick={() => setFilter('empty')}
-            className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-              filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
-            }`}
-          >
-            空卓
-          </button>
-        </div>
-      </header>
+          <h2 className="justify-self-center text-2xl font-bold">
+            卓状況
+          </h2>
+          <div className="flex space-x-1 justify-self-end">
+            <button
+              onClick={() => setFilter('all')}
+              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+                filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              全卓
+            </button>
+            <button
+              onClick={() => setFilter('occupied')}
+              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+                filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              使用中
+            </button>
+            <button
+              onClick={() => setFilter('empty')}
+              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+                filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              空卓
+            </button>
+          </div>
+        </header>
 
-      {/* テーブルグリッド（全幅対応済み） */}
-      <main
-        id="main-content"
-        className="w-screen -mx-4 sm:mx-0 px-4 py-4 grid grid-cols-3 gap-4"
-      >
-        {renderedTables}
-      </main>
+        {/* テーブルグリッド（全幅対応済み） */}
+        <main
+          id="main-content"
+          className="px-4 py-4 grid grid-cols-3 gap-4"
+        >
+          {renderedTables}
+        </main>
+      </div>
 
       {/* フッター */}
       <Footer
