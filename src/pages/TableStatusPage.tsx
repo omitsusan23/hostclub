@@ -130,7 +130,7 @@ export default function TableStatusPage() {
 
       {!isInitial && (
         <>
-          <span className="text-[12px] font-semibold">予算:</span>
+          <span className="text-[12px]">予算:</span>
           <span className="text-[14px]">
             {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
           </span>
