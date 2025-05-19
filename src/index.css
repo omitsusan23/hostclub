@@ -1,3 +1,45 @@
+/* src/index.css */
+
+/* 1. リセット */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* 2. CSS カスタムプロパティ (デザイン変数) */
+:root {
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 2rem;
+
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+
+  /* カラーパレット例 */
+  --color-primary: #1d4ed8;
+  --color-secondary: #9333ea;
+}
+
+/* 3. Tailwind のベース・コンポーネント・ユーティリティ */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 4. ベーススタイルの調整 */
+body {
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  background-color: #f9fafb;
+}
+
+/* 5. 任意：グローバルリンクスタイル */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
