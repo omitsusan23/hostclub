@@ -229,7 +229,7 @@ function AppInner() {
                     </>  
                   ) : (
                     <>
-                      <h3 className="text-lg font-semibold mb-4 text-center">初回来店：お客様情報</h3>
+                      <h3 className="text-lg font-semibold mb-4 text-center">初回指名</h3>
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         {names.map((_, i) => (
                           <div key={i}>
@@ -247,7 +247,7 @@ function AppInner() {
                                 onClick={() => { const c = [...firstTypes]; c[i] = '初回指名'; setFirstTypes(c) }}
                                 className={`px-3 py-1 rounded-r ${firstTypes[i] === '初回指名' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
                               >
-                                初回来店：お客様情報
+                                初回指名
                               </button>
                             </div>
                             <input
@@ -258,15 +258,15 @@ function AppInner() {
                               className="border p-2 rounded w-full mb-1"
                             />
                             <select
-                              value={firstTypes[i] === '初回来店：お客様情報' ? firstPhotos[i] : photos[i]}
+                              value={firstTypes[i] === '初回指名' ? firstPhotos[i] : photos[i]}
                               onChange={e => {
-                                const arr = firstTypes[i] === '初回来店：お客様情報' ? [...firstPhotos] : [...photos]
+                                const arr = firstTypes[i] === '初回指名' ? [...firstPhotos] : [...photos]
                                 arr[i] = e.target.value
-                                firstTypes[i] === '初回来店：お客様情報' ? setFirstPhotos(arr) : setPhotos(arr)
+                                firstTypes[i] === '初回指名' ? setFirstPhotos(arr) : setPhotos(arr)
                               }}
                               className="border p-2 rounded w-full mb-1"
                             >
-                              {firstTypes[i] === '初回来店：お客様情報'
+                              {firstTypes[i] === '初回指名'
                                 ? <><option value="">指名してください</option>{casts.map(c => (<option key={c} value={c}>{c}</option>))}</>
                                 : <><option value="なし">写真指名なし</option>{casts.map(c => (<option key={c} value={c}>{c}</option>))}</>
                               }
