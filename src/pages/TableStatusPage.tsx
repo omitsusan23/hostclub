@@ -86,26 +86,31 @@ export default function TableStatusPage() {
           onClick={() => openDetailModal(table)}
         >
           {/* ヘッダー部 */}
-          <div className="bg-gray-200 px-2 py-1 flex items-baseline justify-between">
-            <div className="flex items-baseline space-x-1">
-              <span className="text-lg font-bold">{table.tableNumber}</span>
-              {isInitial ? (
-                <span className="text-xs">🔰</span>
-              ) : firstLabels[table.tableNumber] ? (
-                <span className="px-0.5 py-0.5 bg-gray-300 rounded-full text-sm">
-                  {firstLabels[table.tableNumber]}
-                </span>
-              ) : null}
-            </div>
-            {table.princess && (
-              <button
-                onClick={e => { e.stopPropagation(); handleDelete(table.id); }}
-                className="text-red-500 hover:text-red-700"
-              >
-                🗑
-              </button>
-            )}
-          </div>
+         <div className="bg-gray-200 px-2 py-1 flex items-baseline justify-between">
+  <div className="flex items-baseline space-x-1">
+    {/* テスト用ラベルを画面に出さずにDOMにだけ残す */}
+    <span className="sr-only">卓番号:</span>
+
+    <span className="text-lg font-bold">{table.tableNumber}</span>
+    {isInitial ? (
+      <span className="text-xs">🔰</span>
+    ) : firstLabels[table.tableNumber] ? (
+      <span className="px-0.5 py-0.5 bg-gray-300 rounded-full text-sm">
+        {firstLabels[table.tableNumber]}
+      </span>
+    ) : null}
+  </div>
+  {table.princess && (
+    <button
+      onClick={e => { e.stopPropagation(); handleDelete(table.id); }}
+      aria-label={`卓 ${table.tableNumber} を削除`}
+      className="text-red-500 hover:text-red-700"
+    >
+      🗑
+    </button>
+  )}
+</div>
+
 
           {/* 詳細部 */}
 <div className="p-2 flex-grow grid grid-cols-[6ch_1fr] gap-x-2 gap-y-0.5 items-baseline">
