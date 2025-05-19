@@ -143,7 +143,7 @@ export default function TableStatusPage() {
       )}
     </>
   ) : (
-    <p className="text-sm mt-2 text-gray-400 text-center">空卓</p>
+    <p className="text-sm mt-5 text-gray-400 text-center">空卓</p>
   )}
 </div>
 
