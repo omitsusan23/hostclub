@@ -74,7 +74,7 @@ export default function TableStatusPage() {
             {firstLabels[table.tableNumber] === '初回' && (
               <span className="text-xs">🔰</span>
             )}
-            {firstLabels[table.tableNumber] && firstLabels[table.tableNumber] !== '初回🔰' && (
+            {firstLabels[table.tableNumber] && firstLabels[table.tableNumber] !== '初回' && (
               <span className="px-0.5 py-0.5 bg-gray-200 rounded-full text-sm">
                 {firstLabels[table.tableNumber]}
               </span>
