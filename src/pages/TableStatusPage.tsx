@@ -113,10 +113,9 @@ export default function TableStatusPage() {
         </div>
       )}
 
-      {/* フィルター＆ヘッダー（変更なし） */}
+      {/* フィルター＆ヘッダー（横幅いっぱいに） */}
       <header
-        className="sticky top-0 bg-white z-50 border-b px-4 py-5
-                   grid grid-cols-[1fr_auto_1fr] items-baseline"
+        className="sticky top-0 bg-white z-50 border-b w-screen -mx-4 sm:mx-0 px-4 py-5 grid grid-cols-[1fr_auto_1fr] items-baseline"
       >
         <button
           onClick={() => setFilter('first')}
@@ -157,7 +156,7 @@ export default function TableStatusPage() {
         </div>
       </header>
 
-      {/* テーブルグリッド */}
+      {/* テーブルグリッド（全幅対応済み） */}
       <main
         id="main-content"
         className="w-screen -mx-4 sm:mx-0 px-4 py-4 grid grid-cols-3 gap-4"
