@@ -87,8 +87,8 @@ export default function TableStatusPage() {
         onClick={() => openDetailModal(table)}
       >
         {/* ヘッダー部：番号・初回ラベル・削除ボタン */}
-        <div className="flex items-center justify-between w-full mb-1">
-          <div className="flex items-center space-x-1">
+        <div className="flex items-baseline justify-between w-full mb-1">
+         <div className="flex items-baseline space-x-1">
             <span className="text-lg font-bold">{table.tableNumber}</span>
             {firstLabels[table.tableNumber] === '初回' && (
               <span className="text-xs">🔰</span>
