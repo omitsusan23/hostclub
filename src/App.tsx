@@ -123,7 +123,7 @@ function AppInner() {
           Skip to main content
         </a>
         <Suspense fallback={<div className="p-4 text-center">Loading…</div>}>
-          <div className="min-h-screen flex flex-col pb-16">
+          <div className="min-h-screen flex flex-col pb-16 overflow-x-hidden">
             {/* ↓ Routes は変更なし ↓ */}
             <Routes>
               <Route
@@ -247,7 +247,7 @@ function AppInner() {
                                 onClick={() => { const c = [...firstTypes]; c[i] = '初回指名'; setFirstTypes(c) }}
                                 className={`px-3 py-1 rounded-r ${firstTypes[i] === '初回指名' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
                               >
-                                初回指名
+                                初回来店：お客様情報
                               </button>
                             </div>
                             <input
@@ -258,15 +258,15 @@ function AppInner() {
                               className="border p-2 rounded w-full mb-1"
                             />
                             <select
-                              value={firstTypes[i] === '初回指名' ? firstPhotos[i] : photos[i]}
+                              value={firstTypes[i] === '初回来店：お客様情報' ? firstPhotos[i] : photos[i]}
                               onChange={e => {
-                                const arr = firstTypes[i] === '初回指名' ? [...firstPhotos] : [...photos]
+                                const arr = firstTypes[i] === '初回来店：お客様情報' ? [...firstPhotos] : [...photos]
                                 arr[i] = e.target.value
-                                firstTypes[i] === '初回指名' ? setFirstPhotos(arr) : setPhotos(arr)
+                                firstTypes[i] === '初回来店：お客様情報' ? setFirstPhotos(arr) : setPhotos(arr)
                               }}
                               className="border p-2 rounded w-full mb-1"
                             >
-                              {firstTypes[i] === '初回指名'
+                              {firstTypes[i] === '初回来店：お客様情報'
                                 ? <><option value="">指名してください</option>{casts.map(c => (<option key={c} value={c}>{c}</option>))}</>
                                 : <><option value="なし">写真指名なし</option>{casts.map(c => (<option key={c} value={c}>{c}</option>))}</>
                               }
