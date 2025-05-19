@@ -117,7 +117,7 @@ export default function TableStatusPage() {
   {table.princess ? (
     <>
       <span className="text-[8px]">姫名</span>
-      <span className="text-[14px]">{table.princess}</span>
+      <span className="text-[12px]">{table.princess}</span>
 
       {isInitial && table.initialDetails?.map((d, i) => (
         <React.Fragment key={i}>
