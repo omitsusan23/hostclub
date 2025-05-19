@@ -208,7 +208,7 @@ export default function TableStatusPage() {
       </header>
 
       {/* 本文部 */}
-      <main id="main-content" className="overflow-x-hidden container mx-auto px-2 py-2 grid grid-cols-3 gap-4">
+      <main id="main-content" className="overflow-x-hidden container mx-auto px-2 py-2 grid grid-cols-3 gap-3">
         {renderedTables}
       </main>
 
