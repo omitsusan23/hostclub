@@ -111,7 +111,7 @@ export default function TableStatusPage() {
 <div className="p-2 flex-grow grid grid-cols-[6ch_1fr] gap-x-2 gap-y-1 items-end">
   {table.princess ? (
     <>
-      <span className="text-[12px] font-semibold">姫名:</span>
+      <span className="text-[12px]">姫名:</span>
       <span className="text-[14px]">{table.princess}</span>
 
       {isInitial && table.initialDetails?.map((d, i) => (
