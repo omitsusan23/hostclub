@@ -16,13 +16,11 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings }, dispatch } = useAppContext();
 
-  // 初回ラベルを localStorage から取得（テーブル/設定変更ごとに再計算）
   const firstLabels = useMemo<Record<string, string>>(() => {
     const raw = localStorage.getItem('firstLabels');
     return raw ? JSON.parse(raw) : {};
   }, [tables, tableSettings]);
 
-  // テーブル削除時に初回ラベルも消去
   const handleDelete = useCallback((id: number) => {
     const t = tables.find(x => x.id === id);
     if (!t) return;
@@ -33,7 +31,6 @@ export default function TableStatusPage() {
     localStorage.setItem('firstLabels', JSON.stringify(saved));
   }, [dispatch, tables]);
 
-  // フィルター状態
   const [filter, setFilter] = useState<Filter>('all');
   const [deleteMessage, setDeleteMessage] = useState('');
   useEffect(() => {
@@ -42,7 +39,6 @@ export default function TableStatusPage() {
     return () => clearTimeout(h);
   }, [deleteMessage]);
 
-  // テーブルリストのフィルタリング
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
@@ -74,7 +70,6 @@ export default function TableStatusPage() {
     }
   }, [filter, tables, tableSettings, firstLabels]);
 
-  // テーブルカード描画
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => (
       <div
@@ -128,51 +123,55 @@ export default function TableStatusPage() {
         </div>
       )}
 
-      {/* ヘッダーを overflow 制御外に出し、sticky を有効化 */}
-      <header className="sticky top-0 z-50 bg-white border-b w-full">
-        <div className="container mx-auto px-2 py-3 grid grid-cols-[1fr_auto_1fr] items-baseline">
-          <button
-            onClick={() => setFilter('first')}
-            className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-              filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
-            }`}
-          >
-            初回
-          </button>
-          <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
-          <div className="flex space-x-1 justify-self-end">
+      {/* 新たに scrollable container を設定 */}
+      <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+        <header className="sticky top-0 z-50 bg-white border-b w-full">
+          <div className="container mx-auto px-2 py-3 grid grid-cols-[1fr_auto_1fr] items-baseline">
             <button
-              onClick={() => setFilter('all')}
-              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
+              onClick={() => setFilter('first')}
+              className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+                filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
               }`}
             >
-              全卓
+              初回
             </button>
-            <button
-              onClick={() => setFilter('occupied')}
-              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              使用中
-            </button>
-            <button
-              onClick={() => setFilter('empty')}
-              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              空卓
-            </button>
+            <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
+            <div className="flex space-x-1 justify-self-end">
+              <button
+                onClick={() => setFilter('all')}
+                className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+                  filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
+                }`}
+              >
+                全卓
+              </button>
+              <button
+                onClick={() => setFilter('occupied')}
+                className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+                  filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
+                }`}
+              >
+                使用中
+              </button>
+              <button
+                onClick={() => setFilter('empty')}
+                className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+                  filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
+                }`}
+              >
+                空卓
+              </button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* 横スクロール抑制を main のみへ */}
-      <main id="main-content" className="overflow-x-hidden container mx-auto px-2 py-2 grid grid-cols-3 gap-2">
-        {renderedTables}
-      </main>
+        <main
+          id="main-content"
+          className="container mx-auto px-2 py-2 grid grid-cols-3 gap-2"
+        >
+          {renderedTables}
+        </main>
+      </div>
     </>
   );
 }
