@@ -74,7 +74,7 @@ export default function TableStatusPage() {
         <div className="flex items-center justify-center space-x-2 mb-2">
           <span className="text-lg font-bold">{table.tableNumber}</span>
           {firstLabels[table.tableNumber] && (
-            <span className="px-0.5 py-2 bg-gray-200 rounded-full text-sm">
+            <span className="px-0.5 py-0.5 bg-gray-200 rounded-full text-sm">
               {firstLabels[table.tableNumber]}
             </span>
           )}
