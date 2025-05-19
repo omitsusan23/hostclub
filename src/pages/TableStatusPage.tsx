@@ -108,7 +108,7 @@ export default function TableStatusPage() {
           </div>
 
           {/* 詳細部 */}
-          <div className="p-2 flex-grow">
+          <div className="p-2 flex-grow space-y-2">
             {table.princess ? (
               <>
                 {/* 姫名を常に表示 */}
