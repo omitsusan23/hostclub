@@ -17,6 +17,9 @@ export default function TableStatusPage() {
   const { state: { tables, tableSettings }, dispatch } = useAppContext();
   const [filter, setFilter] = useState<Filter>('all');
   const [deleteMessage, setDeleteMessage] = useState('');
+  // 新規：詳細モーダル制御
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedTable, setSelectedTable] = useState<Table | null>(null);
 
   // 初回ラベルを localStorage から取得
   const firstLabels = useMemo<Record<string, string>>(() => {
@@ -63,10 +66,26 @@ export default function TableStatusPage() {
     }
   }, [filter, tables, tableSettings, firstLabels]);
 
+  // 詳細モーダルを開く
+  const openDetailModal = useCallback((table: Table) => {
+    setSelectedTable(table);
+    setDetailModalOpen(true);
+  }, []);
+
+  // 詳細モーダルを閉じる
+  const closeDetailModal = useCallback(() => {
+    setDetailModalOpen(false);
+    setSelectedTable(null);
+  }, []);
+
   // カード描画
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => (
-      <div key={idx} className="border rounded p-2 shadow-sm bg-white flex flex-col justify-between">
+      <div
+        key={idx}
+        className="border rounded p-2 shadow-sm bg-white flex flex-col justify-between cursor-pointer"
+        onClick={() => openDetailModal(table)}
+      >
         {/* ヘッダー部：番号・初回ラベル・削除ボタン */}
         <div className="flex items-center justify-between w-full mb-1">
           <div className="flex items-center space-x-1">
@@ -82,7 +101,7 @@ export default function TableStatusPage() {
           </div>
           {table.princess && (
             <button
-              onClick={() => handleDelete(table.id)}
+              onClick={e => { e.stopPropagation(); handleDelete(table.id); }}
               className="text-red-500 hover:text-red-700"
             >
               🗑
@@ -102,7 +121,7 @@ export default function TableStatusPage() {
         )}
       </div>
     )),
-    [filteredTables, firstLabels, handleDelete]
+    [filteredTables, firstLabels, handleDelete, openDetailModal]
   );
 
   return (
@@ -125,7 +144,7 @@ export default function TableStatusPage() {
               filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
             }`}
           >
-            初回🔰
+            初回
           </button>
           <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
           <div className="flex space-x-1 justify-self-end">
@@ -161,6 +180,21 @@ export default function TableStatusPage() {
       <main id="main-content" className="overflow-x-hidden container mx-auto px-2 py-2 grid grid-cols-3 gap-2">
         {renderedTables}
       </main>
+
+      {/* 詳細備考モーダル（中身は後から実装） */}
+      {detailModalOpen && (
+        <div role="dialog" aria-modal="true" className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4">
+          <div className="bg-white w-full h-full max-w-lg rounded shadow-lg overflow-auto relative">
+            <button
+              onClick={closeDetailModal}
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900 text-xl"
+            >
+              &times;
+            </button>
+            {/* ここに詳細備考の内容を後で実装 */}
+          </div>
+        </div>
+      )}
     </>
   );
 }
