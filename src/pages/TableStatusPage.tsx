@@ -158,11 +158,7 @@ export default function TableStatusPage() {
       </header>
 
       {/* テーブルグリッド */}
--     <main id="main-content" className="px-4 py-4 grid grid-cols-3 gap-4">
-+     <main
-+       id="main-content"
-+       className="w-screen -mx-4 sm:mx-0 px-4 py-4 grid grid-cols-3 gap-4"
-+     >
+      <main id="main-content" className="px-4 py-4 grid grid-cols-3 gap-4">
         {renderedTables}
       </main>
 
