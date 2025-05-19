@@ -108,7 +108,7 @@ export default function TableStatusPage() {
           </div>
 
           {/* 詳細部 */}
-<div className="p-2 flex-grow grid grid-cols-[6ch_1fr] gap-x-2 gap-y-1 items-end">
+<div className="p-2 flex-grow grid grid-cols-[6ch_1fr] gap-x-2 gap-y-1 items-baseline">
   {table.princess ? (
     <>
       <span className="text-[8px]">姫名</span>
@@ -142,8 +142,6 @@ export default function TableStatusPage() {
   )}
 </div>
 
-
-        </div>
       );
     }),
     [filteredTables, firstLabels, handleDelete, openDetailModal, selectedTable]
