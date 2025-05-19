@@ -71,7 +71,7 @@ export default function TableStatusPage() {
         <div className="flex items-center justify-between w-full mb-1">
           <div className="flex items-center space-x-1">
             <span className="text-lg font-bold">{table.tableNumber}</span>
-            {firstLabels[table.tableNumber] === '初回' && (
+            {firstLabels[table.tableNumber] === '初回🔰' && (
               <span className="text-xs">🔰</span>
             )}
             {firstLabels[table.tableNumber] && firstLabels[table.tableNumber] !== '初回' && (
