@@ -83,25 +83,23 @@ export default function TableStatusPage() {
     filteredTables.map((table, idx) => (
       <div
         key={idx}
-        className="border rounded p-2 shadow-sm bg-white flex flex-col justify-between cursor-pointer"
-        onClick={() => openDetailModal(table)}
+        className="border rounded shadow-sm overflow-hidden flex flex-col"
       >
         {/* ヘッダー部：番号・初回ラベル・削除ボタン */}
-        <div className="flex items-baseline justify-between w-full mb-1">
-         <div className="flex items-baseline space-x-1">
+        <div className="bg-gray-200 px-2 py-1 flex items-baseline justify-between">
+          <div className="flex items-baseline space-x-1">
             <span className="text-lg font-bold">{table.tableNumber}</span>
-            {firstLabels[table.tableNumber] === '初回' && (
+            {firstLabels[table.tableNumber] === '初回' ? (
               <span className="text-xs">🔰</span>
-            )}
-            {firstLabels[table.tableNumber] && firstLabels[table.tableNumber] !== '初回' && (
-              <span className="px-0.5 py-0.5 bg-gray-200 rounded-full text-sm">
+            ) : firstLabels[table.tableNumber] ? (
+              <span className="px-0.5 py-0.5 bg-gray-300 rounded-full text-sm">
                 {firstLabels[table.tableNumber]}
               </span>
-            )}
+            ) : null}
           </div>
           {table.princess && (
             <button
-              onClick={e => { e.stopPropagation(); handleDelete(table.id); }}
+              onClick={() => handleDelete(table.id)}
               className="text-red-500 hover:text-red-700"
             >
               🗑
@@ -109,19 +107,21 @@ export default function TableStatusPage() {
           )}
         </div>
 
-        {/* 詳細表示 */}
-        {table.princess ? (
-          <>
-            <p className="text-sm"><strong>姫名:</strong> {table.princess}</p>
-            <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
-            <p className="text-sm"><strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}</p>
-          </>
-        ) : (
-          <p className="text-sm mt-1 text-gray-400 text-center">空卓</p>
-        )}
+        {/* 詳細部 */}
+        <div className="p-2 flex-grow">
+          {table.princess ? (
+            <>
+              <p className="text-sm"><strong>姫名:</strong> {table.princess}</p>
+              <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
+              <p className="text-sm"><strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}</p>
+            </>
+          ) : (
+            <p className="text-sm mt-1 text-gray-400 text-center">空卓</p>
+          )}
+        </div>
       </div>
     )),
-    [filteredTables, firstLabels, handleDelete, openDetailModal]
+    [filteredTables, firstLabels, handleDelete]
   );
 
   return (
