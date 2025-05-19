@@ -15,12 +15,16 @@ const positionLabelsByCount: Record<number, string[]> = {
 
 export default function TableStatusPage() {
   const { state: { tables, tableSettings }, dispatch } = useAppContext();
+  const [filter, setFilter] = useState<Filter>('all');
+  const [deleteMessage, setDeleteMessage] = useState('');
 
+  // 初回ラベルを localStorage から取得
   const firstLabels = useMemo<Record<string, string>>(() => {
     const raw = localStorage.getItem('firstLabels');
     return raw ? JSON.parse(raw) : {};
   }, [tables, tableSettings]);
 
+  // DELETE TABLE ハンドラー
   const handleDelete = useCallback((id: number) => {
     const t = tables.find(x => x.id === id);
     if (!t) return;
@@ -29,16 +33,17 @@ export default function TableStatusPage() {
     const saved = JSON.parse(localStorage.getItem('firstLabels') || '{}') as Record<string, string>;
     delete saved[t.tableNumber];
     localStorage.setItem('firstLabels', JSON.stringify(saved));
+    setDeleteMessage(`卓 ${t.tableNumber} を削除しました`);
   }, [dispatch, tables]);
 
-  const [filter, setFilter] = useState<Filter>('all');
-  const [deleteMessage, setDeleteMessage] = useState('');
+  // 一定時間で削除メッセージを消す
   useEffect(() => {
     if (!deleteMessage) return;
     const h = setTimeout(() => setDeleteMessage(''), 1000);
     return () => clearTimeout(h);
   }, [deleteMessage]);
 
+  // フィルタリングされたテーブルリスト
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
@@ -48,35 +53,20 @@ export default function TableStatusPage() {
       case 'empty':
         return tableSettings
           .filter(n => !tables.some(t => t.tableNumber === n))
-          .map(n => ({
-            id: Date.now() + Number(n),
-            tableNumber: n,
-            princess: '',
-            budget: 0,
-            time: '',
-          } as Table));
+          .map(n => ({ id: Date.now() + Number(n), tableNumber: n, princess: '', budget: 0, time: '' } as Table));
       case 'all':
       default:
         const empty = tableSettings
           .filter(n => !tables.some(t => t.tableNumber === n))
-          .map(n => ({
-            id: Date.now() + Number(n),
-            tableNumber: n,
-            princess: '',
-            budget: 0,
-            time: '',
-          } as Table));
+          .map(n => ({ id: Date.now() + Number(n), tableNumber: n, princess: '', budget: 0, time: '' } as Table));
         return [...tables, ...empty];
     }
   }, [filter, tables, tableSettings, firstLabels]);
 
+  // カード描画
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => (
-      <div
-        key={idx}
-        className="border rounded p-2 shadow-sm bg-white flex flex-col justify-between"
-      >
-        {/* ヘッダー部：番号・初回ラベル・削除ボタン */}
+      <div key={idx} className="border rounded p-2 shadow-sm bg-white flex flex-col justify-between">
         <div className="flex items-center justify-between w-full mb-1">
           <span className="text-lg font-bold">{table.tableNumber}</span>
           {firstLabels[table.tableNumber] && (
@@ -86,22 +76,17 @@ export default function TableStatusPage() {
           )}
           {table.princess && (
             <button
-              onClick={() => {
-                setDeleteMessage(`卓 ${table.tableNumber} を削除しました`);
-                handleDelete(table.id);
-              }}
+              onClick={() => handleDelete(table.id)}
               className="text-red-500 hover:text-red-700"
             >
               🗑
             </button>
           )}
         </div>
-
-        {/* 詳細表示 */}
         {table.princess ? (
           <>
             <p className="text-sm"><strong>姫名:</strong> {table.princess}</p>
-            <p className="text-sm"><strong>開始:</strong> {table.time.slice(0, 5)}</p>
+            <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
             <p className="text-sm"><strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}</p>
           </>
         ) : (
@@ -109,7 +94,7 @@ export default function TableStatusPage() {
         )}
       </div>
     )),
-    [filteredTables, handleDelete, firstLabels]
+    [filteredTables, firstLabels, handleDelete]
   );
 
   return (
@@ -123,55 +108,51 @@ export default function TableStatusPage() {
         </div>
       )}
 
-      {/* 新たに scrollable container を設定 */}
-      <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-        <header className="sticky top-0 z-50 bg-white border-b w-full">
-          <div className="container mx-auto px-2 py-3 grid grid-cols-[1fr_auto_1fr] items-baseline">
+      {/* フィルター部：sticky top-0 が効くように overflow を持つ親を作らずに配置 */}
+      <header className="sticky top-0 z-50 bg-white border-b">
+        <div className="container mx-auto px-2 py-3 grid grid-cols-[1fr_auto_1fr] items-baseline">
+          <button
+            onClick={() => setFilter('first')}
+            className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+              filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
+            }`}
+          >
+            初回
+          </button>
+          <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
+          <div className="flex space-x-1 justify-self-end">
             <button
-              onClick={() => setFilter('first')}
-              className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
+              onClick={() => setFilter('all')}
+              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+                filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
               }`}
             >
-              初回
+              全卓
             </button>
-            <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
-            <div className="flex space-x-1 justify-self-end">
-              <button
-                onClick={() => setFilter('all')}
-                className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                  filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
-                }`}
-              >
-                全卓
-              </button>
-              <button
-                onClick={() => setFilter('occupied')}
-                className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                  filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
-                }`}
-              >
-                使用中
-              </button>
-              <button
-                onClick={() => setFilter('empty')}
-                className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                  filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
-                }`}
-              >
-                空卓
-              </button>
-            </div>
+            <button
+              onClick={() => setFilter('occupied')}
+              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+                filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              使用中
+            </button>
+            <button
+              onClick={() => setFilter('empty')}
+              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
+                filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              空卓
+            </button>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <main
-          id="main-content"
-          className="container mx-auto px-2 py-2 grid grid-cols-3 gap-2"
-        >
-          {renderedTables}
-        </main>
-      </div>
+      {/* 本文部：横スクロール抑制 */}
+      <main id="main-content" className="overflow-x-hidden container mx-auto px-2 py-2 grid grid-cols-3 gap-2">
+        {renderedTables}
+      </main>
     </>
   );
 }
