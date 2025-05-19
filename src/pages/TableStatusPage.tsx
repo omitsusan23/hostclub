@@ -119,19 +119,19 @@ export default function TableStatusPage() {
           <span className="text-[12px] font-semibold">
             {d.type === '初回' ? '写真指名:' : '初回指名:'}
           </span>
-          <span className="text-sm">
+          <span className="text-[14px]">
             {d.photo === 'なし' ? '指名なし' : d.photo}
           </span>
         </React.Fragment>
       ))}
 
       <span className="text-[12px] font-semibold">開始:</span>
-      <span className="text-sm">{table.time.slice(0,5)}</span>
+      <span className="text-[14px]">{table.time.slice(0,5)}</span>
 
       {!isInitial && (
         <>
           <span className="text-[12px] font-semibold">予算:</span>
-          <span className="text-sm">
+          <span className="text-[14px]">
             {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
           </span>
         </>
