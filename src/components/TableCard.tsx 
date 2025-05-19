@@ -39,7 +39,7 @@ function TableCard({ table, onAssign, onDelete }: TableCardProps) {
       <div className="text-sm text-gray-700">担当: {table.cast}</div>
 
       {showPrincess && (
-        <div className="text-sm text-gray-600">姫名: {table.princess}</div>
+        <div className="text-sm text-gray-700">姫名: {table.princess}</div>
       )}
 
       <div className="text-sm text-gray-700">開始: {table.time}</div>
