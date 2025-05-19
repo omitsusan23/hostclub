@@ -110,37 +110,29 @@ export default function TableStatusPage() {
 </div>
 
           {/* 詳細部 */}
-<div className="p-2 flex-grow grid grid-cols-[6ch_1fr] gap-x-2 gap-y-0.5 items-baseline">
-  {table.princess ? (
-    <>
-      <span className="text-[8px]">姫名</span>
-      <span className="text-[14px]">{table.princess}</span>
-
-      {isInitial && table.initialDetails?.map((d, i) => (
-        <React.Fragment key={i}>
-          <span className="text-[8px]">
-            {d.type === '初回' ? '写真指名' : '初回指名'}
-          </span>
-          <span className="text-[14px]">
-            {d.photo === 'なし' ? '指名なし' : d.photo}
-          </span>
-        </React.Fragment>
-      ))}
-
-      <span className="text-[8px]">開始</span>
-      <span className="text-[14px]">{table.time.slice(0,5)}</span>
-
-      {!isInitial && (
-        <>
-          <span className="text-[8px]">予算</span>
-          <span className="text-[14px]">
-            {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
-          </span>
-        </>
-      )}
-    </>
-  ) : (
-    <p className="text-sm mt-1 text-gray-400 text-center">空卓</p>
+<div className="bg-gray-200 px-2 py-1 flex items-baseline justify-between">
+  <div className="flex items-baseline space-x-1">
+    <span className="sr-only">卓番号:</span>
+    {/* ここが重複していないか確認！ */}
+    <span className="text-lg font-bold leading-none self-baseline">
+      {table.tableNumber}
+    </span>
+    {isInitial ? (
+      <span className="text-[10px] leading-none self-baseline">🔰</span>
+    ) : firstLabels[table.tableNumber] ? (
+      <span className="px-0.5 py-0.5 bg-gray-300 rounded-full text-sm leading-none self-baseline">
+        {firstLabels[table.tableNumber]}
+      </span>
+    ) : null}
+  </div>
+  {table.princess && (
+    <button
+      onClick={e => { e.stopPropagation(); handleDelete(table.id); }}
+      aria-label={`卓 ${table.tableNumber} を削除`}
+      className="text-[10px] leading-none self-baseline"
+    >
+      🗑
+    </button>
   )}
 </div>
 
