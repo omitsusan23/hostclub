@@ -116,7 +116,7 @@ export default function TableStatusPage() {
       <div className="relative left-1/2 ml-[-50vw] w-screen">
         {/* フィルター＆ヘッダー（横幅いっぱいに） */}
         <header
-          className="sticky top-0 bg-white z-50 border-b px-3 py-5 grid grid-cols-[1fr_auto_1fr] items-baseline"
+          className="sticky top-0 bg-white z-50 border-b px-4 py-5 grid grid-cols-[1fr_auto_1fr] items-baseline"
         >
           <button
             onClick={() => setFilter('first')}
