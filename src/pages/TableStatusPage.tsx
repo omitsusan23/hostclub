@@ -107,50 +107,40 @@ export default function TableStatusPage() {
             )}
           </div>
 
- {table.princess ? (
-  /* 詳細部 */
-  <div className="p-2 flex-grow grid grid-cols-[6ch_1fr] gap-x-2 gap-y-1">
-    <span className="text-[12px] font-semibold border-b border-current pb-1">
-      姫名:
-    </span>
-    <span className="text-[16px] border-b border-current pb-1">
-      {table.princess}
-    </span>
+          {/* 詳細部 */}
+<div className="p-2 flex-grow grid grid-cols-[6ch_1fr] gap-x-2 gap-y-1">
+  {table.princess ? (
+    <>
+      <span className="text-[12px] font-semibold">姫名:</span>
+      <span className="text-[14px]">{table.princess}</span>
 
-    {isInitial && table.initialDetails?.map((d, i) => (
-      <React.Fragment key={i}>
-        <span className="text-[12px] font-semibold border-b border-current pb-1">
-          {d.type === '初回' ? '写真指名:' : '初回指名:'}
-        </span>
-        <span className="text-[16px] border-b border-current pb-1">
-          {d.photo === 'なし' ? '指名なし' : d.photo}
-        </span>
-      </React.Fragment>
-    ))}
+      {isInitial && table.initialDetails?.map((d, i) => (
+        <React.Fragment key={i}>
+          <span className="text-sm font-semibold">
+            {d.type === '初回' ? '写真指名:' : '初回指名:'}
+          </span>
+          <span className="text-sm">
+            {d.photo === 'なし' ? '指名なし' : d.photo}
+          </span>
+        </React.Fragment>
+      ))}
 
-    <span className="text-[12px] font-semibold border-b border-current pb-1">
-      開始:
-    </span>
-    <span className="text-[16px] border-b border-current pb-1">
-      {table.time.slice(0,5)}
-    </span>
+      <span className="text-sm font-semibold">開始:</span>
+      <span className="text-sm">{table.time.slice(0,5)}</span>
 
-    {!isInitial && (
-      <>
-        <span className="text-[12px] font-semibold border-b border-current pb-1">
-          予算:
-        </span>
-        <span className="text-[16px] border-b border-current pb-1">
-          {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
-        </span>
-      </>
-    )}
-  </div>
-) : (
-  /* ← この空卓表示はまったく消していません */
-  <p className="text-sm mt-1 text-gray-400 text-center">空卓</p>
-)}
-
+      {!isInitial && (
+        <>
+          <span className="text-sm font-semibold">予算:</span>
+          <span className="text-sm">
+            {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
+          </span>
+        </>
+      )}
+    </>
+  ) : (
+    <p className="text-sm mt-1 text-gray-400 text-center">空卓</p>
+  )}
+</div>
 
         </div>
       );
