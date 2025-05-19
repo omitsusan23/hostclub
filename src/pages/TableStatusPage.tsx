@@ -116,7 +116,7 @@ export default function TableStatusPage() {
 
       {isInitial && table.initialDetails?.map((d, i) => (
         <React.Fragment key={i}>
-          <span className="text-[12px] font-semibold">
+          <span className="text-[12px]">
             {d.type === '初回' ? '写真指名:' : '初回指名:'}
           </span>
           <span className="text-[14px]">
