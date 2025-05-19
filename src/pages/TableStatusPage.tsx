@@ -102,11 +102,10 @@ export default function TableStatusPage() {
     <button
   onClick={e => { e.stopPropagation(); handleDelete(table.id); }}
   aria-label={`卓 ${table.tableNumber} を削除`}
-  className="inline-flex items-center text-red-500 hover:text-red-700 align-middle leading-none"
+  className="h-full flex items-center text-red-500 hover:text-red-700"
 >
   🗑
 </button>
-
   )}
 </div>
 
