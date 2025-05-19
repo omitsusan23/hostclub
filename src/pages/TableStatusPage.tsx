@@ -108,7 +108,7 @@ export default function TableStatusPage() {
       )}
 
       {/* 横スクロール抑制 */}
-      <div className="overflow-x-hidden">
+      
         {/* フィルター＆ヘッダー（sticky） */}
         <header className="sticky top-0 left-0 right-0 w-full bg-white border-b z-50">
           <div className="px-2 py-3 grid grid-cols-[1fr_auto_1fr] items-baseline">
@@ -126,7 +126,7 @@ export default function TableStatusPage() {
         <main id="main-content" className="px-2 py-2 grid grid-cols-3 gap-2">
           {renderedTables}
         </main>
-      </div>
-    </>
+      </>
+
   );
 }
