@@ -20,11 +20,13 @@ export default function TableStatusPage() {
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
 
+  // 初回ラベルを localStorage から取得
   const firstLabels = useMemo<Record<string, string>>(() => {
     const raw = localStorage.getItem('firstLabels');
     return raw ? JSON.parse(raw) : {};
   }, [tables, tableSettings]);
 
+  // テーブル削除
   const handleDelete = useCallback((id: number) => {
     const t = tables.find(x => x.id === id);
     if (!t) return;
@@ -36,12 +38,14 @@ export default function TableStatusPage() {
     setDeleteMessage(`卓 ${t.tableNumber} を削除しました`);
   }, [dispatch, tables]);
 
+  // メッセージ自動消去
   useEffect(() => {
     if (!deleteMessage) return;
     const h = setTimeout(() => setDeleteMessage(''), 1000);
     return () => clearTimeout(h);
   }, [deleteMessage]);
 
+  // フィルタリング
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
@@ -61,16 +65,17 @@ export default function TableStatusPage() {
     }
   }, [filter, tables, tableSettings, firstLabels]);
 
+  // 詳細モーダル制御
   const openDetailModal = useCallback((table: Table) => {
     setSelectedTable(table);
     setDetailModalOpen(true);
   }, []);
-
   const closeDetailModal = useCallback(() => {
     setDetailModalOpen(false);
     setSelectedTable(null);
   }, []);
 
+  // カード描画
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => {
       const isInitial = firstLabels[table.tableNumber] === '初回';
@@ -80,7 +85,7 @@ export default function TableStatusPage() {
           className="border rounded shadow-sm overflow-hidden flex flex-col cursor-pointer"
           onClick={() => openDetailModal(table)}
         >
-          {/* ヘッダー部：番号・初回ラベル・削除ボタン */}
+          {/* ヘッダー部 */}
           <div className="bg-gray-200 px-2 py-1 flex items-baseline justify-between">
             <div className="flex items-baseline space-x-1">
               <span className="text-lg font-bold">{table.tableNumber}</span>
@@ -102,35 +107,44 @@ export default function TableStatusPage() {
             )}
           </div>
 
-          {/* 詳細部：初回モーダル発の卓は initialDetails を表示 */}
-          {table.princess ? (
-            <div className="p-2 flex-grow">
-              {isInitial && table.initialDetails?.map((d, i) => (
-                <div key={i} className="mb-1">
-                  <p className="text-sm"><strong>{d.type}:</strong> {d.name}</p>
-                  {d.photo && d.photo !== 'なし' && (
+          {/* 詳細部 */}
+          <div className="p-2 flex-grow">
+            {table.princess ? (
+              <>
+                {/* 姫名を常に表示 */}
+                <p className="text-sm"><strong>姫名:</strong> {table.princess}</p>
+
+                {/* 初回モーダル発：initialDetails を出力 */}
+                {isInitial && selectedTable?.initialDetails?.map((d, i) => (
+                  <div key={i} className="mb-1">
+                    <p className="text-sm"><strong>{d.type}:</strong> {d.name}</p>
                     <p className="text-sm"><strong>写真指名:</strong> {d.photo}</p>
-                  )}
-                </div>
-              ))}
-              <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
-              {!isInitial && (
-                <p className="text-sm">
-                  <strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
-                </p>
-              )}
-            </div>
-          ) : (
-            <p className="text-sm mt-1 text-gray-400 text-center">空卓</p>
-          )}
+                  </div>
+                ))}
+
+                {/* 開始時刻 */}
+                <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
+
+                {/* 予約発：予算を出力 */}
+                {!isInitial && (
+                  <p className="text-sm">
+                    <strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-sm mt-1 text-gray-400 text-center">空卓</p>
+            )}
+          </div>
         </div>
       );
     }),
-    [filteredTables, firstLabels, handleDelete, openDetailModal]
+    [filteredTables, firstLabels, handleDelete, openDetailModal, selectedTable]
   );
 
   return (
     <>
+      {/* 削除メッセージ */}
       {deleteMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded">
@@ -139,6 +153,7 @@ export default function TableStatusPage() {
         </div>
       )}
 
+      {/* フィルター部 */}
       <header className="sticky top-0 z-50 bg-white border-b">
         <div className="container mx-auto px-2 py-3 grid grid-cols-[1fr_auto_1fr] items-baseline">
           <button
@@ -179,10 +194,12 @@ export default function TableStatusPage() {
         </div>
       </header>
 
+      {/* 本文部 */}
       <main id="main-content" className="overflow-x-hidden container mx-auto px-1.5 py-2 grid grid-cols-3 gap-3">
         {renderedTables}
       </main>
 
+      {/* 詳細モーダル */}
       {detailModalOpen && selectedTable && (
         <div role="dialog" aria-modal="true" className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4">
           <div className="bg-white w-full h-full max-w-lg rounded shadow-lg overflow-auto relative">
