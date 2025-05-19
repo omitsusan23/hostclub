@@ -70,8 +70,11 @@ export default function TableStatusPage() {
         <div className="flex items-center justify-between w-full mb-1">
           <span className="text-lg font-bold">{table.tableNumber}</span>
           {firstLabels[table.tableNumber] && (
-            <span className="px-0.5 py-0.5 bg-gray-200 rounded-full text-sm">
-              {firstLabels[table.tableNumber]}
+             <span className="px-0.5 py-0.5 bg-gray-200 rounded-full text-sm">
+              {firstLabels[table.tableNumber] === '初回'
+                ? '🔰'
+                : firstLabels[table.tableNumber]
+              }
             </span>
           )}
           {table.princess && (
