@@ -123,7 +123,7 @@ function AppInner() {
           Skip to main content
         </a>
         <Suspense fallback={<div className="p-4 text-center">Loading…</div>}>
-          <div className="min-h-screen flex flex-col pb-16 overflow-x-hidden">
+          <div className="min-h-screen flex flex-col pb-16">
             {/* ↓ Routes は変更なし ↓ */}
             <Routes>
               <Route
