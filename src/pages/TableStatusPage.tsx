@@ -86,7 +86,7 @@ export default function TableStatusPage() {
           onClick={() => openDetailModal(table)}
         >
           {/* ヘッダー部 */}
-<div className="bg-gray-200 px-2 py-1 flex items-baseline justify-between">
+<div className="bg-gray-200 px-1 py-1 flex items-baseline justify-between">
   <div className="flex items-baseline space-x-1">
     <span className="sr-only">卓番号:</span>
     {/* ここが重複していないか確認！ */}
