@@ -68,7 +68,7 @@ export default function TableStatusPage() {
     filteredTables.map((table, idx) => (
       <div
         key={idx}
-        className="relative border rounded p-4 shadow-sm bg-white flex flex-col justify-between"
+        className="relative border rounded p-2 shadow-sm bg-white flex flex-col justify-between"
       >
         {/* ヘッダー部：番号・初回ラベル・削除ボタン */}
         <div className="flex items-center justify-between w-full mb-2">
