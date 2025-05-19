@@ -100,12 +100,13 @@ export default function TableStatusPage() {
   </div>
   {table.princess && (
     <button
-      onClick={e => { e.stopPropagation(); handleDelete(table.id); }}
-      aria-label={`卓 ${table.tableNumber} を削除`}
-      className="text-red-500 hover:text-red-700 align-middle leading-none"
-    >
-      🗑
-    </button>
+  onClick={e => { e.stopPropagation(); handleDelete(table.id); }}
+  aria-label={`卓 ${table.tableNumber} を削除`}
+  className="inline-flex items-center text-red-500 hover:text-red-700 align-middle leading-none"
+>
+  🗑
+</button>
+
   )}
 </div>
 
