@@ -108,36 +108,40 @@ export default function TableStatusPage() {
           </div>
 
           {/* 詳細部 */}
-          <div className="p-2 flex-grow">
-            {table.princess ? (
-              <>
-                {/* 姫名を常に表示 */}
-                <p className="text-sm"><strong>姫名:</strong> {table.princess}</p>
+<div className="p-2 flex-grow grid grid-cols-[6ch_1fr] gap-x-2 gap-y-1">
+  {table.princess ? (
+    <>
+      <span className="text-sm font-semibold">姫名:</span>
+      <span className="text-sm">{table.princess}</span>
 
-                {/* 初回モーダル発：initialDetails を出力 */}
-                {isInitial && table.initialDetails?.map((d, i) => (
-                  <p key={i} className="text-sm">
-                    <strong>
-                      {d.type === '初回' ? '写真指名' : '初回指名'}:
-                    </strong>{' '}
-                    {d.photo === 'なし' ? '指名なし' : d.photo}
-                  </p>
-                ))}
+      {isInitial && table.initialDetails?.map((d, i) => (
+        <React.Fragment key={i}>
+          <span className="text-sm font-semibold">
+            {d.type === '初回' ? '写真指名:' : '初回指名:'}
+          </span>
+          <span className="text-sm">
+            {d.photo === 'なし' ? '指名なし' : d.photo}
+          </span>
+        </React.Fragment>
+      ))}
 
-                {/* 開始時刻 */}
-                <p className="text-sm"><strong>開始:</strong> {table.time.slice(0,5)}</p>
+      <span className="text-sm font-semibold">開始:</span>
+      <span className="text-sm">{table.time.slice(0,5)}</span>
 
-                {/* 予約発：予算を出力 */}
-                {!isInitial && (
-                  <p className="text-sm">
-                    <strong>予算:</strong> {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
-                  </p>
-                )}
-              </>
-            ) : (
-              <p className="text-sm mt-1 text-gray-400 text-center">空卓</p>
-            )}
-          </div>
+      {!isInitial && (
+        <>
+          <span className="text-sm font-semibold">予算:</span>
+          <span className="text-sm">
+            {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
+          </span>
+        </>
+      )}
+    </>
+  ) : (
+    <p className="text-sm mt-1 text-gray-400 text-center">空卓</p>
+  )}
+</div>
+
         </div>
       );
     }),
