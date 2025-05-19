@@ -112,11 +112,11 @@ export default function TableStatusPage() {
   {table.princess ? (
     <>
       <span className="text-[12px] font-semibold">姫名:</span>
-      <span className="text-[16px]">{table.princess}</span>
+      <span className="text-[14px]">{table.princess}</span>
 
       {isInitial && table.initialDetails?.map((d, i) => (
         <React.Fragment key={i}>
-          <span className="text-sm font-semibold">
+          <span className="text-[12px] font-semibold">
             {d.type === '初回' ? '写真指名:' : '初回指名:'}
           </span>
           <span className="text-sm">
@@ -125,12 +125,12 @@ export default function TableStatusPage() {
         </React.Fragment>
       ))}
 
-      <span className="text-sm font-semibold">開始:</span>
+      <span className="text-[12px] font-semibold">開始:</span>
       <span className="text-sm">{table.time.slice(0,5)}</span>
 
       {!isInitial && (
         <>
-          <span className="text-sm font-semibold">予算:</span>
+          <span className="text-[12px] font-semibold">予算:</span>
           <span className="text-sm">
             {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
           </span>
