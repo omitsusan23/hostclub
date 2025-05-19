@@ -17,12 +17,19 @@ export type Reservation = {
   budget: number;
 };
 
+export type InitialDetail = {
+  name: string;
+  type: string;    // '初回' or '初回指名'
+  photo: string;   // キャスト名 or 'なし'
+};
+
 export type Table = {
   id: number;
   tableNumber: string;
   princess: string;
   budget: number;
   time: string;
+  initialDetails?: InitialDetail[];  // ← 追加
 };
 
 export type Invite = {
@@ -54,7 +61,7 @@ export type Action =
   | { type: 'SET_USER'; payload: User | null }
   | { type: 'ADD_RESERVATION'; payload: Reservation }
   | { type: 'DELETE_RESERVATION'; payload: number }
-  | { type: 'ASSIGN_TABLE'; payload: Reservation }
+  | { type: 'ASSIGN_TABLE'; payload: Reservation & { initialDetails?: InitialDetail[] } }  // ← 修正
   | { type: 'DELETE_TABLE'; payload: number }
   | { type: 'ADD_INVITE'; payload: Invite }
   | { type: 'REVOKE_INVITE'; payload: string }
@@ -93,30 +100,41 @@ function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'SET_USER':
       return { ...state, currentUser: action.payload };
+
     case 'ADD_RESERVATION':
       return { ...state, reservations: [action.payload, ...state.reservations] };
+
     case 'DELETE_RESERVATION':
       return {
         ...state,
         reservations: state.reservations.filter((r) => r.id !== action.payload),
       };
-    case 'ASSIGN_TABLE':
-      const newTable = {
+
+    case 'ASSIGN_TABLE': {
+      const { requestedTable, princess, budget } = action.payload;
+      const newTable: Table = {
         id: Date.now(),
-        tableNumber: action.payload.requestedTable,
-        princess: action.payload.princess,
-        budget: action.payload.budget,
+        tableNumber: requestedTable,
+        princess,
+        budget,
         time: new Date().toLocaleTimeString(),
-      } as Table;
+        initialDetails: action.payload.initialDetails,  // ← 追加
+      };
       return { ...state, tables: [newTable, ...state.tables] };
+    }
+
     case 'DELETE_TABLE':
       return { ...state, tables: state.tables.filter((t) => t.id !== action.payload) };
+
     case 'ADD_INVITE':
       return { ...state, invites: [action.payload, ...state.invites] };
+
     case 'REVOKE_INVITE':
       return { ...state, invites: state.invites.filter((inv) => inv.id !== action.payload) };
+
     case 'ADD_CAST':
       return { ...state, casts: [action.payload, ...state.casts] };
+
     case 'TOGGLE_CAST_STATUS':
       return {
         ...state,
@@ -124,17 +142,22 @@ function reducer(state: State, action: Action): State {
           c.id === action.payload ? { ...c, status: c.status === 'active' ? 'paused' : 'active' } : c
         ),
       };
+
     case 'DELETE_CAST':
       return { ...state, casts: state.casts.filter((c) => c.id !== action.payload) };
+
     case 'ADD_TABLE_SETTING':
       return { ...state, tableSettings: [action.payload, ...state.tableSettings] };
+
     case 'REMOVE_TABLE_SETTING':
       return {
         ...state,
         tableSettings: state.tableSettings.filter((t) => t !== action.payload),
       };
+
     case 'SET_LAYOUT_MODE':
       return { ...state, layoutMode: action.payload };
+
     default:
       return state;
   }
