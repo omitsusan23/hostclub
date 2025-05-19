@@ -67,16 +67,19 @@ export default function TableStatusPage() {
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => (
       <div key={idx} className="border rounded p-2 shadow-sm bg-white flex flex-col justify-between">
+        {/* ヘッダー部：番号・初回ラベル・削除ボタン */}
         <div className="flex items-center justify-between w-full mb-1">
-          <span className="text-lg font-bold">{table.tableNumber}</span>
-          {firstLabels[table.tableNumber] && (
-             <span className="px-0.5 py-0.5 bg-gray-200 rounded-full text-sm">
-              {firstLabels[table.tableNumber] === '初回'
-                ? '🔰'
-                : firstLabels[table.tableNumber]
-              }
-            </span>
-          )}
+          <div className="flex items-center space-x-1">
+            <span className="text-lg font-bold">{table.tableNumber}</span>
+            {firstLabels[table.tableNumber] === '初回' && (
+              <span className="text-xs">🔰</span>
+            )}
+            {firstLabels[table.tableNumber] && firstLabels[table.tableNumber] !== '初回' && (
+              <span className="px-0.5 py-0.5 bg-gray-200 rounded-full text-sm">
+                {firstLabels[table.tableNumber]}
+              </span>
+            )}
+          </div>
           {table.princess && (
             <button
               onClick={() => handleDelete(table.id)}
@@ -86,6 +89,8 @@ export default function TableStatusPage() {
             </button>
           )}
         </div>
+
+        {/* 詳細表示 */}
         {table.princess ? (
           <>
             <p className="text-sm"><strong>姫名:</strong> {table.princess}</p>
@@ -120,7 +125,7 @@ export default function TableStatusPage() {
               filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
             }`}
           >
-            初回🔰
+            初回
           </button>
           <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
           <div className="flex space-x-1 justify-self-end">
