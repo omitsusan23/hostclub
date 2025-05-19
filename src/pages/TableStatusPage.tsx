@@ -108,7 +108,7 @@ export default function TableStatusPage() {
           </div>
 
           {/* 詳細部 */}
-<div className="p-2 flex-grow grid grid-cols-[6ch_1fr] gap-x-2 gap-y-1">
+<div className="p-2 flex-grow grid grid-cols-[6ch_1fr] gap-x-2 gap-y-1 text-xs">
   {table.princess ? (
     <>
       <span className="text-sm font-semibold">姫名:</span>
