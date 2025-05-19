@@ -117,7 +117,7 @@ export default function TableStatusPage() {
               filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
             }`}
           >
-            初回
+            初回🔰
           </button>
           <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
           <div className="flex space-x-1 justify-self-end">
