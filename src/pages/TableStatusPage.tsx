@@ -92,7 +92,6 @@ export default function TableStatusPage() {
           <div className="bg-gray-200 px-0.5 py-1 flex items-baseline justify-between">
             <div className="flex items-baseline space-x-1">
               <span className="sr-only">卓番号:</span>
-              {/* ここが重複していないか確認！ */}
               <span className="text-lg font-bold leading-none self-baseline">
                 {table.tableNumber}
               </span>
@@ -152,7 +151,7 @@ export default function TableStatusPage() {
         </div>
       );
     }),
-    [filteredTables, firstLabels, handleDelete, openDetailModal, selectedTable]
+    [filteredTables, firstLabels, handleDelete, openDetailModal]
   );
 
   return (
@@ -168,71 +167,64 @@ export default function TableStatusPage() {
 
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white border-b">
-        <div className="container mx-auto px-2 py-3">
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="text-2xl font-bold">卓状況</h2>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => setView('list')}
-                className={`px-3 py-1 rounded ${
-                  view === 'list' ? 'bg-blue-500 text-white' : 'bg-gray-100'
-                }`}
-              >
-                リスト
-              </button>
-              <button
-                onClick={() => setView('map')}
-                className={`px-3 py-1 rounded ${
-                  view === 'map' ? 'bg-blue-500 text-white' : 'bg-gray-100'
-                }`}
-              >
-                マップ
-              </button>
-            </div>
+        <div className="container mx-auto px-2 py-3 flex justify-between items-center">
+          <h2 className="text-2xl font-bold">卓状況</h2>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setView('list')}
+              className={`px-3 py-1 rounded ${view === 'list' ? 'bg-blue-500 text-white' : 'bg-gray-100'}`}
+            >
+              リスト
+            </button>
+            <button
+              onClick={() => setView('map')}
+              className={`px-3 py-1 rounded ${view === 'map' ? 'bg-blue-500 text-white' : 'bg-gray-100'}`}
+            >
+              マップ
+            </button>
           </div>
-          
-          {/* Filters - only show in list view */}
-          {view === 'list' && (
-            <div className="flex space-x-2">
-              <button
-                onClick={() => setFilter('all')}
-                className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
-                  filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
-                }`}
-              >
-                全卓
-              </button>
-              <button
-                onClick={() => setFilter('occupied')}
-                className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
-                  filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
-                }`}
-              >
-                使用中
-              </button>
-              <button
-                onClick={() => setFilter('empty')}
-                className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
-                  filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
-                }`}
-              >
-                空卓
-              </button>
-              <button
-                onClick={() => setFilter('first')}
-                className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
-                  filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
-                }`}
-              >
-                初回
-              </button>
-            </div>
-          )}
         </div>
+        {view === 'list' && (
+          <div className="container mx-auto px-2 py-1 flex space-x-2">
+            <button
+              onClick={() => setFilter('all')}
+              className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
+                filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              全卓
+            </button>
+            <button
+              onClick={() => setFilter('occupied')}
+              className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
+                filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              使用中
+            </button>
+            <button
+              onClick={() => setFilter('empty')}
+              className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
+                filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              空卓
+            </button>
+            <button
+              onClick={() => setFilter('first')}
+              className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
+                filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
+              }`}
+            >
+              初回
+            </button>
+          </div>
+        )}
       </header>
 
+      {/* Main content */}
       <main id="main-content" className="container mx-auto px-2 py-4">
-        {view==='map' ? (
+        {view === 'map' ? (
           <TableMapView tables={tables} storeId="rberu-sapporo" />
         ) : (
           <div className="grid grid-cols-3 gap-3">
@@ -240,19 +232,8 @@ export default function TableStatusPage() {
           </div>
         )}
       </main>
-      
-      {/* Main content */}
-      <main id="main-content" className="container mx-auto px-2 py-4">
-        {view === 'map' ? (
-          <TableMapView />
-        ) : (
-          <div className="grid grid-cols-3 gap-3">
-            {renderedTables}
-          </div>
-        )}
-      </main>
 
-      {/* Detail modal - remains unchanged */}
+      {/* Detail modal */}
       {detailModalOpen && selectedTable && (
         <div role="dialog" aria-modal="true" className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4">
           <div className="bg-white w-full h-full max-w-lg rounded shadow-lg overflow-auto relative">
