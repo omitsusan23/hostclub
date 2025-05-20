@@ -1,8 +1,10 @@
 // src/pages/TableStatusPage.tsx
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
+import TableMapView from '../components/TableMapView';
 
 type Filter = 'all' | 'occupied' | 'empty' | 'first';
+type View = 'list' | 'map';
 
 const positionLabelsByCount: Record<number, string[]> = {
   1: [],
@@ -16,6 +18,7 @@ const positionLabelsByCount: Record<number, string[]> = {
 export default function TableStatusPage() {
   const { state: { tables, tableSettings }, dispatch } = useAppContext();
   const [filter, setFilter] = useState<Filter>('all');
+  const [view, setView] = useState<View>('list');
   const [deleteMessage, setDeleteMessage] = useState('');
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
@@ -86,69 +89,66 @@ export default function TableStatusPage() {
           onClick={() => openDetailModal(table)}
         >
           {/* ヘッダー部 */}
-<div className="bg-gray-200 px-0.5 py-1 flex items-baseline justify-between">
-  <div className="flex items-baseline space-x-1">
-    <span className="sr-only">卓番号:</span>
-    {/* ここが重複していないか確認！ */}
-    <span className="text-lg font-bold leading-none self-baseline">
-      {table.tableNumber}
-    </span>
-    {isInitial ? (
-      <span className="text-[10px] leading-none self-baseline">🔰</span>
-    ) : firstLabels[table.tableNumber] ? (
-      <span className="px-0.5 py-0.5 bg-gray-300 rounded-full text-sm leading-none self-baseline">
-        {firstLabels[table.tableNumber]}
-      </span>
-    ) : null}
-  </div>
-  {table.princess && (
-    <button
-      onClick={e => { e.stopPropagation(); handleDelete(table.id); }}
-      aria-label={`卓 ${table.tableNumber} を削除`}
-      className="text-[10px] leading-none self-baseline"
-    >
-      🗑
-    </button>
-  )}
-</div>
+          <div className="bg-gray-200 px-0.5 py-1 flex items-baseline justify-between">
+            <div className="flex items-baseline space-x-1">
+              <span className="sr-only">卓番号:</span>
+              {/* ここが重複していないか確認！ */}
+              <span className="text-lg font-bold leading-none self-baseline">
+                {table.tableNumber}
+              </span>
+              {isInitial ? (
+                <span className="text-[10px] leading-none self-baseline">🔰</span>
+              ) : firstLabels[table.tableNumber] ? (
+                <span className="px-0.5 py-0.5 bg-gray-300 rounded-full text-sm leading-none self-baseline">
+                  {firstLabels[table.tableNumber]}
+                </span>
+              ) : null}
+            </div>
+            {table.princess && (
+              <button
+                onClick={e => { e.stopPropagation(); handleDelete(table.id); }}
+                aria-label={`卓 ${table.tableNumber} を削除`}
+                className="text-[10px] leading-none self-baseline"
+              >
+                🗑
+              </button>
+            )}
+          </div>
 
           {/* 詳細部 */}
-<div className="p-1 flex-grow grid grid-cols-[6ch_1fr] gap-x-2 gap-y-0.5 items-baseline">
-  {table.princess ? (
-    <>
-      <span className="text-[8px]">姫名</span>
-      <span className="text-[10px]">{table.princess}</span>
+          <div className="p-1 flex-grow grid grid-cols-[6ch_1fr] gap-x-2 gap-y-0.5 items-baseline">
+            {table.princess ? (
+              <>
+                <span className="text-[8px]">姫名</span>
+                <span className="text-[10px]">{table.princess}</span>
 
-      {isInitial && table.initialDetails?.map((d, i) => (
-        <React.Fragment key={i}>
-          <span className="text-[8px]">
-            {d.type === '初回' ? '写真指名' : '初回指名'}
-          </span>
-          <span className="text-[10px]">
-            {d.photo === 'なし' ? '指名なし' : d.photo}
-          </span>
-        </React.Fragment>
-      ))}
+                {isInitial && table.initialDetails?.map((d, i) => (
+                  <React.Fragment key={i}>
+                    <span className="text-[8px]">
+                      {d.type === '初回' ? '写真指名' : '初回指名'}
+                    </span>
+                    <span className="text-[10px]">
+                      {d.photo === 'なし' ? '指名なし' : d.photo}
+                    </span>
+                  </React.Fragment>
+                ))}
 
-      <span className="text-[8px]">開始</span>
-      <span className="text-[10px]">{table.time.slice(0,5)}</span>
+                <span className="text-[8px]">開始</span>
+                <span className="text-[10px]">{table.time.slice(0,5)}</span>
 
-      {!isInitial && (
-        <>
-          <span className="text-[8px]">予算</span>
-          <span className="text-[10px]">
-            {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
-          </span>
-        </>
-      )}
-    </>
-  ) : (
-    <p className="text-sm mt-5 text-gray-400 text-center">空卓</p>
-  )}
-</div>
-
-
-
+                {!isInitial && (
+                  <>
+                    <span className="text-[8px]">予算</span>
+                    <span className="text-[10px]">
+                      {table.budget === 0 ? '未定' : `${table.budget.toLocaleString()}円`}
+                    </span>
+                  </>
+                )}
+              </>
+            ) : (
+              <p className="text-sm mt-5 text-gray-400 text-center">空卓</p>
+            )}
+          </div>
         </div>
       );
     }),
@@ -157,7 +157,7 @@ export default function TableStatusPage() {
 
   return (
     <>
-      {/* 削除メッセージ */}
+      {/* Delete message overlay */}
       {deleteMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded">
@@ -166,53 +166,83 @@ export default function TableStatusPage() {
         </div>
       )}
 
-      {/* フィルター部 */}
+      {/* Header */}
       <header className="sticky top-0 z-50 bg-white border-b">
-        <div className="container mx-auto px-2 py-3 grid grid-cols-[1fr_auto_1fr] items-baseline">
-          <button
-            onClick={() => setFilter('first')}
-            className={`justify-self-start bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-              filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
-            }`}
-          >
-            初回
-          </button>
-          <h2 className="justify-self-center text-2xl font-bold">卓状況</h2>
-          <div className="flex space-x-1 justify-self-end">
-            <button
-              onClick={() => setFilter('all')}
-              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              全卓
-            </button>
-            <button
-              onClick={() => setFilter('occupied')}
-              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              使用中
-            </button>
-            <button
-              onClick={() => setFilter('empty')}
-              className={`bg-gray-100 rounded-full px-1 py-0.5 text-xs ${
-                filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              空卓
-            </button>
+        <div className="container mx-auto px-2 py-3">
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-2xl font-bold">卓状況</h2>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setView('list')}
+                className={`px-3 py-1 rounded ${
+                  view === 'list' ? 'bg-blue-500 text-white' : 'bg-gray-100'
+                }`}
+              >
+                リスト
+              </button>
+              <button
+                onClick={() => setView('map')}
+                className={`px-3 py-1 rounded ${
+                  view === 'map' ? 'bg-blue-500 text-white' : 'bg-gray-100'
+                }`}
+              >
+                マップ
+              </button>
+            </div>
           </div>
+          
+          {/* Filters - only show in list view */}
+          {view === 'list' && (
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setFilter('all')}
+                className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
+                  filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
+                }`}
+              >
+                全卓
+              </button>
+              <button
+                onClick={() => setFilter('occupied')}
+                className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
+                  filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
+                }`}
+              >
+                使用中
+              </button>
+              <button
+                onClick={() => setFilter('empty')}
+                className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
+                  filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
+                }`}
+              >
+                空卓
+              </button>
+              <button
+                onClick={() => setFilter('first')}
+                className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
+                  filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
+                }`}
+              >
+                初回
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
-      {/* 本文部 */}
-      <main id="main-content" className="overflow-x-hidden container mx-auto px-2 py-2 grid grid-cols-3 gap-3">
-        {renderedTables}
+      {/* Main content */}
+      <main id="main-content" className="container mx-auto px-2 py-4">
+        {view === 'map' ? (
+          <TableMapView />
+        ) : (
+          <div className="grid grid-cols-3 gap-3">
+            {renderedTables}
+          </div>
+        )}
       </main>
 
-      {/* 詳細モーダル */}
+      {/* Detail modal - remains unchanged */}
       {detailModalOpen && selectedTable && (
         <div role="dialog" aria-modal="true" className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4">
           <div className="bg-white w-full h-full max-w-lg rounded shadow-lg overflow-auto relative">
@@ -222,7 +252,6 @@ export default function TableStatusPage() {
             >
               &times;
             </button>
-            {/* 詳細備考は後で実装 */}
           </div>
         </div>
       )}
