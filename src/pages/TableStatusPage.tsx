@@ -48,7 +48,7 @@ export default function TableStatusPage() {
     return () => clearTimeout(h);
   }, [deleteMessage]);
 
-  // フィルタリング
+  // テーブルリストのフィルタリング
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
@@ -78,7 +78,7 @@ export default function TableStatusPage() {
     setSelectedTable(null);
   }, []);
 
-  // カード描画
+  // リストビュー用カード描画
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => {
       const isInitial = firstLabels[table.tableNumber] === '初回';
@@ -113,14 +113,12 @@ export default function TableStatusPage() {
               </button>
             )}
           </div>
-
           {/* 詳細部 */}
           <div className="p-1 flex-grow grid grid-cols-[6ch_1fr] gap-x-2 gap-y-0.5 items-baseline">
             {table.princess ? (
               <>
                 <span className="text-[8px]">姫名</span>
                 <span className="text-[10px]">{table.princess}</span>
-
                 {isInitial && table.initialDetails?.map((d, i) => (
                   <React.Fragment key={i}>
                     <span className="text-[8px]">
@@ -131,10 +129,8 @@ export default function TableStatusPage() {
                     </span>
                   </React.Fragment>
                 ))}
-
                 <span className="text-[8px]">開始</span>
                 <span className="text-[10px]">{table.time.slice(0,5)}</span>
-
                 {!isInitial && (
                   <>
                     <span className="text-[8px]">予算</span>
@@ -156,7 +152,7 @@ export default function TableStatusPage() {
 
   return (
     <>
-      {/* Delete message overlay */}
+      {/* 削除メッセージ */}
       {deleteMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded">
@@ -165,7 +161,7 @@ export default function TableStatusPage() {
         </div>
       )}
 
-      {/* Header */}
+      {/* ヘッダー */}
       <header className="sticky top-0 z-50 bg-white border-b">
         <div className="container mx-auto px-2 py-3 flex justify-between items-center">
           <h2 className="text-2xl font-bold">卓状況</h2>
@@ -222,10 +218,13 @@ export default function TableStatusPage() {
         )}
       </header>
 
-      {/* Main content */}
+      {/* メインコンテンツ */}
       <main id="main-content" className="container mx-auto px-2 py-4">
         {view === 'map' ? (
-          <TableMapView tables={tables} storeId="rberu-sapporo" />
+          <TableMapView
+            tables={filteredTables}
+            storeId="rberu-sapporo"
+          />
         ) : (
           <div className="grid grid-cols-3 gap-3">
             {renderedTables}
@@ -233,7 +232,7 @@ export default function TableStatusPage() {
         )}
       </main>
 
-      {/* Detail modal */}
+      {/* 詳細モーダル */}
       {detailModalOpen && selectedTable && (
         <div role="dialog" aria-modal="true" className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4">
           <div className="bg-white w-full h-full max-w-lg rounded shadow-lg overflow-auto relative">
