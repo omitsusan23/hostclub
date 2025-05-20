@@ -17,7 +17,7 @@ export default function TableMapView() {
   const { state } = useAppContext()
   const { tables, tableSettings } = state
 
-  if (settings.length === 0) {
+  if (tableSettings.length === 0) {
     return <p className="text-gray-500">マップレイアウト用の設定がありません。</p>
   }
 
