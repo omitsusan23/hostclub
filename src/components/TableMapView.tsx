@@ -1,3 +1,4 @@
+// src/components/TableMapView.tsx
 import React, { useEffect, useState } from 'react'
 import type { Table } from '../context/AppContext'
 
@@ -10,10 +11,12 @@ interface MapConfig {
 
 export default function TableMapView({
   tables,
-  storeId
+  storeId,
+  openDetailModal
 }: {
   tables: Table[]
   storeId: string
+  openDetailModal: (table: Table) => void
 }) {
   const [cfg, setCfg] = useState<MapConfig | null>(null)
 
@@ -27,30 +30,29 @@ export default function TableMapView({
 
   return (
     <section
-      className="relative mx-auto"
+      className="relative w-full max-w-screen-md mx-auto bg-no-repeat bg-center bg-contain"
       style={{
-        width: '100%',
-        maxWidth: 800,
-        aspectRatio: '4/3',
-        background: `url(${cfg.background}) no-repeat center/contain`
+        paddingBottom: '75%',           // 4:3 のアスペクト比を維持
+        backgroundImage: `url(${cfg.background})`,
       }}
     >
-      {tables.map(t => {
-        const p = cfg.tables[t.tableNumber]
+      {tables.map(table => {
+        const p = cfg.tables[table.tableNumber]
         if (!p) return null
         return (
           <button
-            key={t.id}
-            className="absolute bg-white border rounded shadow text-sm"
+            key={table.id}
+            className="absolute bg-white border rounded shadow text-sm flex items-center justify-center"
             style={{
-              left:  `${p.x}%`,
-              top:   `${p.y}%`,
-              width: `${p.w}%`,
-              height:`${p.h}%`
+              left:    `${p.x}%`,
+              top:     `${p.y}%`,
+              width:   `${p.w}%`,
+              height:  `${p.h}%`,
+              transform: 'translate(-50%, -50%)',  // 座標をボタン中心に合わせる
             }}
-            onClick={() => {/* 詳細モーダルを開く */}}
+            onClick={() => openDetailModal(table)}
           >
-            {t.tableNumber}
+            {table.tableNumber}
           </button>
         )
       })}
