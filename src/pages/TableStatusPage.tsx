@@ -231,6 +231,16 @@ export default function TableStatusPage() {
         </div>
       </header>
 
+      <main id="main-content" className="container mx-auto px-2 py-4">
+        {view==='map' ? (
+          <TableMapView tables={tables} storeId="rberu-sapporo" />
+        ) : (
+          <div className="grid grid-cols-3 gap-3">
+            {renderedTables}
+          </div>
+        )}
+      </main>
+      
       {/* Main content */}
       <main id="main-content" className="container mx-auto px-2 py-4">
         {view === 'map' ? (
