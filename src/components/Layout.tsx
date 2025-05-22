@@ -1,18 +1,26 @@
 // src/components/Layout.tsx
-import React, { ReactNode } from 'react';
+import React from 'react';
+import Header from './Header';
+import Footer from './Footer';
+import { useStore } from '../context/StoreContext';
 
-type Props = {
-  children: ReactNode;
-};
+interface LayoutProps {
+  children: React.ReactNode;
+}
 
-export const Layout: React.FC<Props> = ({ children }) => {
+const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const { isEmployeeView } = useStore();
+
   return (
-    <div className="container mx-auto">
-      {/* 例：ここにヘッダーを追加してもOK */}
-      <main className="px-4 sm:px-6 md:px-8">
+    <div className="flex flex-col min-h-screen">
+      {/* 従業員画面でのみヘッダー表示 */}
+      {isEmployeeView && <Header />}
+      <main className="flex-grow container mx-auto px-4 py-6">
         {children}
       </main>
-      {/* 例：ここにフッターを追加してもOK */}
+      <Footer />
     </div>
   );
 };
+
+export default Layout;
