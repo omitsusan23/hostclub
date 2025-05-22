@@ -1,13 +1,13 @@
 // .eslintrc.cjs
 module.exports = {
-  root: true,
 
   // 対象外にするパスを追加
   ignorePatterns: [
     'coverage/**',
     'postcss.config.js',
     'tailwind.config.js',
-    'vite.config.ts'
+    'vite.config.ts',
+    'server/**'
   ],
 
   parser: '@typescript-eslint/parser',
