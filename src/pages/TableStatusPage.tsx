@@ -6,15 +6,6 @@ import TableMapView from '../components/TableMapView';
 type Filter = 'all' | 'occupied' | 'empty' | 'first';
 type View = 'list' | 'map';
 
-const positionLabelsByCount: Record<number, string[]> = {
-  1: [],
-  2: ['左', '右'],
-  3: ['左', '中', '右'],
-  4: ['左端', '左', '右', '右端'],
-  5: ['左端', '左', '中', '右', '右端'],
-  6: ['左端', '左中', '左', '右', '右中', '右端'],
-};
-
 export default function TableStatusPage() {
   const { state: { tables, tableSettings }, dispatch } = useAppContext();
   const [filter, setFilter] = useState<Filter>('all');
