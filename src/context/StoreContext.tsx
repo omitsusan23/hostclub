@@ -1,39 +1,55 @@
 // src/context/StoreContext.tsx
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 
-/** 店舗情報の型 */
-interface StoreInfo {
+export interface StoreInfo {
   id: string;
   name: string;
-  isEmployeeView: boolean; // 従業員画面かどうか
 }
 
-/** コンテキストのデフォルト値 */
-const defaultStore: StoreInfo = {
-  id: '',
-  name: '',
+interface StoreContextValue {
+  stores: StoreInfo[];
+  currentStore?: StoreInfo;
+  setCurrentStoreById: (id: string) => void;
+  isEmployeeView: boolean;
+}
+
+const StoreContext = createContext<StoreContextValue>({
+  stores: [],
+  currentStore: undefined,
+  setCurrentStoreById: () => {},
   isEmployeeView: false,
-};
+});
 
-// StoreContext の定義
-const StoreContext = createContext<StoreInfo>(defaultStore);
-
-// プロバイダーコンポーネント
 export const StoreProvider: React.FC<{children: ReactNode}> = ({ children }) => {
-  const [store, setStore] = useState<StoreInfo>(defaultStore);
+  const [stores, setStores] = useState<StoreInfo[]>([]);
+  const [currentStoreId, setCurrentStoreId] = useState<string | undefined>(undefined);
+  const [isEmployeeView, setIsEmployeeView] = useState<boolean>(false);
 
   useEffect(() => {
-    // TODO: API 呼び出しや localStorage から取得
-    // example: ルベルの情報をセット
-    setStore({ id: 'lebel', name: 'ルベル', isEmployeeView: true });
+    // TODO: API から契約店舗一覧を取得
+    const fetched: StoreInfo[] = [
+      { id: 'lebel', name: 'ルベル' },
+      { id: 'second-store', name: '店舗B' },
+      // ...100店舗以上追加
+    ];
+    setStores(fetched);
+    if (fetched.length > 0) setCurrentStoreId(fetched[0].id);
+    // TODO: 従業員ビュー判定も API 等で
+    setIsEmployeeView(true);
   }, []);
 
+  const currentStore = useMemo(
+    () => stores.find((s) => s.id === currentStoreId),
+    [stores, currentStoreId]
+  );
+
+  const setCurrentStoreById = (id: string) => setCurrentStoreId(id);
+
   return (
-    <StoreContext.Provider value={store}>
+    <StoreContext.Provider value={{ stores, currentStore, setCurrentStoreById, isEmployeeView }}>
       {children}
     </StoreContext.Provider>
   );
 };
 
-// カスタムフック
 export const useStore = () => useContext(StoreContext);
