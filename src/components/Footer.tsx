@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 
 const Footer: React.FC = () => {
@@ -11,18 +10,18 @@ const Footer: React.FC = () => {
     <footer className="bg-white shadow p-4 flex justify-around items-center">
       {isEmployee && (
         <>
-          <Link to="/tables">卓状況</Link>
-          <Link to="/reservations">来店予約</Link>
-          <Link to="/casts">キャスト一覧</Link>
-          <Link to="/settings">設定</Link>
+          <a href="/tables">卓状況</a>
+          <a href="/reservations">来店予約</a>
+          <a href="/casts">キャスト一覧</a>
+          <a href="/settings">設定</a>
         </>
       )}
       {isCast && (
         <>
-          <Link to="/tables">卓状況</Link>
-          <Link to="/reservations">来店予約</Link>
-          <Link to="/princesses">姫一覧</Link>
-          <Link to="/mypage">マイページ</Link>
+          <a href="/tables">卓状況</a>
+          <a href="/reservations">来店予約</a>
+          <a href="/princesses">姫一覧</a>
+          <a href="/mypage">マイページ</a>
         </>
       )}
     </footer>
