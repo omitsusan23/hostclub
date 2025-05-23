@@ -1,5 +1,6 @@
 // src/context/StoreContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
+import { getSubdomain } from '../utils/getSubdomain';
 
 export interface StoreInfo {
   id: string;
@@ -28,10 +29,11 @@ export const StoreProvider: React.FC<{children: ReactNode}> = ({ children }) => 
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch('/api/stores');
-        const data: StoreInfo[] = await res.json();
-        setStores(data);
-        if (data.length > 0) setCurrentStoreId(data[0].id);
+        const subdomain = getSubdomain();
+        const res = await fetch(`/api/stores/subdomain/${subdomain}`);
+        const data: StoreInfo = await res.json();
+        setStores([data]);
+        setCurrentStoreId(data.id);
         // TODO: user 情報から従業員ビューを判定
         setIsEmployeeView(true);
       } catch (err) {

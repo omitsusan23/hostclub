@@ -3,12 +3,14 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
 import { useStore } from '../context/StoreContext'
+import { getSubdomain } from '../utils/getSubdomain'
 
 interface Props {
   setCurrentUser: (user: any) => void
 }
 
 export default function AdminDashboard({ setCurrentUser }: Props) {
+  const subdomain = getSubdomain()
   const navigate = useNavigate()
   const { state, dispatch } = useAppContext()
   const { tables, tableSettings = [] } = state
@@ -38,6 +40,7 @@ export default function AdminDashboard({ setCurrentUser }: Props) {
       {currentStore ? (
         <div className="mb-4">
           <p>店舗名: {currentStore.name}</p>
+          <p>サブドメイン: {subdomain}</p>
         </div>
       ) : (
         <p className="text-red-600 mb-4">店舗情報を取得できませんでした。</p>

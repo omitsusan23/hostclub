@@ -2,8 +2,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { useStore } from '../context/StoreContext';
+import { getSubdomain } from '../utils/getSubdomain';
 
 function CastDashboard() {
+  const subdomain = getSubdomain();
   const navigate = useNavigate();
   const { state, dispatch } = useAppContext();
   const { currentStore } = useStore();
@@ -22,6 +24,7 @@ function CastDashboard() {
       {currentStore ? (
         <div className="mb-4">
           <p>店舗名: {currentStore.name}</p>
+          <p>サブドメイン: {subdomain}</p>
         </div>
       ) : (
         <p className="text-red-600">店舗情報を取得できませんでした。</p>
