@@ -18,7 +18,7 @@ export default function MyPage({ setCurrentUser }: MyPageProps) {
     // App.tsx のローカル state をクリア
     setCurrentUser(null)
     // Context state もクリア
-    dispatch({ type: 'SET_USER', payload: null })
+    dispatch({ type: 'LOGOUT' })
     // ログイン画面へリダイレクト
     navigate('/')
   }
