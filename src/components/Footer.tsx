@@ -1,30 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
+import { useAppContext } from '../context/AppContext';
 
 const Footer: React.FC = () => {
-  const { user } = useStore();
-  const isEmployee = user?.role === 'owner' || user?.role === 'operator';
-  const isCast = user?.role === 'cast';
+  const { user: storeUser } = useStore() as any;
+  const { state } = useAppContext();
+
+  useEffect(() => {
+    console.log('storeUser:', storeUser);
+    console.log('appContext currentUser:', state.currentUser);
+  }, [storeUser, state.currentUser]);
 
   return (
     <footer className="bg-white shadow p-4 flex justify-around items-center">
-      {isEmployee && (
-        <>
-          <Link to="/tables">卓状況</Link>
-          <Link to="/reservations">来店予約</Link>
-          <Link to="/casts">キャスト一覧</Link>
-          <Link to="/settings">設定</Link>
-        </>
-      )}
-      {isCast && (
-        <>
-          <Link to="/tables">卓状況</Link>
-          <Link to="/reservations">来店予約</Link>
-          <Link to="/princesses">姫一覧</Link>
-          <Link to="/mypage">マイページ</Link>
-        </>
-      )}
+      フッター（調査中）
     </footer>
   );
 };
