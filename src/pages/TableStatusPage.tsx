@@ -1,7 +1,7 @@
 // src/pages/TableStatusPage.tsx
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
-import TableMapView from '../components/TableMapView';
+//import TableMapView from '../components/TableMapView';
 
 type Filter = 'all' | 'occupied' | 'empty' | 'first';
 type View = 'list' | 'map';
