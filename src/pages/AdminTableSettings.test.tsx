@@ -17,7 +17,7 @@ describe('AdminTableSettings Component', () => {
   beforeEach(() => {
     dispatchMock.mockClear();
     jest.spyOn(AppContext, 'useAppContext').mockReturnValue({
-      state: { tableSettings: [], tables: [], reservations: [], invites: [], casts: [], currentUser: null, layoutMode: 'list' },
+      state: { tableSettings: [], tables: [], reservations: [], currentUser: null },
       dispatch: dispatchMock,
     });
   });
@@ -37,7 +37,7 @@ describe('AdminTableSettings Component', () => {
 
   it('dispatches REMOVE_TABLE_SETTING on delete after confirm', () => {
     jest.spyOn(AppContext, 'useAppContext').mockReturnValue({
-      state: { tableSettings: ['T3'], tables: [], reservations: [], invites: [], casts: [], currentUser: null, layoutMode: 'list' },
+      state: { tableSettings: ['T3'], tables: [], reservations: [], currentUser: null },
       dispatch: dispatchMock,
     });
     window.confirm = jest.fn().mockReturnValue(true);
