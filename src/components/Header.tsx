@@ -2,9 +2,9 @@ import React from 'react';
 import { useStore } from '../context/StoreContext';
 
 const Header: React.FC = () => {
-  const { currentStore, isEmployeeView } = useStore();
+  const { currentStore } = useStore();
 
-  if (!isEmployeeView || !currentStore) return null;
+  if (!currentStore) return null;
 
   return (
     <header className="bg-white shadow p-4 text-xl font-semibold">

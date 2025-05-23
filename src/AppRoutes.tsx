@@ -7,12 +7,13 @@ import TableStatusPage from './pages/TableStatusPage';
 import ReservationPage from './pages/ReservationPage';
 import AdminDashboard from './pages/AdminDashboard';
 import CastDashboard from './pages/CastDashboard';
+import CastListPage from './pages/CastListPage';
+import AdminTableSettings from './pages/AdminTableSettings';
 
 const AppRoutes: React.FC = () => {
   const location = useLocation();
   const { stores, currentStore } = useStore();
   const { state: { currentUser: user } } = useAppContext();
-  const defaultId = stores.length > 0 ? stores[0].id : '';
 
   useEffect(() => {
     console.log('現在のパス:', location.pathname);
@@ -23,20 +24,13 @@ const AppRoutes: React.FC = () => {
 
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          defaultId ? (
-            <Navigate to={`/stores/${defaultId}`} replace />
-          ) : (
-            <div>店舗が見つかりません。管理者にお問い合わせください。</div>
-          )
-        }
-      />
+      <Route path="/" element={<Navigate to="/tables" replace />} />
       <Route path="/stores/:subdomain" element={<AdminDashboard />} />
       <Route path="/cast/:subdomain" element={<CastDashboard />} />
       <Route path="/tables" element={<TableStatusPage />} />
       <Route path="/reservations" element={<ReservationPage />} />
+      <Route path="/casts" element={<CastListPage />} />
+      <Route path="/settings" element={<AdminTableSettings />} />
     </Routes>
   );
 };

@@ -8,7 +8,7 @@ type TableSetting = string;
 
 interface AdminTableSettingsProps {
   /** AppInner から渡される、AppInner の currentUser state をクリアするための関数 */
-  setCurrentUser: (user: User | null) => void;
+  setCurrentUser?: (user: User | null) => void;
 }
 
 const AdminTableSettings: React.FC<AdminTableSettingsProps> = ({ setCurrentUser }) => {
@@ -25,7 +25,7 @@ const AdminTableSettings: React.FC<AdminTableSettingsProps> = ({ setCurrentUser 
   // ログアウト
   const handleLogout = useCallback(() => {
     // AppInner のローカル currentUser state をクリア
-    setCurrentUser(null);
+    setCurrentUser?.(null);
     // Context 側にもユーザー情報をクリア
     dispatch({ type: 'SET_USER', payload: null });
     // ログイン画面へリダイレクト（履歴を置き換え）
