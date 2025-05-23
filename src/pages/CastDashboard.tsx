@@ -14,7 +14,8 @@ function CastDashboard({ user, setCurrentUser }: CastDashboardProps) {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    fetch('/api/stores/001')
+    const subdomain = window.location.hostname.split('.')[0];
+    fetch(`/api/stores/subdomain/${subdomain}`)
       .then((res) => res.json())
       .then((data) => {
         setStore(data);
