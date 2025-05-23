@@ -1,7 +1,6 @@
 // src/pages/CastListPage.tsx
 
 import React, { useState, useEffect, useRef } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 
 interface Invite {
@@ -11,7 +10,6 @@ interface Invite {
 }
 
 export default function CastListPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
   const [invites, setInvites] = useState<Invite[]>(() => {
     const saved = localStorage.getItem('invites')
     return saved ? JSON.parse(saved) : []
@@ -19,13 +17,6 @@ export default function CastListPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const firstShareButtonRef = useRef<HTMLButtonElement>(null)
 
-  // URLクエリに ?openModal=true があればモーダルを開く
-  useEffect(() => {
-    if (searchParams.get('openModal') === 'true') {
-      setModalOpen(true)
-      setSearchParams({})
-    }
-  }, [searchParams, setSearchParams])
 
   // invites を localStorage に永続化
   useEffect(() => {
@@ -92,9 +83,15 @@ export default function CastListPage() {
   return (
     <div className="p-4 pb-16">
       {/* 見出し */}
-      <h2 className="text-2xl font-bold mb-4 text-center">
-        在籍キャスト一覧
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl font-bold text-center flex-grow">在籍キャスト一覧</h2>
+        <button
+          onClick={() => setModalOpen(true)}
+          className="ml-2 px-3 py-1 bg-blue-500 text-white rounded"
+        >
+          追加
+        </button>
+      </div>
 
       {/* 発行済みリンク一覧 */}
       <ul className="space-y-4">

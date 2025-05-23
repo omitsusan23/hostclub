@@ -6,7 +6,7 @@ import React, {
   type ChangeEvent,
   type KeyboardEvent,
 } from 'react'
-import { useAppContext, type Reservation, type User } from '../context/AppContext'
+import { useAppContext, type Reservation } from '../context/AppContext'
 
 // 19:00～25:00 を15分刻みで生成
 const generateTimeOptions = (): string[] => {
@@ -23,18 +23,9 @@ const generateTimeOptions = (): string[] => {
 }
 const timeOptions = generateTimeOptions()
 
-interface Props {
-  isOpen: boolean
-  onClose: () => void
-  currentUser: User | null
-}
-
-export default function ReservationPage({
-  isOpen,
-  onClose,
-  currentUser,
-}: Props) {
+export default function ReservationPage() {
   const { state, dispatch } = useAppContext()
+  const currentUser = state.currentUser
   const { reservations, tableSettings = [], tables } = state
 
   // 使用中の卓番号リスト
@@ -48,6 +39,7 @@ export default function ReservationPage({
     'undecided'
   )
   const [budget, setBudget] = useState<number | ''>('')
+  const [isOpen, setIsOpen] = useState(false)
   const [errors, setErrors] = useState<{
     princess?: string
     budget?: string
@@ -66,7 +58,7 @@ export default function ReservationPage({
 
   // ESC で閉じる
   const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
-    if (e.key === 'Escape') onClose()
+    if (e.key === 'Escape') setIsOpen(false)
   }
 
   // 卓反映モーダル state
@@ -107,7 +99,7 @@ export default function ReservationPage({
     setBudgetMode('undecided')
     setBudget('')
     setErrors({})
-    onClose()
+    setIsOpen(false)
   }
 
   // 予約削除（確認＋メッセージ）
@@ -206,7 +198,15 @@ export default function ReservationPage({
         className="p-4 pb-16"
         onKeyDown={handleKeyDown}
       >
-        <h2 className="text-2xl font-bold mb-4 text-center">来店予約表</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-center flex-grow">来店予約表</h2>
+          <button
+            onClick={() => setIsOpen(true)}
+            className="ml-2 px-3 py-1 bg-blue-500 text-white rounded"
+          >
+            追加
+          </button>
+        </div>
 
         {/* 追加モーダル */}
         {isOpen && (
@@ -294,7 +294,7 @@ export default function ReservationPage({
 
               <div className="flex justify-end space-x-2">
                 <button
-                  onClick={onClose}
+                  onClick={() => setIsOpen(false)}
                   className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
                 >
                   キャンセル
