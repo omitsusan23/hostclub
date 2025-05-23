@@ -1,106 +1,33 @@
-// src/components/Footer.tsx
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAppContext } from '../context/AppContext';
 
-import React from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-
-interface FooterProps {
-  currentUser: { role: string } | null
-  onOpenAddReservation: () => void
-  onOpenFirst: () => void
-}
-
-export default function Footer({
-  currentUser,
-  onOpenAddReservation,
-  onOpenFirst,
-}: FooterProps) {
-  const loc = useLocation()
-  const navigate = useNavigate()
-  const isReservations = loc.pathname === '/reservations'
-  const isTableStatus  = loc.pathname === '/table-status'
-  const isCastList     = loc.pathname === '/cast-list'
+const Footer: React.FC = () => {
+  const { state } = useAppContext();
+  const user = state.currentUser;
+  const isEmployee = user?.role === 'owner' || user?.role === 'operator';
+  const isCast = user?.role === 'cast';
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 bg-gray-100 border-t py-2 flex justify-around">
-      {/* 初回モーダルを開く（常に左端） */}
-      <button
-        onClick={onOpenFirst}
-        className="text-blue-600 hover:underline"
-      >
-        初回
-      </button>
-
-      {/* 卓状況リンク */}
-      <Link
-        to="/table-status"
-        className={`text-blue-600 hover:underline ${isTableStatus ? 'font-bold' : ''}`}
-      >
-        卓状況
-      </Link>
-
-      {/* 来店予約追加 or 来店予約ページ */}
-      {isReservations ? (
-        <button
-          onClick={onOpenAddReservation}
-          className="text-blue-600 hover:underline"
-        >
-          追加
-        </button>
-      ) : (
-        <Link
-          to="/reservations"
-          className={`text-blue-600 hover:underline ${isReservations ? 'font-bold' : ''}`}
-        >
-          来店予約
-        </Link>
-      )}
-
-      {/* 管理者のみ：キャスト一覧 ⇔ 招待リンク発行 */}
-      {currentUser?.role === 'admin' && (
+    <footer className="bg-white shadow p-4 flex justify-around items-center">
+      {isEmployee && (
         <>
-          {isCastList ? (
-            <button
-              onClick={() =>
-                navigate({ pathname: '/cast-list', search: '?openModal=true' })
-              }
-              className="text-blue-600 hover:underline font-bold"
-            >
-              招待リンク発行
-            </button>
-          ) : (
-            <Link
-              to="/cast-list"
-              className="text-blue-600 hover:underline"
-            >
-              キャスト一覧
-            </Link>
-          )}
-          <Link
-            to="/admin-settings"
-            className="text-blue-600 hover:underline"
-          >
-            設定
-          </Link>
+          <Link to="/tables">卓状況</Link>
+          <Link to="/reservations">来店予約</Link>
+          <Link to="/casts">キャスト一覧</Link>
+          <Link to="/settings">設定</Link>
         </>
       )}
-
-      {/* キャストユーザーのみ：姫一覧・マイページ */}
-      {currentUser?.role === 'cast' && (
+      {isCast && (
         <>
-          <Link
-            to="/cast/princesses"
-            className="text-blue-600 hover:underline"
-          >
-            姫一覧
-          </Link>
-          <Link
-            to="/my-page"
-            className="text-blue-600 hover:underline"
-          >
-            マイページ
-          </Link>
+          <Link to="/tables">卓状況</Link>
+          <Link to="/reservations">来店予約</Link>
+          <Link to="/princesses">姫一覧</Link>
+          <Link to="/mypage">マイページ</Link>
         </>
       )}
     </footer>
-  )
-}
+  );
+};
+
+export default Footer;
