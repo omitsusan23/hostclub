@@ -86,7 +86,7 @@ export default function ReservationPage() {
     dispatch({
       type: 'ADD_RESERVATION',
       payload: {
-        id: Date.now(),
+        id: Date.now().toString(),
         princess: princess.trim(),
         requestedTable: requestedTable.trim(),
         time: plannedTime,
@@ -103,7 +103,7 @@ export default function ReservationPage() {
   }
 
   // 予約削除（確認＋メッセージ）
-  const handleReservationDelete = (id: number, name: string) => {
+  const handleReservationDelete = (id: string, name: string) => {
     if (!window.confirm(`本当に ${name} さんの予約を削除しますか？`)) return
     dispatch({ type: 'DELETE_RESERVATION', payload: id })
     setDeleteMessage(`${name} さんの予約を削除しました`)

@@ -7,14 +7,14 @@ export interface User {
   username: string;
   role: Role;
   /**
-   * Optional flag used on the reservation page to determine
-   * whether the user can reflect reservations onto tables.
+   * Flag used on the reservation page to determine whether the
+   * user can reflect reservations onto tables.
    */
-  canManageTables?: boolean;
+  canManageTables: boolean;
 }
 
 export interface Reservation {
-  id: number;
+  id: string;
   princess: string;
   requestedTable: string;
   time: string;
@@ -46,11 +46,11 @@ type Action =
   | { type: 'ADD_TABLE_SETTING'; payload: string }
   | { type: 'REMOVE_TABLE_SETTING'; payload: string }
   | { type: 'ADD_RESERVATION'; payload: Reservation }
-  | { type: 'DELETE_RESERVATION'; payload: number }
+  | { type: 'DELETE_RESERVATION'; payload: string }
   | {
       type: 'ASSIGN_TABLE';
       payload: {
-        id: number;
+        id: string;
         requestedTable: string;
         princess: string;
         budget: number;
@@ -62,6 +62,7 @@ const initialState: AppState = {
   currentUser: {
     username: 'admin',
     role: 'owner', // 初期値。必要に応じて 'cast' などに変更
+    canManageTables: true,
   },
   tables: [],
   tableSettings: [],
@@ -116,7 +117,7 @@ const reducer = (state: AppState, action: Action): AppState => {
         tables: [
           ...state.tables,
           {
-            id: String(action.payload.id),
+            id: action.payload.id,
             tableNumber: action.payload.requestedTable,
             princess: action.payload.princess,
             budget: action.payload.budget,

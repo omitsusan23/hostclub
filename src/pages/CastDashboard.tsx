@@ -10,7 +10,7 @@ function CastDashboard() {
   const user = state.currentUser;
 
   const handleLogout = () => {
-    dispatch({ type: 'SET_USER', payload: null });
+    dispatch({ type: 'LOGOUT' });
     navigate('/');
   };
 

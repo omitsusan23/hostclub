@@ -60,7 +60,7 @@ export default function ReservationPage({ isOpen, onClose, currentUser }: Props)
     dispatch({
       type: 'ADD_RESERVATION',
       payload: {
-        id: Date.now(),
+        id: Date.now().toString(),
         princess: princess.trim(),
         requestedTable: requestedTable.trim(),
         budget: Number(budget),

@@ -27,7 +27,7 @@ const AdminTableSettings: React.FC<AdminTableSettingsProps> = ({ setCurrentUser 
     // AppInner のローカル currentUser state をクリア
     setCurrentUser?.(null);
     // Context 側にもユーザー情報をクリア
-    dispatch({ type: 'SET_USER', payload: null });
+    dispatch({ type: 'LOGOUT' });
     // ログイン画面へリダイレクト（履歴を置き換え）
     navigate('/', { replace: true });
   }, [setCurrentUser, dispatch, navigate]);
