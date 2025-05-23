@@ -26,16 +26,18 @@ export const StoreProvider: React.FC<{children: ReactNode}> = ({ children }) => 
   const [isEmployeeView, setIsEmployeeView] = useState<boolean>(false);
 
   useEffect(() => {
-    // TODO: API から契約店舗一覧を取得
-    const fetched: StoreInfo[] = [
-      { id: 'lebel', name: 'ルベル' },
-      { id: 'second-store', name: '店舗B' },
-      // ...100店舗以上追加
-    ];
-    setStores(fetched);
-    if (fetched.length > 0) setCurrentStoreId(fetched[0].id);
-    // TODO: 従業員ビュー判定も API 等で
-    setIsEmployeeView(true);
+    (async () => {
+      try {
+        const res = await fetch('/api/stores');
+        const data: StoreInfo[] = await res.json();
+        setStores(data);
+        if (data.length > 0) setCurrentStoreId(data[0].id);
+        // TODO: user 情報から従業員ビューを判定
+        setIsEmployeeView(true);
+      } catch (err) {
+        console.error('Failed to fetch stores', err);
+      }
+    })();
   }, []);
 
   const currentStore = useMemo(

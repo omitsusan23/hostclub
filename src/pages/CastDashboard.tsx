@@ -1,48 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { StoreInfo } from '../context/StoreContext';
+import { useAppContext } from '../context/AppContext';
+import { useStore } from '../context/StoreContext';
 
-interface CastDashboardProps {
-  user: { username: string; role: string };
-  setCurrentUser: (user: null) => void;
-}
-
-function CastDashboard({ user, setCurrentUser }: CastDashboardProps) {
+function CastDashboard() {
   const navigate = useNavigate();
-
-  const [store, setStore] = useState<StoreInfo | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const subdomain = window.location.hostname.split('.')[0];
-    fetch(`/api/stores/subdomain/${subdomain}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setStore(data);
-      })
-      .catch((err) => {
-        console.error('Failed to fetch store', err);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  const { state, dispatch } = useAppContext();
+  const { currentStore } = useStore();
+  const user = state.currentUser;
 
   const handleLogout = () => {
-    // 親コンポーネントの setCurrentUser を呼び出し
-    setCurrentUser(null);
+    dispatch({ type: 'SET_USER', payload: null });
     navigate('/');
   };
 
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">キャストダッシュボード</h1>
-      <p>ようこそ、{user.username}さん（{user.role}）</p>
+      <p>ようこそ、{user?.username}さん（{user?.role}）</p>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : store ? (
+      {currentStore ? (
         <div className="mb-4">
-          <p>店舗名: {store.name}</p>
-          <p>テーブル数: {store.tableCount}</p>
+          <p>店舗名: {currentStore.name}</p>
         </div>
       ) : (
         <p className="text-red-600">店舗情報を取得できませんでした。</p>
