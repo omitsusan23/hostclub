@@ -10,12 +10,14 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
     strictPort: true,
-    // 追加：外部トンネル経由のホスト名をすべて許可
     allowedHosts: 'all',
     hmr: {
       host: '0.0.0.0',
       port: 5173,
       protocol: 'ws',
+    },
+    proxy: {
+      '/api': 'http://localhost:3001',
     },
   },
 })
