@@ -1,7 +1,8 @@
 // src/pages/AdminDashboard.tsx
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
+import { StoreInfo } from '../context/StoreContext'
 
 interface Props {
   setCurrentUser: (user: any) => void
@@ -11,6 +12,21 @@ export default function AdminDashboard({ setCurrentUser }: Props) {
   const navigate = useNavigate()
   const { state, dispatch } = useAppContext()
   const { tables, tableSettings = [] } = state
+
+  const [store, setStore] = useState<StoreInfo | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
+
+  useEffect(() => {
+    fetch('/api/stores/001')
+      .then((res) => res.json())
+      .then((data) => {
+        setStore(data)
+      })
+      .catch((err) => {
+        console.error('Failed to fetch store', err)
+      })
+      .finally(() => setLoading(false))
+  }, [])
 
   // テーブル設定用 state (テスト用)
   const [newTable, setNewTable] = useState('')
@@ -32,6 +48,17 @@ export default function AdminDashboard({ setCurrentUser }: Props) {
           ログアウト
         </button>
       </div>
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : store ? (
+        <div className="mb-4">
+          <p>店舗名: {store.name}</p>
+          <p>テーブル数: {store.tableCount}</p>
+        </div>
+      ) : (
+        <p className="text-red-600 mb-4">店舗情報を取得できませんでした。</p>
+      )}
 
       <h2 className="text-xl font-semibold mb-2">卓状況</h2>
       {tables.length === 0 ? (
