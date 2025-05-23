@@ -1,7 +1,6 @@
 // src/pages/TableStatusPage.tsx
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
-import TableMapView from '../components/TableMapView';
 
 type Filter = 'all' | 'occupied' | 'empty' | 'first';
 
@@ -35,6 +34,14 @@ export default function TableStatusPage() {
   }, [deleteMessage]);
 
   const filteredTables: Table[] = useMemo(() => {
+    const generateEmptyTable = (n: string) => ({
+      id: `${Date.now()}-${n}`,
+      tableNumber: n,
+      princess: '',
+      budget: 0,
+      time: ''
+    });
+
     switch (filter) {
       case 'occupied':
         return tables;
@@ -43,24 +50,12 @@ export default function TableStatusPage() {
       case 'empty':
         return tableSettings
           .filter(n => !tables.some(t => t.tableNumber === n))
-          .map(n => ({
-            id: `${Date.now()}-${n}`,
-            tableNumber: n,
-            princess: '',
-            budget: 0,
-            time: ''
-          }));
+          .map(generateEmptyTable);
       case 'all':
       default:
         const empty = tableSettings
           .filter(n => !tables.some(t => t.tableNumber === n))
-          .map(n => ({
-            id: `${Date.now()}-${n}`,
-            tableNumber: n,
-            princess: '',
-            budget: 0,
-            time: ''
-          }));
+          .map(generateEmptyTable);
         return [...tables, ...empty];
     }
   }, [filter, tables, tableSettings, firstLabels]);
@@ -146,47 +141,40 @@ export default function TableStatusPage() {
         <div className="container mx-auto px-2 py-3">
           <h2 className="text-2xl font-bold">卓状況</h2>
         </div>
-        {view === 'list' && (
-          <div className="container mx-auto px-2 py-1 flex space-x-2">
-            <button
-              onClick={() => setFilter('all')}
-              className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
-                filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              全卓
-            </button>
-            <button
-              onClick={() => setFilter('occupied')}
-              className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
-                filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              使用中
-            </button>
-            <button
-              onClick={() => setFilter('empty')}
-              className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
-                filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              空卓
-            </button>
-            <button
-              onClick={() => setFilter('first')}
-              className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
-                filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              初回
-            </button>
-          </div>
+        <div className="container mx-auto px-2 py-1 flex space-x-2">
+          <button
+            onClick={() => setFilter('all')}
+            className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${filter === 'all' ? 'font-bold text-black' : 'text-gray-700'}`}
+          >
+            全卓
+          </button>
+          <button
+            onClick={() => setFilter('occupied')}
+            className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'}`}
+          >
+            使用中
+          </button>
+          <button
+            onClick={() => setFilter('empty')}
+            className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'}`}
+          >
+            空卓
+          </button>
+          <button
+            onClick={() => setFilter('first')}
+            className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${filter === 'first' ? 'font-bold text-black' : 'text-gray-700'}`}
+          >
+            初回
+          </button>
+        </div>
       </header>
+
       <main id="main-content" className="container mx-auto px-2 py-4">
         <div className="grid grid-cols-3 gap-3">
           {renderedTables}
         </div>
       </main>
+
       {detailModalOpen && selectedTable && (
         <div role="dialog" aria-modal="true" className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4">
           <div className="bg-white w-full h-full max-w-lg rounded shadow-lg overflow-auto relative">
