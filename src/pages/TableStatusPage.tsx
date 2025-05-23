@@ -1,15 +1,11 @@
 // src/pages/TableStatusPage.tsx
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
-import TableMapView from '../components/TableMapView';
-
 type Filter = 'all' | 'occupied' | 'empty' | 'first';
-type View = 'list' | 'map';
 
 export default function TableStatusPage() {
   const { state: { tables, tableSettings }, dispatch } = useAppContext();
   const [filter, setFilter] = useState<Filter>('all');
-  const [view, setView] = useState<View>('list');
   const [deleteMessage, setDeleteMessage] = useState('');
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
@@ -154,33 +150,18 @@ export default function TableStatusPage() {
 
       {/* ヘッダー */}
       <header className="sticky top-0 z-50 bg-white border-b">
-        <div className="container mx-auto px-2 py-3 flex justify-between items-center">
+        <div className="container mx-auto px-2 py-3">
           <h2 className="text-2xl font-bold">卓状況</h2>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setView('list')}
-              className={`px-3 py-1 rounded ${view === 'list' ? 'bg-blue-500 text-white' : 'bg-gray-100'}`}
-            >
-              リスト
-            </button>
-            <button
-              onClick={() => setView('map')}
-              className={`px-3 py-1 rounded ${view === 'map' ? 'bg-blue-500 text-white' : 'bg-gray-100'}`}
-            >
-              マップ
-            </button>
-          </div>
         </div>
-        {view === 'list' && (
-          <div className="container mx-auto px-2 py-1 flex space-x-2">
-            <button
-              onClick={() => setFilter('all')}
-              className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
-                filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              全卓
-            </button>
+        <div className="container mx-auto px-2 py-1 flex space-x-2">
+          <button
+            onClick={() => setFilter('all')}
+            className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
+              filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
+            }`}
+          >
+            全卓
+          </button>
             <button
               onClick={() => setFilter('occupied')}
               className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
@@ -206,21 +187,13 @@ export default function TableStatusPage() {
               初回
             </button>
           </div>
-        )}
       </header>
 
       {/* メインコンテンツ */}
       <main id="main-content" className="container mx-auto px-2 py-4">
-        {view === 'map' ? (
-          <TableMapView
-            tables={filteredTables}
-            storeId="rberu-sapporo"
-          />
-        ) : (
-          <div className="grid grid-cols-3 gap-3">
-            {renderedTables}
-          </div>
-        )}
+        <div className="grid grid-cols-3 gap-3">
+          {renderedTables}
+        </div>
       </main>
 
       {/* 詳細モーダル */}
