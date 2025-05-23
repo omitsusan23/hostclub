@@ -12,7 +12,6 @@ const AppRoutes: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<Navigate to={`/stores/${defaultId}`} replace />} />
-      <Route path="/stores/:storeId" element={<StoreDashboard />} />
       {/* 他の店舗固有ページは必要に応じて追加 */}
       <Route path="/tables" element={<TableStatusPage />} />
       <Route path="/reservations" element={<ReservationPage />} />
