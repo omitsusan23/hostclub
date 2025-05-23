@@ -1,14 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// 仮のユーザー一覧（canManageTables を追加）
-const mockUsers = [
-  { id: 1, username: 'owner', password: '1234', role: 'admin', canManageTables: true },
-  { id: 2, username: 'cast1', password: '5678', role: 'cast', canManageTables: false },
-];
-
 interface LoginProps {
-  setCurrentUser: (user: typeof mockUsers[number] | null) => void;
+  setCurrentUser: (user: any) => void;
 }
 
 function Login({ setCurrentUser }: LoginProps) {
@@ -17,24 +11,24 @@ function Login({ setCurrentUser }: LoginProps) {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    const foundUser = mockUsers.find(
-      (user) => user.username === username && user.password === password
-    );
-
-    if (!foundUser) {
+  const handleLogin = async () => {
+    setError('');
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      if (!res.ok) throw new Error('login failed');
+      const user = await res.json();
+      setCurrentUser(user);
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/cast');
+      }
+    } catch {
       setError('ユーザー名またはパスワードが間違っています。');
-      return;
-    }
-
-    // 親コンポーネントにログイン情報を渡す
-    setCurrentUser(foundUser);
-
-    // ロールに応じて遷移
-    if (foundUser.role === 'admin') {
-      navigate('/admin');
-    } else {
-      navigate('/cast');
     }
   };
 
