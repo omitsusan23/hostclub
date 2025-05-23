@@ -25,6 +25,15 @@ app.get('/api/stores/:id', (req, res) => {
   res.json(store);
 });
 
+// Returns store by subdomain
+app.get('/api/stores/subdomain/:subdomain', (req, res) => {
+  const store = storesData.find((s) => s.subdomain === req.params.subdomain);
+  if (!store) {
+    return res.status(404).json({ error: 'Store not found' });
+  }
+  res.json(store);
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`API server listening on port ${PORT}`);
