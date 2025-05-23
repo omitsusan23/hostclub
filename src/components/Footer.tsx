@@ -1,10 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAppContext } from '../context/AppContext';
+import { useStore } from '../context/StoreContext';
 
 const Footer: React.FC = () => {
-  const { state } = useAppContext();
-  const user = state.currentUser;
+  const { user } = useStore();
   const isEmployee = user?.role === 'owner' || user?.role === 'operator';
   const isCast = user?.role === 'cast';
 
