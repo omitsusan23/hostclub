@@ -1,3 +1,4 @@
+console.log('StoreProvider is mounted');
 // src/context/StoreContext.tsx
 import React, {
   createContext,
