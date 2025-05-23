@@ -1,190 +1,87 @@
 // src/context/AppContext.tsx
+import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 
-import React, { createContext, useReducer, useContext, ReactNode, useEffect } from 'react';
+type Role = 'owner' | 'operator' | 'cast';
 
-// ─── 型定義 ────────────────────────────────────────
-export type User = {
-  id: number;
+export interface User {
   username: string;
-  role: 'admin' | 'cast';
-  canManageTables?: boolean;
-};
+  role: Role;
+}
 
-export type Reservation = {
-  id: number;
-  princess: string;
-  requestedTable: string;
-  budget: number;
-};
-
-export type InitialDetail = {
-  name: string;
-  type: string;    // '初回' or '初回指名'
-  photo: string;   // キャスト名 or 'なし'
-};
-
-export type Table = {
-  id: number;
+export interface Table {
+  id: string;
   tableNumber: string;
   princess: string;
   budget: number;
   time: string;
-  initialDetails?: InitialDetail[];  // ← 追加
-};
-
-export type Invite = {
-  id: string;
-  token: string;
-  createdAt: string;
-};
-
-export type Cast = {
-  id: number;
-  name: string;
-  status: 'active' | 'paused';
-};
-
-export type LayoutMode = 'list' | 'map';
-export type TableSetting = string;
-
-export interface State {
-  currentUser: User | null;
-  reservations: Reservation[];
-  tables: Table[];
-  invites: Invite[];
-  casts: Cast[];
-  tableSettings: TableSetting[];
-  layoutMode: LayoutMode;
 }
 
-export type Action =
-  | { type: 'SET_USER'; payload: User | null }
-  | { type: 'ADD_RESERVATION'; payload: Reservation }
-  | { type: 'DELETE_RESERVATION'; payload: number }
-  | { type: 'ASSIGN_TABLE'; payload: Reservation & { initialDetails?: InitialDetail[] } }  // ← 修正
-  | { type: 'DELETE_TABLE'; payload: number }
-  | { type: 'ADD_INVITE'; payload: Invite }
-  | { type: 'REVOKE_INVITE'; payload: string }
-  | { type: 'ADD_CAST'; payload: Cast }
-  | { type: 'TOGGLE_CAST_STATUS'; payload: number }
-  | { type: 'DELETE_CAST'; payload: number }
-  | { type: 'ADD_TABLE_SETTING'; payload: TableSetting }
-  | { type: 'REMOVE_TABLE_SETTING'; payload: TableSetting }
-  | { type: 'SET_LAYOUT_MODE'; payload: LayoutMode };
+interface AppState {
+  currentUser: User | null;
+  tables: Table[];
+  tableSettings: string[];
+}
 
-// ─── 安全に JSON.parse ─────────────────────────────────
-const safeParse = <T,>(key: string, fallback: T): T => {
-  const item = localStorage.getItem(key);
-  try {
-    return item ? JSON.parse(item) : fallback;
-  } catch {
-    return fallback;
-  }
+type Action =
+  | { type: 'SET_USER'; payload: User }
+  | { type: 'LOGOUT' }
+  | { type: 'ADD_TABLE'; payload: Table }
+  | { type: 'DELETE_TABLE'; payload: string }
+  | { type: 'ADD_TABLE_SETTING'; payload: string }
+  | { type: 'REMOVE_TABLE_SETTING'; payload: string };
+
+const initialState: AppState = {
+  currentUser: {
+    username: 'admin',
+    role: 'owner', // 初期値。必要に応じて 'cast' などに変更
+  },
+  tables: [],
+  tableSettings: [],
 };
 
-// ─── 初期 State ───────────────────────────────────────
-const initialState: State = {
-  currentUser: safeParse<User | null>('user', null),
-  reservations: safeParse<Reservation[]>('reservations', []),
-  tables: safeParse<Table[]>('tables', []),
-  invites: safeParse<Invite[]>('invites', []),
-  casts: safeParse<Cast[]>('casts', []),
-  tableSettings: safeParse<TableSetting[]>('tableSettings', []),
-  layoutMode: ['list', 'map'].includes(localStorage.getItem('layoutMode') || '')
-    ? (localStorage.getItem('layoutMode') as LayoutMode)
-    : 'list',
-};
+const AppContext = createContext<{
+  state: AppState;
+  dispatch: React.Dispatch<Action>;
+}>({
+  state: initialState,
+  dispatch: () => null,
+});
 
-// ─── Reducer ─────────────────────────────────────────
-function reducer(state: State, action: Action): State {
+const reducer = (state: AppState, action: Action): AppState => {
   switch (action.type) {
     case 'SET_USER':
       return { ...state, currentUser: action.payload };
-
-    case 'ADD_RESERVATION':
-      return { ...state, reservations: [action.payload, ...state.reservations] };
-
-    case 'DELETE_RESERVATION':
-      return {
-        ...state,
-        reservations: state.reservations.filter((r) => r.id !== action.payload),
-      };
-
-    case 'ASSIGN_TABLE': {
-      const { requestedTable, princess, budget } = action.payload;
-      const newTable: Table = {
-        id: Date.now(),
-        tableNumber: requestedTable,
-        princess,
-        budget,
-        time: new Date().toLocaleTimeString(),
-        initialDetails: action.payload.initialDetails,  // ← 追加
-      };
-      return { ...state, tables: [newTable, ...state.tables] };
-    }
-
+    case 'LOGOUT':
+      return { ...state, currentUser: null };
+    case 'ADD_TABLE':
+      return { ...state, tables: [...state.tables, action.payload] };
     case 'DELETE_TABLE':
-      return { ...state, tables: state.tables.filter((t) => t.id !== action.payload) };
-
-    case 'ADD_INVITE':
-      return { ...state, invites: [action.payload, ...state.invites] };
-
-    case 'REVOKE_INVITE':
-      return { ...state, invites: state.invites.filter((inv) => inv.id !== action.payload) };
-
-    case 'ADD_CAST':
-      return { ...state, casts: [action.payload, ...state.casts] };
-
-    case 'TOGGLE_CAST_STATUS':
       return {
         ...state,
-        casts: state.casts.map((c) =>
-          c.id === action.payload ? { ...c, status: c.status === 'active' ? 'paused' : 'active' } : c
-        ),
+        tables: state.tables.filter((t) => t.id !== action.payload),
       };
-
-    case 'DELETE_CAST':
-      return { ...state, casts: state.casts.filter((c) => c.id !== action.payload) };
-
     case 'ADD_TABLE_SETTING':
-      return { ...state, tableSettings: [action.payload, ...state.tableSettings] };
-
+      return {
+        ...state,
+        tableSettings: [...state.tableSettings, action.payload],
+      };
     case 'REMOVE_TABLE_SETTING':
       return {
         ...state,
         tableSettings: state.tableSettings.filter((t) => t !== action.payload),
       };
-
-    case 'SET_LAYOUT_MODE':
-      return { ...state, layoutMode: action.payload };
-
     default:
       return state;
   }
-}
+};
 
-// ─── Context 作成 ──────────────────────────────────
-const AppContext = createContext<{ state: State; dispatch: React.Dispatch<Action> } | undefined>(undefined);
-
-export function AppProvider({ children }: { children: ReactNode }) {
+export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  return (
+    <AppContext.Provider value={{ state, dispatch }}>
+      {children}
+    </AppContext.Provider>
+  );
+};
 
-  // State→localStorage 永続化
-  useEffect(() => {
-    localStorage.setItem('user', JSON.stringify(state.currentUser));
-    localStorage.setItem('reservations', JSON.stringify(state.reservations));
-    localStorage.setItem('tables', JSON.stringify(state.tables));
-    localStorage.setItem('invites', JSON.stringify(state.invites));
-    localStorage.setItem('casts', JSON.stringify(state.casts));
-    localStorage.setItem('tableSettings', JSON.stringify(state.tableSettings));
-    localStorage.setItem('layoutMode', state.layoutMode);
-  }, [state]);
-
-  return <AppContext.Provider value={{ state, dispatch }}>{children}</AppContext.Provider>;
-}
-
-export function useAppContext() {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('useAppContext must be used within AppProvider');
-  return ctx;
-}
+export const useAppContext = () => useContext(AppContext);

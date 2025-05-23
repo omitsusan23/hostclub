@@ -1,7 +1,6 @@
 // src/pages/TableStatusPage.tsx
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
-//import TableMapView from '../components/TableMapView';
 
 type Filter = 'all' | 'occupied' | 'empty' | 'first';
 type View = 'list' | 'map';
@@ -14,14 +13,12 @@ export default function TableStatusPage() {
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
 
-  // 初回ラベルを localStorage から取得
   const firstLabels = useMemo<Record<string, string>>(() => {
     const raw = localStorage.getItem('firstLabels');
     return raw ? JSON.parse(raw) : {};
   }, [tables, tableSettings]);
 
-  // テーブル削除
-  const handleDelete = useCallback((id: number) => {
+  const handleDelete = useCallback((id: string) => {
     const t = tables.find(x => x.id === id);
     if (!t) return;
     if (!window.confirm(`本当に卓 ${t.tableNumber} を削除しますか？`)) return;
@@ -32,14 +29,12 @@ export default function TableStatusPage() {
     setDeleteMessage(`卓 ${t.tableNumber} を削除しました`);
   }, [dispatch, tables]);
 
-  // メッセージ自動消去
   useEffect(() => {
     if (!deleteMessage) return;
     const h = setTimeout(() => setDeleteMessage(''), 1000);
     return () => clearTimeout(h);
   }, [deleteMessage]);
 
-  // テーブルリストのフィルタリング
   const filteredTables: Table[] = useMemo(() => {
     switch (filter) {
       case 'occupied':
@@ -49,17 +44,28 @@ export default function TableStatusPage() {
       case 'empty':
         return tableSettings
           .filter(n => !tables.some(t => t.tableNumber === n))
-          .map(n => ({ id: Date.now() + Number(n), tableNumber: n, princess: '', budget: 0, time: '' } as Table));
+          .map(n => ({
+            id: `${Date.now()}-${n}`,
+            tableNumber: n,
+            princess: '',
+            budget: 0,
+            time: ''
+          }));
       case 'all':
       default:
         const empty = tableSettings
           .filter(n => !tables.some(t => t.tableNumber === n))
-          .map(n => ({ id: Date.now() + Number(n), tableNumber: n, princess: '', budget: 0, time: '' } as Table));
+          .map(n => ({
+            id: `${Date.now()}-${n}`,
+            tableNumber: n,
+            princess: '',
+            budget: 0,
+            time: ''
+          }));
         return [...tables, ...empty];
     }
   }, [filter, tables, tableSettings, firstLabels]);
 
-  // 詳細モーダル制御
   const openDetailModal = useCallback((table: Table) => {
     setSelectedTable(table);
     setDetailModalOpen(true);
@@ -69,7 +75,6 @@ export default function TableStatusPage() {
     setSelectedTable(null);
   }, []);
 
-  // リストビュー用カード描画
   const renderedTables = useMemo(() =>
     filteredTables.map((table, idx) => {
       const isInitial = firstLabels[table.tableNumber] === '初回';
@@ -79,7 +84,6 @@ export default function TableStatusPage() {
           className="border rounded shadow-sm overflow-hidden flex flex-col cursor-pointer"
           onClick={() => openDetailModal(table)}
         >
-          {/* ヘッダー部 */}
           <div className="bg-gray-200 px-0.5 py-1 flex items-baseline justify-between">
             <div className="flex items-baseline space-x-1">
               <span className="sr-only">卓番号:</span>
@@ -104,24 +108,13 @@ export default function TableStatusPage() {
               </button>
             )}
           </div>
-          {/* 詳細部 */}
           <div className="p-1 flex-grow grid grid-cols-[6ch_1fr] gap-x-2 gap-y-0.5 items-baseline">
             {table.princess ? (
               <>
                 <span className="text-[8px]">姫名</span>
                 <span className="text-[10px]">{table.princess}</span>
-                {isInitial && table.initialDetails?.map((d, i) => (
-                  <React.Fragment key={i}>
-                    <span className="text-[8px]">
-                      {d.type === '初回' ? '写真指名' : '初回指名'}
-                    </span>
-                    <span className="text-[10px]">
-                      {d.photo === 'なし' ? '指名なし' : d.photo}
-                    </span>
-                  </React.Fragment>
-                ))}
                 <span className="text-[8px]">開始</span>
-                <span className="text-[10px]">{table.time.slice(0,5)}</span>
+                <span className="text-[10px]">{table.time.slice(0, 5)}</span>
                 {!isInitial && (
                   <>
                     <span className="text-[8px]">予算</span>
@@ -143,7 +136,6 @@ export default function TableStatusPage() {
 
   return (
     <>
-      {/* 削除メッセージ */}
       {deleteMessage && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-black bg-opacity-75 text-white p-4 rounded">
@@ -151,8 +143,6 @@ export default function TableStatusPage() {
           </div>
         </div>
       )}
-
-      {/* ヘッダー */}
       <header className="sticky top-0 z-50 bg-white border-b">
         <div className="container mx-auto px-2 py-3 flex justify-between items-center">
           <h2 className="text-2xl font-bold">卓状況</h2>
@@ -173,57 +163,25 @@ export default function TableStatusPage() {
         </div>
         {view === 'list' && (
           <div className="container mx-auto px-2 py-1 flex space-x-2">
-            <button
-              onClick={() => setFilter('all')}
-              className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
-                filter === 'all' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              全卓
-            </button>
-            <button
-              onClick={() => setFilter('occupied')}
-              className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
-                filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              使用中
-            </button>
-            <button
-              onClick={() => setFilter('empty')}
-              className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
-                filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              空卓
-            </button>
-            <button
-              onClick={() => setFilter('first')}
-              className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
-                filter === 'first' ? 'font-bold text-black' : 'text-gray-700'
-              }`}
-            >
-              初回
-            </button>
+            {(['all', 'occupied', 'empty', 'first'] as Filter[]).map(f => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${
+                  filter === f ? 'font-bold text-black' : 'text-gray-700'
+                }`}
+              >
+                {f === 'all' ? '全卓' : f === 'occupied' ? '使用中' : f === 'empty' ? '空卓' : '初回'}
+              </button>
+            ))}
           </div>
         )}
       </header>
-
-      {/* メインコンテンツ */}
       <main id="main-content" className="container mx-auto px-2 py-4">
-        {view === 'map' ? (
-          <TableMapView
-            tables={filteredTables}
-            storeId="rberu-sapporo"
-          />
-        ) : (
-          <div className="grid grid-cols-3 gap-3">
-            {renderedTables}
-          </div>
-        )}
+        <div className="grid grid-cols-3 gap-3">
+          {renderedTables}
+        </div>
       </main>
-
-      {/* 詳細モーダル */}
       {detailModalOpen && selectedTable && (
         <div role="dialog" aria-modal="true" className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4">
           <div className="bg-white w-full h-full max-w-lg rounded shadow-lg overflow-auto relative">
