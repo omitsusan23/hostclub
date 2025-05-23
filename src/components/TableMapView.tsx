@@ -21,9 +21,15 @@ export default function TableMapView({
   const [cfg, setCfg] = useState<MapConfig | null>(null)
 
   useEffect(() => {
-    import(`../config/maps/${storeId}.json`)
-      .then(m => setCfg(m.default))
-      .catch(err => console.error(err))
+    const mapPath = `/config/maps/${storeId}.json`
+    fetch(mapPath)
+      .then(res => res.json())
+      .then(data => {
+        setCfg(data)
+      })
+      .catch(err => {
+        console.error('マップJSONの読み込みに失敗しました:', err)
+      })
   }, [storeId])
 
   if (!cfg) return <div>マップを読み込み中…</div>
