@@ -26,16 +26,21 @@ export const StoreProvider: React.FC<{children: ReactNode}> = ({ children }) => 
   const [isEmployeeView, setIsEmployeeView] = useState<boolean>(false);
 
   useEffect(() => {
+    const hostname = window.location.hostname;
+    const subdomain =
+      hostname === 'localhost' || hostname === '127.0.0.1'
+        ? 'lebel'
+        : hostname.split('.')[0];
+
     (async () => {
       try {
-        const res = await fetch('/api/stores');
-        const data: StoreInfo[] = await res.json();
-        setStores(data);
-        if (data.length > 0) setCurrentStoreId(data[0].id);
-        // TODO: user 情報から従業員ビューを判定
-        setIsEmployeeView(true);
+        const res = await fetch(`/api/stores/subdomain/${subdomain}`);
+        const store: StoreInfo = await res.json();
+        setStores([store]);
+        setCurrentStoreId(store.id);
+        setIsEmployeeView(true); // 仮フラグ、将来はユーザー情報に基づく切り替え予定
       } catch (err) {
-        console.error('Failed to fetch stores', err);
+        console.error('Failed to fetch store by subdomain', err);
       }
     })();
   }, []);
