@@ -6,6 +6,19 @@ type Role = 'owner' | 'operator' | 'cast';
 export interface User {
   username: string;
   role: Role;
+  /**
+   * Optional flag used on the reservation page to determine
+   * whether the user can reflect reservations onto tables.
+   */
+  canManageTables?: boolean;
+}
+
+export interface Reservation {
+  id: number;
+  princess: string;
+  requestedTable: string;
+  time: string;
+  budget: number;
 }
 
 export interface Table {
@@ -16,10 +29,13 @@ export interface Table {
   time: string;
 }
 
+export type TableSetting = string;
+
 interface AppState {
   currentUser: User | null;
   tables: Table[];
-  tableSettings: string[];
+  tableSettings: TableSetting[];
+  reservations: Reservation[];
 }
 
 type Action =
@@ -28,7 +44,19 @@ type Action =
   | { type: 'ADD_TABLE'; payload: Table }
   | { type: 'DELETE_TABLE'; payload: string }
   | { type: 'ADD_TABLE_SETTING'; payload: string }
-  | { type: 'REMOVE_TABLE_SETTING'; payload: string };
+  | { type: 'REMOVE_TABLE_SETTING'; payload: string }
+  | { type: 'ADD_RESERVATION'; payload: Reservation }
+  | { type: 'DELETE_RESERVATION'; payload: number }
+  | {
+      type: 'ASSIGN_TABLE';
+      payload: {
+        id: number;
+        requestedTable: string;
+        princess: string;
+        budget: number;
+        time: string;
+      };
+    };
 
 const initialState: AppState = {
   currentUser: {
@@ -37,6 +65,7 @@ const initialState: AppState = {
   },
   tables: [],
   tableSettings: [],
+  reservations: [],
 };
 
 const AppContext = createContext<{
@@ -69,6 +98,31 @@ const reducer = (state: AppState, action: Action): AppState => {
       return {
         ...state,
         tableSettings: state.tableSettings.filter((t) => t !== action.payload),
+      };
+    case 'ADD_RESERVATION':
+      return {
+        ...state,
+        reservations: [...state.reservations, action.payload],
+      };
+    case 'DELETE_RESERVATION':
+      return {
+        ...state,
+        reservations: state.reservations.filter((r) => r.id !== action.payload),
+      };
+    case 'ASSIGN_TABLE':
+      return {
+        ...state,
+        reservations: state.reservations.filter((r) => r.id !== action.payload.id),
+        tables: [
+          ...state.tables,
+          {
+            id: String(action.payload.id),
+            tableNumber: action.payload.requestedTable,
+            princess: action.payload.princess,
+            budget: action.payload.budget,
+            time: action.payload.time,
+          },
+        ],
       };
     default:
       return state;
