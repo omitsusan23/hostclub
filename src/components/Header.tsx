@@ -1,33 +1,16 @@
-// src/components/Header.tsx
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 
 const Header: React.FC = () => {
-  const { stores, currentStore, setCurrentStoreById, isEmployeeView } = useStore();
-  const navigate = useNavigate();
+  const { currentStore, isEmployeeView } = useStore();
+  
   if (!isEmployeeView || !currentStore) return null;
-
-  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const id = e.target.value;
-    setCurrentStoreById(id);
-    navigate(`/stores/${id}`);
-  };
 
   return (
     <header className="bg-white shadow p-4 flex justify-between items-center">
       <div className="flex items-center space-x-2">
-        <label htmlFor="store-select" className="font-semibold">店舗:</label>
-        <select
-          id="store-select"
-          value={currentStore.id}
-          onChange={handleSelect}
-          className="border rounded p-1"
-        >
-          {stores.map((store) => (
-            <option key={store.id} value={store.id}>{store.name}</option>
-          ))}
-        </select>
+        <span className="font-semibold">店舗: {currentStore.name}</span>
       </div>
       <nav>
         <ul className="flex space-x-6">
