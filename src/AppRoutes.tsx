@@ -2,7 +2,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useStore } from './context/StoreContext';
-import StoreDashboard from './pages/StoreDashboard';
 import TableStatusPage from './pages/TableStatusPage';
 import ReservationPage from './pages/ReservationPage';
 
