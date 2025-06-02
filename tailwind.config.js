@@ -1,37 +1,50 @@
 // tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 export default {
+  /* どのファイル内のクラスを抽出するか */
   content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    './index.html',
+    './src/**/*.{js,ts,jsx,tsx}',
   ],
+
+  /* ────────── 追加: ビルド時に残すユーティリティ ────────── */
+  safelist: [
+    'w-[90vw]',  // モバイル用
+    'w-[50vw]',  // タブレット用
+    'w-[40vw]'   // デスクトップ用
+  ],
+
+  /* ────────── テーマ設定 ────────── */
   theme: {
-    // カスタムブレークポイントの定義
+    /* カスタムブレークポイント */
     screens: {
-      sm: '480px',    // スマホ大
-      md: '768px',    // タブレット
-      lg: '1024px',   // PC小
-      xl: '1280px',   // PC中
+      sm:  '480px',  // スマホ大
+      md:  '768px',  // タブレット
+      lg: '1024px',  // PC小
+      xl: '1280px',  // PC中
       '2xl': '1536px' // PC大
     },
+
     extend: {
-      // コンテナ設定の拡張
+      /* コンテナ設定 */
       container: {
         center: true,
         padding: {
-          DEFAULT: '1rem', // 全体の基本余白
-          sm: '1rem',      // sm 以上
-          md: '2rem',      // md 以上
-          lg: '4rem',      // lg 以上
-          xl: '5rem',      // xl 以上
-          '2xl': '6rem'    // 2xl 以上
-        }
+          DEFAULT: '1rem',
+          sm:  '1rem',
+          md:  '2rem',
+          lg:  '4rem',
+          xl:  '5rem',
+          '2xl': '6rem',
+        },
       },
-      // フォントファミリーの拡張
+
+      /* フォントファミリー */
       fontFamily: {
-        tamanegi: ['TamanegiKaisho', 'sans-serif']
-      }
-    }
+        tamanegi: ['TamanegiKaisho', 'sans-serif'],
+      },
+    },
   },
-  plugins: []
-}
+
+  plugins: [],
+};

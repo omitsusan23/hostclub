@@ -1,21 +1,24 @@
-// src/components/BackgroundLogo.tsx
 import React from 'react';
 
 /**
  * 背景ロゴ
- *  - モバイル … 画面幅 90 vw
- *  - PC(768px 以上)… 画面幅 60 vw
+ *  - スマホ    : 画面幅 90 vw
+ *  - タブレット: 50 vw
+ *  - デスクトップ(≥1024px): 40 vw
+ *  - 透過 0.06、背面固定
  */
 const BackgroundLogo: React.FC = () => (
   <img
     id="bg-logo"
     src="/images/ruberu/logo.png"
     alt="背景ロゴ"
+    style={{ opacity: 0.06 }}                /* 透過をインラインで厳密指定 */
     className="
       fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-      w-[90vw] md:w-[60vw]        /* ← 幅だけ Tailwind で切替 */
+      w-[90vw]               /* モバイル */
+      md:w-[50vw]            /* ≥768px */
+      lg:w-[40vw]            /* ≥1024px */
       pointer-events-none select-none
-      opacity-6                   /* 0.06 = 6% (Tailwind では 0.06 → 6 で表記) */
       z-0
     "
   />
