@@ -26,6 +26,10 @@ export default {
           xl: '5rem',      // xl 以上
           '2xl': '6rem'    // 2xl 以上
         }
+      },
+      // フォントファミリーの拡張
+      fontFamily: {
+        tamanegi: ['TamanegiKaisho', 'sans-serif']
       }
     }
   },
