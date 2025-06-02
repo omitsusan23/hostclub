@@ -19,7 +19,7 @@ const Footer: React.FC = () => {
 
   return (
     <footer className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow pt-2 pb-[calc(2.5rem+env(safe-area-inset-bottom))]">
-      <div className="w-full max-w-[400px] mx-auto flex justify-between items-center px-4">
+      <div className="w-full max-w-[400px] mx-auto flex justify-between items-center px-5">
         {isEmployee && (
           <>
             <FooterButton to="/casts" icon={CastIcon} label="キャスト" />
