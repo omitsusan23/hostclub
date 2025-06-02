@@ -2,7 +2,6 @@ import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import { FooterButton } from './FooterButton';
 
-// アイコン読み込み
 import CastIcon from '../assets/icons/cast.svg';
 import ReservationIcon from '../assets/icons/reservation.svg';
 import TableStatusIcon from '../assets/icons/table-status.svg';
@@ -18,7 +17,7 @@ const Footer: React.FC = () => {
   const isCast = user.role === 'cast';
 
   return (
-    <footer className="bg-white shadow px-2 pt-2 pb-[calc(2.5rem+env(safe-area-inset-bottom))] flex justify-around items-center">
+    <footer className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow px-2 pt-2 pb-[calc(2.5rem+env(safe-area-inset-bottom))] flex justify-around items-center">
       {isEmployee && (
         <>
           <FooterButton to="/tables" icon={TableStatusIcon} label="卓状況" />
