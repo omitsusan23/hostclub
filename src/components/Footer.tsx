@@ -28,7 +28,6 @@ const Footer: React.FC = () => {
     : [
         { to: '/tables', icon: TableStatusIcon, label: '卓状況' },
         { to: '/reservations', icon: ReservationIcon, label: '来店予約' },
-        // 今後必要になったら姫一覧やマイページをここに追加できます
       ];
 
   return (
@@ -40,4 +39,11 @@ const Footer: React.FC = () => {
           className="flex flex-col items-center justify-center gap-1 text-gray-800 hover:text-pink-600"
         >
           <img src={item.icon} alt={item.label} className="w-6 h-6" />
-          <span>{item.l
+          <span>{item.label}</span>
+        </Link>
+      ))}
+    </footer>
+  );
+};
+
+export default Footer;
