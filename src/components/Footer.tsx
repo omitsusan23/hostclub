@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
   const isCast = user.role === 'cast';
 
   return (
-    <footer className="bg-white shadow px-2 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))] flex justify-around items-center">
+    <footer className="bg-white shadow px-2 pt-2 pb-[calc(2.5rem+env(safe-area-inset-bottom))] flex justify-around items-center">
       {isEmployee && (
         <>
           <FooterButton to="/tables" icon={TableStatusIcon} label="卓状況" />
