@@ -9,6 +9,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import CastDashboard from './pages/CastDashboard';
 import CastListPage from './pages/CastListPage';
 import AdminTableSettings from './pages/AdminTableSettings';
+import ChatPage from './pages/ChatPage'; // ✅ 追加済みのChatページ（空）
 
 const AppRoutes: React.FC = () => {
   const location = useLocation();
@@ -31,6 +32,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/reservations" element={<ReservationPage />} />
       <Route path="/casts" element={<CastListPage />} />
       <Route path="/settings" element={<AdminTableSettings />} />
+      <Route path="/chat" element={<ChatPage />} /> {/* ✅ チャットページのルート追加 */}
     </Routes>
   );
 };

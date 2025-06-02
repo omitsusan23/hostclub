@@ -4,11 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
 import { useStore } from '../context/StoreContext'
 
-interface Props {
-  setCurrentUser: (user: any) => void
-}
-
-export default function AdminDashboard({ setCurrentUser }: Props) {
+export default function AdminDashboard() {
   const navigate = useNavigate()
   const { state, dispatch } = useAppContext()
   const { tables, tableSettings = [] } = state
@@ -19,7 +15,7 @@ export default function AdminDashboard({ setCurrentUser }: Props) {
 
   // ログアウト
   const handleLogout = () => {
-    setCurrentUser(null)
+    dispatch({ type: 'LOGOUT' })
     navigate('/')
   }
 
