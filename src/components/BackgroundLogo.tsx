@@ -3,14 +3,24 @@ import React from 'react';
 
 const BackgroundLogo: React.FC = () => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }}
+    >
       <img
         src="/images/logo.png"
         alt="Background Logo"
         style={{
-          width: '360px',         // ← サイズを絶対指定
-          maxWidth: '90%',        // ← 小さい端末では90%に調整
-          opacity: 0.08,          // ← やや薄く（好みで調整可）
+          width: '360px',      // ← ここで大きさを絶対指定
+          maxWidth: '90vw',    // ← 画面幅に応じて可変
+          opacity: 0.06,       // ← Figmaに近い薄さに調整
         }}
       />
     </div>
