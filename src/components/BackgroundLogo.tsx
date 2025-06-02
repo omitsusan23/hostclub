@@ -6,7 +6,10 @@ const BackgroundLogo: React.FC = () => {
     <div
       style={{
         position: 'fixed',
-        inset: 0,
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -18,9 +21,10 @@ const BackgroundLogo: React.FC = () => {
         src="/images/logo.png"
         alt="Background Logo"
         style={{
-          width: '360px',      // ← ここで大きさを絶対指定
-          maxWidth: '90vw',    // ← 画面幅に応じて可変
-          opacity: 0.06,       // ← Figmaに近い薄さに調整
+          width: '380px',         // ← Figmaサイズと同等
+          maxWidth: '90vw',
+          opacity: 0.05,
+          userSelect: 'none',
         }}
       />
     </div>
