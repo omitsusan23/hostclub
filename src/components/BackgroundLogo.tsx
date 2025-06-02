@@ -1,30 +1,21 @@
 // src/components/BackgroundLogo.tsx
-import React, { useEffect } from 'react';
+import React from 'react';
 
 const BackgroundLogo: React.FC = () => {
-  useEffect(() => {
-    const el = document.getElementById('bg-logo');
-    if (el) {
-      el.style.position = 'fixed';
-      el.style.top = '50%';
-      el.style.left = '50%';
-      el.style.transform = 'translate(-50%, -50%)';
-      el.style.zIndex = '0';
-      el.style.opacity = '0.05';
-      el.style.pointerEvents = 'none';
-    }
-  }, []);
-
   return (
     <img
-      id="bg-logo"
       src="/images/logo.png"
-      alt="Background Logo"
+      alt="背景ロゴ"
       style={{
-        width: '380px',      // ← 実寸指定
-        maxWidth: '90vw',
-        userSelect: 'none',
-        position: 'fixed',
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        width: '60vw',            // ビューポート幅の60%に拡大（Figmaに近づける）
+        maxWidth: '500px',        // 最大サイズ（安全）
+        transform: 'translate(-50%, -50%)',
+        opacity: 0.07,
+        pointerEvents: 'none',
+        zIndex: 0,
       }}
     />
   );
