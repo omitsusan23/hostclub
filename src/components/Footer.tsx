@@ -23,7 +23,7 @@ const Footer: React.FC = () => {
       <div className="mx-auto max-w-sm flex justify-between items-center">
         {isEmployee && (
           <>
-            <FooterButton to="/casts" icon={CastIcon} label="キャスト一覧" />
+            <FooterButton to="/casts" icon={CastIcon} label="キャスト" />
             <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
             <FooterButton to="/tables" icon={TableStatusIcon} label="卓状況" />
             <FooterButton to="/chat" icon={ChatIcon} label="チャット" />
