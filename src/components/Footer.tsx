@@ -1,4 +1,3 @@
-// src/components/Footer.tsx
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import { FooterButton } from './FooterButton';
@@ -19,7 +18,7 @@ const Footer: React.FC = () => {
   const isCast = user.role === 'cast';
 
   return (
-    <footer className="bg-white shadow p-2 flex justify-around items-center">
+    <footer className="bg-white shadow p-2 pb-[calc(1rem+env(safe-area-inset-bottom))] flex justify-around items-center">
       {isEmployee && (
         <>
           <FooterButton to="/tables" icon={TableStatusIcon} label="卓状況" />
