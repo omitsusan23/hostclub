@@ -3,11 +3,11 @@ import React from 'react';
 
 const BackgroundLogo: React.FC = () => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0">
       <img
         src="/images/logo.png"
         alt="Background Logo"
-        className="opacity-10 w-[60%] max-w-[300px]"
+        className="opacity-10 w-[300px] sm:w-[360px]"
       />
     </div>
   );
