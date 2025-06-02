@@ -40,30 +40,23 @@ export default defineConfig({
     })
   ],
   optimizeDeps: {
-    exclude: ['lucide-react'],
+    exclude: ['lucide-react']
   },
   server: {
-    host: '0.0.0.0',         // 外部からアクセス可能にする
+    host: '0.0.0.0',
     port: 5173,
     strictPort: true,
-    allowedHosts: 'all',
     hmr: {
       host: '0.0.0.0',
       port: 5173,
-      protocol: 'ws',
+      protocol: 'ws'
     },
     proxy: {
-      '/api': 'http://localhost:3001',
-    },
-  },
-  build: {
-    rollupOptions: {
-      input: './index.html' // React Router対応：リロードで404防止
-    }
-  },
-  resolve: {
-    alias: {
-      '@': '/src' // 開発時のインポート簡略化（任意）
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false
+      }
     }
   }
 });
