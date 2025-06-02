@@ -1,3 +1,4 @@
+// vite.config.ts
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -42,7 +43,7 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   server: {
-    host: '0.0.0.0',
+    host: '0.0.0.0',         // 外部からアクセス可能にする
     port: 5173,
     strictPort: true,
     allowedHosts: 'all',
@@ -55,4 +56,14 @@ export default defineConfig({
       '/api': 'http://localhost:3001',
     },
   },
+  build: {
+    rollupOptions: {
+      input: './index.html' // React Router対応：リロードで404防止
+    }
+  },
+  resolve: {
+    alias: {
+      '@': '/src' // 開発時のインポート簡略化（任意）
+    }
+  }
 });
