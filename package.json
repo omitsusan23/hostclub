@@ -10,16 +10,13 @@
     "lint": "eslint . --config .eslintrc.cjs",
     "test": "jest --coverage --watchAll=false",
 
-    /* ---------- サーバー関連 ---------- */
+
     "start:server": "node server/server.js",
     "start:api":    "node server/api-server.js",
 
-    /* ---------- ロゴ自動トリム ---------- */
-    "trim:logos": "node scripts/trim-logos.mjs",
+    "trim:logos": "node scripts/trim-logos.mjs"
 
-    /* install／CI 時に自動トリムしたい場合は ↓ を有効化
-       "prepare": "npm run trim:logos"
-    */
+ 
   },
   "dependencies": {
     "cors": "^2.8.5",
