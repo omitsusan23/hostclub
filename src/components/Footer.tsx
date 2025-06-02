@@ -7,10 +7,7 @@ import { useAppContext } from '../context/AppContext';
 import CastIcon from '../assets/icons/cast.svg';
 import ReservationIcon from '../assets/icons/reservation.svg';
 import TableStatusIcon from '../assets/icons/table-status.svg';
-import ChatIcon from '../assets/icons/chat.svg';
 import SettingsIcon from '../assets/icons/settings.svg';
-import PrincessIcon from '../assets/icons/princess.svg';
-import MypageIcon from '../assets/icons/mypage.svg';
 
 const Footer: React.FC = () => {
   const { state } = useAppContext();
@@ -31,8 +28,7 @@ const Footer: React.FC = () => {
     : [
         { to: '/tables', icon: TableStatusIcon, label: '卓状況' },
         { to: '/reservations', icon: ReservationIcon, label: '来店予約' },
-        { to: '/princesses', icon: PrincessIcon, label: '姫一覧' },
-        { to: '/mypage', icon: MypageIcon, label: 'マイページ' },
+        // 今後必要になったら姫一覧やマイページをここに追加できます
       ];
 
   return (
@@ -44,11 +40,4 @@ const Footer: React.FC = () => {
           className="flex flex-col items-center justify-center gap-1 text-gray-800 hover:text-pink-600"
         >
           <img src={item.icon} alt={item.label} className="w-6 h-6" />
-          <span>{item.label}</span>
-        </Link>
-      ))}
-    </footer>
-  );
-};
-
-export default Footer;
+          <span>{item.l
