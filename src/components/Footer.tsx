@@ -2,10 +2,12 @@ import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import { FooterButton } from './FooterButton';
 
+// アイコン読み込み
 import CastIcon from '../assets/icons/cast.svg';
 import ReservationIcon from '../assets/icons/reservation.svg';
 import TableStatusIcon from '../assets/icons/table-status.svg';
 import SettingsIcon from '../assets/icons/settings.svg';
+import ChatIcon from '../assets/icons/chat.svg'; // ✅ チャットアイコンを追加
 
 const Footer: React.FC = () => {
   const { state } = useAppContext();
@@ -23,6 +25,7 @@ const Footer: React.FC = () => {
           <FooterButton to="/tables" icon={TableStatusIcon} label="卓状況" />
           <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
           <FooterButton to="/casts" icon={CastIcon} label="キャスト一覧" />
+          <FooterButton to="/chat" icon={ChatIcon} label="チャット" /> {/* ✅ 追加 */}
           <FooterButton to="/settings" icon={SettingsIcon} label="設定" />
         </>
       )}
@@ -30,6 +33,7 @@ const Footer: React.FC = () => {
         <>
           <FooterButton to="/tables" icon={TableStatusIcon} label="卓状況" />
           <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
+          <FooterButton to="/chat" icon={ChatIcon} label="チャット" /> {/* ✅ 追加 */}
         </>
       )}
     </footer>
