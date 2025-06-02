@@ -18,22 +18,24 @@ const Footer: React.FC = () => {
   const isCast = user.role === 'cast';
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow px-4 pt-2 pb-[calc(2.5rem+env(safe-area-inset-bottom))] flex justify-between items-center max-w-screen-sm mx-auto gap-x-2">
-      {isEmployee && (
-        <>
-          <FooterButton to="/casts" icon={CastIcon} label="キャスト" />
-          <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
-          <FooterButton to="/tables" icon={TableStatusIcon} label="卓状況" />
-          <FooterButton to="/chat" icon={ChatIcon} label="チャット" />
-          <FooterButton to="/settings" icon={SettingsIcon} label="設定" />
-        </>
-      )}
-      {isCast && (
-        <>
-          <FooterButton to="/tables" icon={TableStatusIcon} label="卓状況" />
-          <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
-        </>
-      )}
+    <footer className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow pt-2 pb-[calc(2.5rem+env(safe-area-inset-bottom))]">
+      <div className="max-w-screen-sm mx-auto flex justify-center items-center gap-2 px-2">
+        {isEmployee && (
+          <>
+            <FooterButton to="/casts" icon={CastIcon} label="キャスト" />
+            <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
+            <FooterButton to="/tables" icon={TableStatusIcon} label="卓状況" />
+            <FooterButton to="/chat" icon={ChatIcon} label="チャット" />
+            <FooterButton to="/settings" icon={SettingsIcon} label="設定" />
+          </>
+        )}
+        {isCast && (
+          <>
+            <FooterButton to="/tables" icon={TableStatusIcon} label="卓状況" />
+            <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
+          </>
+        )}
+      </div>
     </footer>
   );
 };
