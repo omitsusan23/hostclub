@@ -1,12 +1,17 @@
 // src/pages/ChatPage.tsx
-import React from 'react';
+import React from 'react'
+import Header from '../components/Header'
 
 const ChatPage: React.FC = () => {
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold">チャット（準備中）</h1>
-    </div>
-  );
-};
+    <>
+      <Header title="チャット（準備中）" />
 
-export default ChatPage;
+      <main className="p-4 pb-16 pt-[calc(env(safe-area-inset-top)+66px)]">
+        <p className="text-gray-500">このページは現在準備中です。</p>
+      </main>
+    </>
+  )
+}
+
+export default ChatPage
