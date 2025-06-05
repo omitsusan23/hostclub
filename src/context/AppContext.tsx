@@ -1,7 +1,8 @@
 // src/context/AppContext.tsx
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 
-type Role = 'owner' | 'operator' | 'cast';
+// ✅ 'admin' を型に追加（← ここが修正ポイント）
+type Role = 'owner' | 'operator' | 'cast' | 'admin';
 
 export interface User {
   username: string;
@@ -61,7 +62,7 @@ type Action =
 const initialState: AppState = {
   currentUser: {
     username: 'admin',
-    role: 'owner', // 初期値。必要に応じて 'cast' などに変更
+    role: 'owner', // 必要に応じて 'admin' に変更してもOK
     canManageTables: true,
   },
   tables: [],
