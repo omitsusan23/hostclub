@@ -1,14 +1,18 @@
+// ✅ 修正後：components/Header.tsx
 import React from 'react';
-import { useStore } from '../context/StoreContext';
 
-const Header: React.FC = () => {
-  const { currentStore } = useStore();
+interface HeaderProps {
+  title: string;
+  children?: React.ReactNode;
+}
 
-  if (!currentStore) return null;
-
+const Header: React.FC<HeaderProps> = ({ title, children }) => {
   return (
-    <header className="bg-white shadow p-4 text-xl font-semibold">
-      {currentStore.name}
+    <header className="h-[110px] bg-white border-b px-4 py-3 flex items-end justify-between">
+      <h1 className="text-2xl font-bold">{title}</h1>
+      <div className="flex items-center space-x-2">
+        {children}
+      </div>
     </header>
   );
 };
