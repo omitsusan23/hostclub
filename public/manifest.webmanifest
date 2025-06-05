@@ -2,9 +2,9 @@
   "name": "ホストクラブ卓状況アプリ",
   "short_name": "卓状況",
   "start_url": "/?source=pwa",
-  "display": "fullscreen",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "display": "standalone",             
+  "background_color": "#ffffff",       
+  "theme_color": "#ffffff",            
   "icons": [
     {
       "src": "favicon.svg",

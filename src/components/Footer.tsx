@@ -21,20 +21,18 @@ const Footer: React.FC = () => {
   return (
     <footer
       className="
-        fixed bottom-0 left-0 right-0 z-50 bg-white shadow
-        px-2 pt-2 pb-[calc(2.5rem+env(safe-area-inset-bottom))]
+        fixed bottom-0 left-0 right-0 z-50
+        bg-white shadow px-2 pt-2 pb-10
+        before:content-[''] before:absolute before:inset-x-0 before:bottom-0
+        before:h-[env(safe-area-inset-bottom)] before:bg-white before:z-[-1]
       "
     >
-      {/* ==== モバイル ====
-           - 390px 上限グリッドで中央揃え
-         ==== md 以上 ====
-           - max-w 制限解除 & フレックスで左右いっぱい
-      */}
       <div
         className="
+          relative z-10
           grid grid-cols-5 max-w-[390px] mx-auto
-          md:max-w-none md:w-full              /* 幅制限を解除           */
-          md:flex md:justify-between md:px-8   /* 左右いっぱい＆余白     */
+          md:max-w-none md:w-full
+          md:flex md:justify-between md:px-8
         "
       >
         {isEmployee && (
@@ -53,7 +51,7 @@ const Footer: React.FC = () => {
             <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
             <FooterButton to="/chat"         icon={ChatIcon}        label="チャット" />
             <FooterButton to="/settings"     icon={SettingsIcon}    label="設定"     />
-            <div className="hidden md:block" /> {/* モバイルグリッド用の空セルは非表示 */}
+            <div className="hidden md:block" />
           </>
         )}
       </div>
