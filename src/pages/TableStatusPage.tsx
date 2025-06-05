@@ -1,4 +1,3 @@
-// ✅ 修正後：src/pages/TableStatusPage.tsx
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
 import Header from '../components/Header';
@@ -140,30 +139,32 @@ export default function TableStatusPage() {
       )}
 
       <Header title="卓状況">
-        <button
-          onClick={() => setFilter('all')}
-          className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${filter === 'all' ? 'font-bold text-black' : 'text-gray-700'}`}
-        >
-          全卓
-        </button>
-        <button
-          onClick={() => setFilter('occupied')}
-          className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'}`}
-        >
-          使用中
-        </button>
-        <button
-          onClick={() => setFilter('empty')}
-          className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'}`}
-        >
-          空卓
-        </button>
-        <button
-          onClick={() => setFilter('first')}
-          className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${filter === 'first' ? 'font-bold text-black' : 'text-gray-700'}`}
-        >
-          初回
-        </button>
+        <div className="flex items-center space-x-2 md:ml-auto">
+          <button
+            onClick={() => setFilter('all')}
+            className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${filter === 'all' ? 'font-bold text-black' : 'text-gray-700'}`}
+          >
+            全卓
+          </button>
+          <button
+            onClick={() => setFilter('occupied')}
+            className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'}`}
+          >
+            使用中
+          </button>
+          <button
+            onClick={() => setFilter('empty')}
+            className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'}`}
+          >
+            空卓
+          </button>
+          <button
+            onClick={() => setFilter('first')}
+            className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${filter === 'first' ? 'font-bold text-black' : 'text-gray-700'}`}
+          >
+            初回
+          </button>
+        </div>
       </Header>
 
       <main id="main-content" className="container mx-auto px-2 py-4">
