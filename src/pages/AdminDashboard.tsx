@@ -1,9 +1,9 @@
-// AdminDashboard.tsx
+// src/pages/AdminDashboard.tsx
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
 import { useStore } from '../context/StoreContext'
-import Header from '../components/Header' // ✅ 追加
+import Header from '../components/Header' // ✅ ヘッダーを読み込む
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
@@ -20,8 +20,8 @@ export default function AdminDashboard() {
 
   return (
     <>
-      {/* ✅ ヘッダー設置 */}
-      <Header title="運営ダッシュボード">
+      {/* ✅ 共通ヘッダー */}
+      <Header title="設定">
         <button
           onClick={handleLogout}
           className="text-sm text-red-600 underline whitespace-nowrap"
@@ -30,46 +30,14 @@ export default function AdminDashboard() {
         </button>
       </Header>
 
-      {/* ✅ main に padding-top 追加 */}
+      {/* ✅ ヘッダーぶんスペース確保 */}
       <main className="p-4 pb-16 pt-[calc(env(safe-area-inset-top)+66px)]">
-        {currentStore ? (
-          <div className="mb-4">
-            <p>店舗名: {currentStore.name}</p>
-          </div>
-        ) : (
-          <p className="text-red-600 mb-4">店舗情報を取得できませんでした。</p>
-        )}
+        <p className="text-sm text-gray-600 mb-4">
+          ※ この画面はシステム管理者のみアクセス可能です
+        </p>
 
-        {/* 以下省略せずそのままテーブル・設定・フォーム続く */}
-        <h2 className="text-xl font-semibold mb-2">卓状況</h2>
-        {tables.length === 0 ? (
-          <p className="text-gray-500 mb-6">まだ反映された卓はありません。</p>
-        ) : (
-          <div className="space-y-3 mb-6">
-            {tables.map((table) => (
-              <div
-                key={table.id}
-                className="border rounded p-4 shadow-sm bg-white flex justify-between items-start"
-              >
-                <div>
-                  <p><strong>卓番号:</strong> {table.tableNumber}</p>
-                  <p><strong>姫名:</strong> {table.princess}</p>
-                  <p><strong>予算:</strong> {table.budget}円</p>
-                  <p><strong>反映時刻:</strong> {table.time}</p>
-                </div>
-                <button
-                  onClick={() => dispatch({ type: 'DELETE_TABLE', payload: table.id })}
-                  className="text-sm text-red-500 hover:underline"
-                >
-                  削除
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+        <h2 className="text-xl font-semibold mb-2">卓設定</h2>
 
-        {/* 卓設定フォーム */}
-        <h2 className="text-xl font-semibold mb-2">卓設定 (テスト用)</h2>
         <div className="flex mb-4 space-x-2">
           <input
             type="text"
@@ -103,7 +71,9 @@ export default function AdminDashboard() {
               >
                 <span>{t}</span>
                 <button
-                  onClick={() => dispatch({ type: 'REMOVE_TABLE_SETTING', payload: t })}
+                  onClick={() =>
+                    dispatch({ type: 'REMOVE_TABLE_SETTING', payload: t })
+                  }
                   className="text-sm text-red-500 hover:underline"
                 >
                   削除

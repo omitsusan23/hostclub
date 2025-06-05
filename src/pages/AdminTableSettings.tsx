@@ -1,13 +1,11 @@
-// src/pages/AdminTableSettings.tsx
-
 import React, { useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext, type User } from '../context/AppContext';
+import Header from '../components/Header';
 
 type TableSetting = string;
 
 interface AdminTableSettingsProps {
-  /** AppInner から渡される、AppInner の currentUser state をクリアするための関数 */
   setCurrentUser?: (user: User | null) => void;
 }
 
@@ -22,17 +20,12 @@ const AdminTableSettings: React.FC<AdminTableSettingsProps> = ({ setCurrentUser 
 
   const navigate = useNavigate();
 
-  // ログアウト
   const handleLogout = useCallback(() => {
-    // AppInner のローカル currentUser state をクリア
     setCurrentUser?.(null);
-    // Context 側にもユーザー情報をクリア
     dispatch({ type: 'LOGOUT' });
-    // ログイン画面へリダイレクト（履歴を置き換え）
     navigate('/', { replace: true });
   }, [setCurrentUser, dispatch, navigate]);
 
-  // 卓設定の追加
   const handleAdd = useCallback(async (): Promise<void> => {
     setError('');
     const trimmed = newTable.trim();
@@ -50,7 +43,6 @@ const AdminTableSettings: React.FC<AdminTableSettingsProps> = ({ setCurrentUser 
     }
   }, [dispatch, newTable]);
 
-  // 卓設定の削除（確認ダイアログ付き）
   const handleDelete = useCallback(async (table: TableSetting): Promise<void> => {
     if (!window.confirm(`本当に卓 ${table} を削除しますか？`)) return;
     setError('');
@@ -66,7 +58,6 @@ const AdminTableSettings: React.FC<AdminTableSettingsProps> = ({ setCurrentUser 
     }
   }, [dispatch]);
 
-  // テーブル設定リストのレンダリングをメモ化
   const renderedTableSettings = useMemo(() => {
     return tableSettings.map((t) => (
       <li
@@ -89,60 +80,60 @@ const AdminTableSettings: React.FC<AdminTableSettingsProps> = ({ setCurrentUser 
   }, [tableSettings, handleDelete, isLoading]);
 
   return (
-    <div className="p-6">
-      {/* 操作結果・エラー通知 */}
-      <div aria-live="polite" className="mb-4">
-        {message && <p className="text-green-600">{message}</p>}
-        {error && <p className="text-red-600">{error}</p>}
-      </div>
-
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">設定</h1>
+    <>
+      <Header title="設定">
         <button
           onClick={handleLogout}
           className="text-sm text-red-600 underline"
         >
           ログアウト
         </button>
-      </div>
+      </Header>
 
-      <p className="text-gray-600 mb-4">
-        ※ この画面はシステム管理者のみアクセス可能です
-      </p>
+      <main id="main-content" className="p-6 pt-[calc(env(safe-area-inset-top)+66px)]">
+        <div aria-live="polite" className="mb-4">
+          {message && <p className="text-green-600">{message}</p>}
+          {error && <p className="text-red-600">{error}</p>}
+        </div>
 
-      <h2 className="text-xl font-semibold mb-2">卓設定</h2>
-      <div className="flex mb-4 space-x-2 items-center">
-        <label htmlFor="new-table-input" className="sr-only">
-          卓番号を入力
-        </label>
-        <input
-          id="new-table-input"
-          type="text"
-          placeholder="例: T4"
-          value={newTable}
-          onChange={(e) => setNewTable(e.target.value)}
-          className="border p-2 rounded flex-grow"
-          disabled={isLoading}
-        />
-        <button
-          onClick={handleAdd}
-          disabled={isLoading}
-          className={`px-4 py-2 rounded ${
-            isLoading
-              ? 'bg-gray-400 text-gray-200'
-              : 'bg-blue-500 text-white hover:bg-blue-600'
-          }`}
-        >
-          {isLoading ? '追加中...' : '追加'}
-        </button>
-      </div>
+        <p className="text-gray-600 mb-4">
+          ※ この画面はシステム管理者のみアクセス可能です
+        </p>
 
-      {tableSettings.length === 0 ? (
-        <p className="text-gray-500">設定された卓はありません。</p>
-      ) : (
-        <ul className="space-y-2">{renderedTableSettings}</ul>
-      )}
-    </div>
+        <h2 className="text-xl font-semibold mb-2">卓設定</h2>
+        <div className="flex mb-4 space-x-2 items-center">
+          <label htmlFor="new-table-input" className="sr-only">
+            卓番号を入力
+          </label>
+          <input
+            id="new-table-input"
+            type="text"
+            placeholder="例: T4"
+            value={newTable}
+            onChange={(e) => setNewTable(e.target.value)}
+            className="border p-2 rounded flex-grow"
+            disabled={isLoading}
+          />
+          <button
+            onClick={handleAdd}
+            disabled={isLoading}
+            className={`px-4 py-2 rounded ${
+              isLoading
+                ? 'bg-gray-400 text-gray-200'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
+            }`}
+          >
+            {isLoading ? '追加中...' : '追加'}
+          </button>
+        </div>
+
+        {tableSettings.length === 0 ? (
+          <p className="text-gray-500">設定された卓はありません。</p>
+        ) : (
+          <ul className="space-y-2">{renderedTableSettings}</ul>
+        )}
+      </main>
+    </>
   );
 };
 
