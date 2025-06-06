@@ -1,16 +1,11 @@
 // src/context/AppContext.tsx
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 
-// ✅ 'admin' を型に追加（← ここが修正ポイント）
 type Role = 'owner' | 'operator' | 'cast' | 'admin';
 
 export interface User {
   username: string;
   role: Role;
-  /**
-   * Flag used on the reservation page to determine whether the
-   * user can reflect reservations onto tables.
-   */
   canManageTables: boolean;
 }
 
@@ -20,6 +15,8 @@ export interface Reservation {
   requestedTable: string;
   time: string;
   budget: number;
+  help?: string[];
+  note?: string;
 }
 
 export interface Table {
@@ -62,7 +59,7 @@ type Action =
 const initialState: AppState = {
   currentUser: {
     username: 'admin',
-    role: 'owner', // 必要に応じて 'admin' に変更してもOK
+    role: 'owner',
     canManageTables: true,
   },
   tables: [],
