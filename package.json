@@ -9,16 +9,12 @@
     "preview": "vite preview",
     "lint": "eslint . --config .eslintrc.cjs",
     "test": "jest --coverage --watchAll=false",
-
-
     "start:server": "node server/server.js",
-    "start:api":    "node server/api-server.js",
-
+    "start:api": "node server/api-server.js",
     "trim:logos": "node scripts/trim-logos.mjs"
-
- 
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.50.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "i18next": "^25.1.1",
