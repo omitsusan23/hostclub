@@ -1,40 +1,39 @@
-import express from 'express';
-import cors from 'cors';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+// server/api-server.js
+import express from 'express'
+import cors from 'cors'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const dataPath = path.join(__dirname, '..', 'data', 'stores.json');
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const dataPath = path.join(__dirname, 'data', 'stores.json')
 
-// Load data once when the server starts
-const storesData = JSON.parse(fs.readFileSync(dataPath, 'utf-8')).stores;
+const app = express()
+app.use(cors())
+app.use(express.json())
 
-const app = express();
-app.use(cors());
+// 静的ファイル（画像）
+app.use('/images', express.static(path.join(__dirname, '..', 'public', 'images')))
 
-app.get('/api/stores', (req, res) => {
-  res.json(storesData);
-});
+// JSONファイル読み込み（サブドメイン → 店舗情報）
+let storesData = {}
+try {
+  storesData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'))
+} catch {
+  console.warn('stores.json が正しく読み込めませんでした')
+}
 
-app.get('/api/stores/:id', (req, res) => {
-  const store = storesData.find((s) => s.id === req.params.id);
+// GET: サブドメインに対応した店舗情報を返す
+app.get('/api/store-config/:subdomain', (req, res) => {
+  const { subdomain } = req.params
+  const store = storesData[subdomain]
   if (!store) {
-    return res.status(404).json({ error: 'Store not found' });
+    return res.status(404).json({ error: '店舗が見つかりません' })
   }
-  res.json(store);
-});
+  res.json(store)
+})
 
-// Returns store by subdomain
-app.get('/api/stores/subdomain/:subdomain', (req, res) => {
-  const store = storesData.find((s) => s.subdomain === req.params.subdomain);
-  if (!store) {
-    return res.status(404).json({ error: 'Store not found' });
-  }
-  res.json(store);
-});
-
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
-  console.log(`API server listening on port ${PORT}`);
-});
+  console.log(`✅ API server running: http://localhost:${PORT}`)
+})
