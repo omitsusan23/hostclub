@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
-export default function RegisterPage() {
+const Register = () => {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -19,6 +19,7 @@ export default function RegisterPage() {
   const handleRegister = async () => {
     setError('')
     setLoading(true)
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -35,6 +36,7 @@ export default function RegisterPage() {
     } else {
       navigate('/admin')
     }
+
     setLoading(false)
   }
 
@@ -69,3 +71,5 @@ export default function RegisterPage() {
     </div>
   )
 }
+
+export default Register
