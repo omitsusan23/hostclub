@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
-  base: '/', // ✅ Vercel用に明示追加：React Router のSPAルーティングが安定します
+  base: '/',
   plugins: [
     react(),
     VitePWA({
