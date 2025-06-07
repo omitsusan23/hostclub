@@ -1,16 +1,12 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+// import { VitePWA } from 'vite-plugin-pwa'; // 必要に応じて再有効化できます
 
 export default defineConfig({
   base: '/',
-  define: {
-    // ✅ 本番ビルドで Supabase URL / Key を明示的に注入
-    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL),
-    'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY)
-  },
+  envPrefix: 'VITE_', // ✅ これで Vercel の VITE_ 環境変数が import.meta.env に正しく展開されます
   plugins: [
     react(),
-    // 後で PWA を再有効にしたい場合は以下を戻す
     /*
     VitePWA({
       registerType: 'autoUpdate',
