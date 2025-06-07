@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { useAppContext } from '../context/AppContext' // ✅ 追加
+import { useAppContext } from '../context/AppContext'
 
 const Register = () => {
   const navigate = useNavigate()
-  const { dispatch } = useAppContext() // ✅ 追加
+  const { dispatch } = useAppContext()
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [storeId, setStoreId] = useState('')
@@ -36,16 +37,32 @@ const Register = () => {
     if (error) {
       setError(error.message)
     } else {
-      // ✅ AppContext にユーザー情報を登録
-      dispatch({
-        type: 'SET_USER',
-        payload: {
-          username: data.user?.email ?? '',
-          role: 'admin',
-          canManageTables: true,
-        },
-      })
-      navigate('/tables') // 必要なら '/admin' に戻す
+      // ✅ セッション取得とAppContextへの反映
+      const sessionResult = await supabase.auth.getSession()
+      const session = sessionResult.data.session
+
+      dispatch({ type: 'SET_SESSION', payload: session })
+
+      if (session?.user) {
+        const meta = session.user.user_metadata
+        dispatch({
+          type: 'SET_USER',
+          payload: {
+            username: session.user.email ?? '',
+            role: meta.role,
+            canManageTables: meta.role !== 'cast',
+          },
+        })
+
+        // ✅ リダイレクト先をロールに応じて変更
+        if (meta.role === 'cast') {
+          navigate(`/cast/${storeId}`)
+        } else {
+          navigate(`/stores/${storeId}`)
+        }
+      } else {
+        setError('セッション情報が取得できませんでした。')
+      }
     }
 
     setLoading(false)
@@ -77,7 +94,7 @@ const Register = () => {
         disabled={loading}
         className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
       >
-        {loading ? '登録中...' : '登録して管理画面へ'}
+        {loading ? '登録中...' : '登録してログイン'}
       </button>
     </div>
   )
