@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useAppContext } from '../context/AppContext' // ✅ 追加
 
 const Register = () => {
   const navigate = useNavigate()
+  const { dispatch } = useAppContext() // ✅ 追加
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [storeId, setStoreId] = useState('')
@@ -34,7 +36,16 @@ const Register = () => {
     if (error) {
       setError(error.message)
     } else {
-      navigate('/admin')
+      // ✅ AppContext にユーザー情報を登録
+      dispatch({
+        type: 'SET_USER',
+        payload: {
+          username: data.user?.email ?? '',
+          role: 'admin',
+          canManageTables: true,
+        },
+      })
+      navigate('/tables') // 必要なら '/admin' に戻す
     }
 
     setLoading(false)
