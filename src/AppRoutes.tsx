@@ -9,12 +9,15 @@ import AdminDashboard from './pages/AdminDashboard';
 import CastDashboard from './pages/CastDashboard';
 import CastListPage from './pages/CastListPage';
 import AdminTableSettings from './pages/AdminTableSettings';
-import ChatPage from './pages/ChatPage'; // ✅ 追加済みのChatページ（空）
+import ChatPage from './pages/ChatPage'; // ✅ チャットページ
+import Register from './pages/Register'; // ✅ 管理者登録ページ ←★追加
 
 const AppRoutes: React.FC = () => {
   const location = useLocation();
   const { stores, currentStore } = useStore();
-  const { state: { currentUser: user } } = useAppContext();
+  const {
+    state: { currentUser: user },
+  } = useAppContext();
 
   useEffect(() => {
     console.log('現在のパス:', location.pathname);
@@ -32,7 +35,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/reservations" element={<ReservationPage />} />
       <Route path="/casts" element={<CastListPage />} />
       <Route path="/settings" element={<AdminTableSettings />} />
-      <Route path="/chat" element={<ChatPage />} /> {/* ✅ チャットページのルート追加 */}
+      <Route path="/chat" element={<ChatPage />} />
+      <Route path="/register" element={<Register />} /> {/* ✅ 管理者登録ルート追加 */}
     </Routes>
   );
 };
