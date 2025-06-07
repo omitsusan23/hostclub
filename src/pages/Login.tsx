@@ -1,30 +1,65 @@
-// src/pages/Login.tsx
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
+import { useAppContext } from '../context/AppContext';
 
-const Login: React.FC = () => {
-  const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+const Login = () => {
+  const navigate = useNavigate();
+  const { dispatch } = useAppContext();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [storeId, setStoreId] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const hostname = window.location.hostname;
+    const subdomain = hostname.split('.')[0];
+    setStoreId(subdomain);
+  }, []);
 
   const handleLogin = async () => {
-    setError('')
-    setLoading(true)
+    setError('');
+    setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     if (error) {
-      setError(error.message)
+      setError(error.message);
     } else {
-      // 成功時に任意のページへ（今は仮で /tables に）
-      navigate('/tables')
+      const session = data.session;
+
+      if (!session?.user) {
+        setError('セッション情報が取得できませんでした。');
+        setLoading(false);
+        return;
+      }
+
+      dispatch({ type: 'SET_SESSION', payload: session });
+
+      const meta = session.user.user_metadata;
+      dispatch({
+        type: 'SET_USER',
+        payload: {
+          username: session.user.email ?? '',
+          role: meta.role,
+          canManageTables: meta.role !== 'cast',
+        },
+      });
+
+      if (meta.role === 'cast') {
+        navigate(`/cast/${storeId}`);
+      } else {
+        navigate(`/stores/${storeId}`);
+      }
     }
 
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
@@ -55,7 +90,7 @@ const Login: React.FC = () => {
         {loading ? 'ログイン中...' : 'ログイン'}
       </button>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
