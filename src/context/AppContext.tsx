@@ -1,54 +1,46 @@
 // src/context/AppContext.tsx
-import React, {
-  createContext,
-  useContext,
-  useReducer,
-  ReactNode,
-  useEffect,
-} from 'react';
-import { Session, User as SupabaseUser } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 
-type Role = 'owner' | 'operator' | 'cast' | 'admin';
+type Role = 'owner' | 'operator' | 'cast' | 'admin'
 
 export interface User {
-  username: string;
-  role: Role;
-  canManageTables: boolean;
+  username: string
+  role: Role
+  canManageTables: boolean
 }
 
 export interface Reservation {
-  id: string;
-  princess: string;
-  requestedTable: string;
-  time: string;
-  budget: number;
-  help?: string[];
-  note?: string;
+  id: string
+  princess: string
+  requestedTable: string
+  time: string
+  budget: number
+  help?: string[]
+  note?: string
 }
 
 export interface Table {
-  id: string;
-  tableNumber: string;
-  princess: string;
-  budget: number;
-  time: string;
+  id: string
+  tableNumber: string
+  princess: string
+  budget: number
+  time: string
 }
 
-export type TableSetting = string;
+export type TableSetting = string
 
 interface AppState {
-  currentUser: User | null;
-  session: Session | null;
-  supabaseUser: SupabaseUser | null;
-  tables: Table[];
-  tableSettings: TableSetting[];
-  reservations: Reservation[];
+  currentUser: User | null
+  session: any | null // Supabaseセッションを保持
+  tables: Table[]
+  tableSettings: TableSetting[]
+  reservations: Reservation[]
 }
 
 type Action =
   | { type: 'SET_USER'; payload: User }
-  | { type: 'SET_SESSION'; payload: { session: Session; supabaseUser: SupabaseUser } }
+  | { type: 'SET_SESSION'; payload: any }
   | { type: 'LOGOUT' }
   | { type: 'ADD_TABLE'; payload: Table }
   | { type: 'DELETE_TABLE'; payload: string }
@@ -57,74 +49,71 @@ type Action =
   | { type: 'ADD_RESERVATION'; payload: Reservation }
   | { type: 'DELETE_RESERVATION'; payload: string }
   | {
-      type: 'ASSIGN_TABLE';
+      type: 'ASSIGN_TABLE'
       payload: {
-        id: string;
-        requestedTable: string;
-        princess: string;
-        budget: number;
-        time: string;
-      };
-    };
+        id: string
+        requestedTable: string
+        princess: string
+        budget: number
+        time: string
+      }
+    }
 
 const initialState: AppState = {
-  currentUser: null,
+  currentUser: {
+    username: 'admin',
+    role: 'owner',
+    canManageTables: true,
+  },
   session: null,
-  supabaseUser: null,
   tables: [],
   tableSettings: [],
   reservations: [],
-};
+}
 
 const AppContext = createContext<{
-  state: AppState;
-  dispatch: React.Dispatch<Action>;
-}>(
-  {
-    state: initialState,
-    dispatch: () => null,
-  }
-);
+  state: AppState
+  dispatch: React.Dispatch<Action>
+}>({
+  state: initialState,
+  dispatch: () => null,
+})
 
 const reducer = (state: AppState, action: Action): AppState => {
   switch (action.type) {
     case 'SET_USER':
-      return { ...state, currentUser: action.payload };
+      return { ...state, currentUser: action.payload }
     case 'SET_SESSION':
-      return {
-        ...state,
-        session: action.payload.session,
-        supabaseUser: action.payload.supabaseUser,
-      };
+      return { ...state, session: action.payload }
     case 'LOGOUT':
-      return { ...initialState };
+      return { ...state, currentUser: null, session: null }
     case 'ADD_TABLE':
-      return { ...state, tables: [...state.tables, action.payload] };
+      return { ...state, tables: [...state.tables, action.payload] }
     case 'DELETE_TABLE':
       return {
         ...state,
         tables: state.tables.filter((t) => t.id !== action.payload),
-      };
+      }
     case 'ADD_TABLE_SETTING':
       return {
         ...state,
         tableSettings: [...state.tableSettings, action.payload],
-      };
+      }
     case 'REMOVE_TABLE_SETTING':
       return {
         ...state,
         tableSettings: state.tableSettings.filter((t) => t !== action.payload),
-      };
+      }
     case 'ADD_RESERVATION':
       return {
         ...state,
         reservations: [...state.reservations, action.payload],
-      };
+      }
     case 'DELETE_RESERVATION':
       return {
         ...state,
         reservations: state.reservations.filter((r) => r.id !== action.payload),
-      };
+      }
     case 'ASSIGN_TABLE':
       return {
         ...state,
@@ -139,66 +128,24 @@ const reducer = (state: AppState, action: Action): AppState => {
             time: action.payload.time,
           },
         ],
-      };
+      }
     default:
-      return state;
+      return state
   }
-};
+}
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState)
 
   useEffect(() => {
-    const loadSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data?.session && data.session.user) {
-        dispatch({
-          type: 'SET_SESSION',
-          payload: { session: data.session, supabaseUser: data.session.user },
-        });
-        const meta = data.session.user.user_metadata as any;
-        dispatch({
-          type: 'SET_USER',
-          payload: {
-            username: data.session.user.email ?? '',
-            role: meta.role,
-            canManageTables: meta.role !== 'cast',
-          },
-        });
-      }
-    };
-    loadSession();
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_, session) => {
-      if (session) {
-        dispatch({
-          type: 'SET_SESSION',
-          payload: { session, supabaseUser: session.user },
-        });
-        const meta = session.user.user_metadata as any;
-        dispatch({
-          type: 'SET_USER',
-          payload: {
-            username: session.user.email ?? '',
-            role: meta.role,
-            canManageTables: meta.role !== 'cast',
-          },
-        });
-      } else {
-        dispatch({ type: 'LOGOUT' });
-      }
-    });
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+    const getSession = async () => {
+      const { data } = await supabase.auth.getSession()
+      dispatch({ type: 'SET_SESSION', payload: data.session })
+    }
+    getSession()
+  }, [])
 
-  return (
-    <AppContext.Provider value={{ state, dispatch }}>
-      {children}
-    </AppContext.Provider>
-  );
-};
+  return <AppContext.Provider value={{ state, dispatch }}>{children}</AppContext.Provider>
+}
 
-export const useAppContext = () => useContext(AppContext);
+export const useAppContext = () => useContext(AppContext)
