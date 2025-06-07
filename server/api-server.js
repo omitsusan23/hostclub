@@ -4,6 +4,7 @@ import cors from 'cors'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import storeRoutes from './routes/storeRoutes.js' // ✅ 追加
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const dataPath = path.join(__dirname, 'data', 'stores.json')
@@ -11,6 +12,9 @@ const dataPath = path.join(__dirname, 'data', 'stores.json')
 const app = express()
 app.use(cors())
 app.use(express.json())
+
+// ✅ Supabaseのstore関連ルートを追加
+app.use('/api', storeRoutes)
 
 // 静的ファイル（画像）
 app.use('/images', express.static(path.join(__dirname, '..', 'public', 'images')))

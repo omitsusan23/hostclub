@@ -10,6 +10,7 @@ const Register = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [storeId, setStoreId] = useState('')
+  const [storeExists, setStoreExists] = useState<boolean | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -17,6 +18,19 @@ const Register = () => {
     const hostname = window.location.hostname
     const subdomain = hostname.split('.')[0]
     setStoreId(subdomain)
+
+    const checkStore = async () => {
+      try {
+        const res = await fetch(`/api/is-store-registered?subdomain=${subdomain}`)
+        const json = await res.json()
+        setStoreExists(json.exists)
+      } catch (err) {
+        console.error('店舗確認エラー:', err)
+        setError('店舗の登録状況を確認できませんでした')
+      }
+    }
+
+    checkStore()
   }, [])
 
   const handleRegister = async () => {
@@ -37,7 +51,6 @@ const Register = () => {
     if (error) {
       setError(error.message)
     } else {
-      // ✅ セッション取得とAppContextへの反映
       const sessionResult = await supabase.auth.getSession()
       const session = sessionResult.data.session
 
@@ -54,7 +67,6 @@ const Register = () => {
           },
         })
 
-        // ✅ リダイレクト先をロールに応じて変更
         if (meta.role === 'cast') {
           navigate(`/cast/${storeId}`)
         } else {
@@ -66,6 +78,25 @@ const Register = () => {
     }
 
     setLoading(false)
+  }
+
+  if (storeExists === null) {
+    return <div className="text-center mt-20">読み込み中...</div>
+  }
+
+  if (storeExists) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <h1 className="text-2xl font-bold text-red-600 mb-4">すでに管理者登録されています</h1>
+        <p className="mb-4">この店舗ではすでに管理者が登録されています。ログイン画面からお進みください。</p>
+        <button
+          onClick={() => navigate('/login')}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          ログイン画面へ
+        </button>
+      </div>
+    )
   }
 
   return (

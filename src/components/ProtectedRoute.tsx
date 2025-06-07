@@ -13,13 +13,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
     state: { session, currentUser },
   } = useAppContext()
 
-  // 未ログインの場合はリダイレクト
-  if (!session) {
+  // ✅ セッションまたはユーザー情報がなければ /register にリダイレクト
+  if (!session || !currentUser) {
     return <Navigate to="/register" replace />
   }
 
-  // ロールが許可されていない場合はリダイレクト
-  if (allowedRoles && currentUser && !allowedRoles.includes(currentUser.role)) {
+  // ✅ ロール制限があれば確認する
+  if (allowedRoles && !allowedRoles.includes(currentUser.role)) {
     return <Navigate to="/not-authorized" replace />
   }
 

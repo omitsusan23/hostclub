@@ -1,65 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
-import { useAppContext } from '../context/AppContext';
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
+import { useAppContext } from '../context/AppContext'
 
 const Login = () => {
-  const navigate = useNavigate();
-  const { dispatch } = useAppContext();
+  const navigate = useNavigate()
+  const { dispatch } = useAppContext()
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [storeId, setStoreId] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [storeId, setStoreId] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const hostname = window.location.hostname;
-    const subdomain = hostname.split('.')[0];
-    setStoreId(subdomain);
-  }, []);
+    const hostname = window.location.hostname
+    const subdomain = hostname.split('.')[0]
+    setStoreId(subdomain)
+  }, [])
 
   const handleLogin = async () => {
-    setError('');
-    setLoading(true);
+    setError('')
+    setLoading(true)
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
-    });
+    })
 
     if (error) {
-      setError(error.message);
+      setError(error.message)
     } else {
-      const session = data.session;
+      const session = data.session
+      dispatch({ type: 'SET_SESSION', payload: session })
 
-      if (!session?.user) {
-        setError('セッション情報が取得できませんでした。');
-        setLoading(false);
-        return;
-      }
+      if (session?.user) {
+        const meta = session.user.user_metadata
+        dispatch({
+          type: 'SET_USER',
+          payload: {
+            username: session.user.email ?? '',
+            role: meta.role,
+            canManageTables: meta.role !== 'cast',
+          },
+        })
 
-      dispatch({ type: 'SET_SESSION', payload: session });
-
-      const meta = session.user.user_metadata;
-      dispatch({
-        type: 'SET_USER',
-        payload: {
-          username: session.user.email ?? '',
-          role: meta.role,
-          canManageTables: meta.role !== 'cast',
-        },
-      });
-
-      if (meta.role === 'cast') {
-        navigate(`/cast/${storeId}`);
+        if (meta.role === 'cast') {
+          navigate(`/cast/${storeId}`)
+        } else {
+          navigate(`/stores/${storeId}`)
+        }
       } else {
-        navigate(`/stores/${storeId}`);
+        setError('セッション情報が取得できませんでした。')
       }
     }
 
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
@@ -90,7 +87,7 @@ const Login = () => {
         {loading ? 'ログイン中...' : 'ログイン'}
       </button>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

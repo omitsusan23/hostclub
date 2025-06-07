@@ -32,7 +32,8 @@ export type TableSetting = string
 
 interface AppState {
   currentUser: User | null
-  session: any | null // Supabaseセッションを保持
+  session: any | null
+  isStoreRegistered: boolean | null
   tables: Table[]
   tableSettings: TableSetting[]
   reservations: Reservation[]
@@ -41,6 +42,7 @@ interface AppState {
 type Action =
   | { type: 'SET_USER'; payload: User }
   | { type: 'SET_SESSION'; payload: any }
+  | { type: 'SET_STORE_REGISTERED'; payload: boolean }
   | { type: 'LOGOUT' }
   | { type: 'ADD_TABLE'; payload: Table }
   | { type: 'DELETE_TABLE'; payload: string }
@@ -60,12 +62,9 @@ type Action =
     }
 
 const initialState: AppState = {
-  currentUser: {
-    username: 'admin',
-    role: 'owner',
-    canManageTables: true,
-  },
+  currentUser: null,
   session: null,
+  isStoreRegistered: null,
   tables: [],
   tableSettings: [],
   reservations: [],
@@ -85,6 +84,8 @@ const reducer = (state: AppState, action: Action): AppState => {
       return { ...state, currentUser: action.payload }
     case 'SET_SESSION':
       return { ...state, session: action.payload }
+    case 'SET_STORE_REGISTERED':
+      return { ...state, isStoreRegistered: action.payload }
     case 'LOGOUT':
       return { ...state, currentUser: null, session: null }
     case 'ADD_TABLE':
@@ -143,6 +144,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       dispatch({ type: 'SET_SESSION', payload: data.session })
     }
     getSession()
+  }, [])
+
+  // ✅ サブドメイン登録判定API呼び出し
+  useEffect(() => {
+    const checkStoreRegistered = async () => {
+      const subdomain = window.location.hostname.split('.')[0]
+      try {
+        const response = await fetch(
+          `http://localhost:3001/api/is-store-registered/${subdomain}`
+        )
+        const data = await response.json()
+        dispatch({ type: 'SET_STORE_REGISTERED', payload: data.registered })
+      } catch (error) {
+        console.error('サブドメイン確認エラー:', error)
+        dispatch({ type: 'SET_STORE_REGISTERED', payload: false })
+      }
+    }
+
+    checkStoreRegistered()
   }, [])
 
   return <AppContext.Provider value={{ state, dispatch }}>{children}</AppContext.Provider>

@@ -1,5 +1,5 @@
 // src/AppRoutes.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useStore } from './context/StoreContext';
 import { useAppContext } from './context/AppContext';
@@ -11,8 +11,45 @@ import CastListPage from './pages/CastListPage';
 import AdminTableSettings from './pages/AdminTableSettings';
 import ChatPage from './pages/ChatPage';
 import Register from './pages/Register';
-import Login from './pages/Login'; // ✅ 追加
+import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
+import { supabase } from './lib/supabase';
+
+const HomeRedirect: React.FC = () => {
+  const [isStoreRegistered, setIsStoreRegistered] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkStoreRegistration = async () => {
+      const subdomain = window.location.hostname.split('.')[0];
+      const { data, error } = await supabase.auth.admin.listUsers();
+
+      if (error) {
+        console.error('ユーザー一覧取得エラー:', error.message);
+        setIsStoreRegistered(false);
+        return;
+      }
+
+      const found = data?.users?.some(
+        (user) => user.user_metadata?.store_id === subdomain
+      );
+
+      setIsStoreRegistered(found);
+    };
+
+    checkStoreRegistration();
+  }, []);
+
+  if (isStoreRegistered === null) {
+    return <div>判定中...</div>; // ローディング表示（任意）
+  }
+
+  return (
+    <Navigate
+      to={isStoreRegistered ? '/login' : '/register'}
+      replace
+    />
+  );
+};
 
 const AppRoutes: React.FC = () => {
   const location = useLocation();
@@ -30,14 +67,14 @@ const AppRoutes: React.FC = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/tables" replace />} />
+      <Route path="/" element={<HomeRedirect />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/login" element={<Login />} /> {/* ✅ ログインルート追加 */}
+      <Route path="/login" element={<Login />} />
 
       <Route
         path="/stores/:subdomain"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['admin', 'owner', 'operator']}>
             <AdminDashboard />
           </ProtectedRoute>
         }
@@ -45,7 +82,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="/cast/:subdomain"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['cast']}>
             <CastDashboard />
           </ProtectedRoute>
         }
