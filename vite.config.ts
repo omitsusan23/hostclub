@@ -1,11 +1,16 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-// import { VitePWA } from 'vite-plugin-pwa'; // 後で再有効化
 
 export default defineConfig({
-  base: '/', // SPAルーティング用
+  base: '/',
+  define: {
+    // ✅ 本番ビルドで Supabase URL / Key を明示的に注入
+    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL),
+    'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY)
+  },
   plugins: [
     react(),
+    // 後で PWA を再有効にしたい場合は以下を戻す
     /*
     VitePWA({
       registerType: 'autoUpdate',
@@ -45,7 +50,7 @@ export default defineConfig({
     exclude: ['lucide-react']
   },
   server: {
-    host: 'localhost',  // ✅ HTTPSに起因するWSエラー回避のためlocalhostに固定
+    host: 'localhost',
     port: 5173,
     strictPort: true,
     hmr: {
