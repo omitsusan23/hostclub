@@ -1,12 +1,12 @@
-// vite.config.ts
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { VitePWA } from 'vite-plugin-pwa';
+// import { VitePWA } from 'vite-plugin-pwa'; // 後で再有効化
 
 export default defineConfig({
-  base: '/',
+  base: '/', // SPAルーティング用
   plugins: [
     react(),
+    /*
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: [
@@ -39,18 +39,19 @@ export default defineConfig({
         ]
       }
     })
+    */
   ],
   optimizeDeps: {
     exclude: ['lucide-react']
   },
   server: {
-    host: '0.0.0.0',
+    host: 'localhost',  // ✅ HTTPSに起因するWSエラー回避のためlocalhostに固定
     port: 5173,
     strictPort: true,
     hmr: {
-      host: '0.0.0.0',
-      port: 5173,
-      protocol: 'ws'
+      protocol: 'ws',
+      host: 'localhost',
+      port: 5173
     },
     proxy: {
       '/api': {
