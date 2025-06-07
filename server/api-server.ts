@@ -1,11 +1,13 @@
-// server/api-server.js
+// server/api-server.ts
 import express from 'express'
 import cors from 'cors'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import 'dotenv/config' // ← .env を確実に読み込む
-import storeCheckRoute from './api/is-store-registered.js' // ← ルート正確に！
+import dotenv from 'dotenv'
+import storeCheckRoute from './routes/isStoreRegistered' // ✅ 正しいルートに修正
+
+dotenv.config()
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const dataPath = path.join(__dirname, 'data', 'stores.json')
@@ -21,7 +23,7 @@ app.use('/api/is-store-registered', storeCheckRoute)
 app.use('/images', express.static(path.join(__dirname, '..', 'public', 'images')))
 
 // JSONファイル読み込み（サブドメイン → 店舗情報）
-let storesData = {}
+let storesData: Record<string, any> = {}
 try {
   storesData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'))
 } catch {
