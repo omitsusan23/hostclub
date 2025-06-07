@@ -11,7 +11,27 @@ import AdminTableSettings from './pages/AdminTableSettings'
 import ChatPage from './pages/ChatPage'
 import Register from './pages/Register'
 import ProtectedRoute from './components/ProtectedRoute'
-import NotAuthorized from './pages/NotAuthorized' // ✅ 追加
+import NotAuthorized from './pages/NotAuthorized'
+
+const HomeRedirect: React.FC = () => {
+  const {
+    state: { session, supabaseUser },
+  } = useAppContext()
+
+  if (session && supabaseUser) {
+    const role = (supabaseUser.user_metadata as any).role
+    const storeId = (supabaseUser.user_metadata as any).store_id
+
+    if (['admin', 'owner', 'operator'].includes(role)) {
+      return <Navigate to={`/stores/${storeId}`} replace />
+    }
+    if (role === 'cast') {
+      return <Navigate to={`/cast/${storeId}`} replace />
+    }
+  }
+
+  return <Navigate to="/register" replace />
+}
 
 const AppRoutes: React.FC = () => {
   const location = useLocation()
@@ -29,7 +49,7 @@ const AppRoutes: React.FC = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/tables" replace />} />
+      <Route path="/" element={<HomeRedirect />} />
       <Route path="/register" element={<Register />} />
 
       <Route
