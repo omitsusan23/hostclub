@@ -5,8 +5,8 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": false,
     "skipLibCheck": true,
-    "esModuleInterop": true,               // ← ここを追加
-    "allowSyntheticDefaultImports": true,  // ← ここを追加
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
@@ -14,12 +14,12 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",                     // ← JSX を扱う設定
+    "jsx": "react-jsx",
     "types": [
       "vite/client",
-      "jest",                               // ← jest の型定義を読み込む
-      "jsdom",                              // ← jsdom 環境型を読み込む
-      "@testing-library/jest-dom"           // ← jest-dom のマッチャー型を読み込む
+      "jest",
+      "jsdom",
+      "@testing-library/jest-dom"
     ]
   },
   "include": ["src"]
