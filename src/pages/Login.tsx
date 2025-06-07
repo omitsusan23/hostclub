@@ -1,46 +1,40 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// src/pages/Login.tsx
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
-interface LoginProps {
-  setCurrentUser: (user: any) => void;
-}
-
-function Login({ setCurrentUser }: LoginProps) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
+const Login: React.FC = () => {
+  const navigate = useNavigate()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleLogin = async () => {
-    setError('');
-    try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-      if (!res.ok) throw new Error('login failed');
-      const user = await res.json();
-      setCurrentUser(user);
-      if (user.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/cast');
-      }
-    } catch {
-      setError('ユーザー名またはパスワードが間違っています。');
+    setError('')
+    setLoading(true)
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+
+    if (error) {
+      setError(error.message)
+    } else {
+      // 成功時に任意のページへ（今は仮で /tables に）
+      navigate('/tables')
     }
-  };
+
+    setLoading(false)
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
       <h1 className="text-2xl font-bold mb-4">ログイン</h1>
 
       <input
-        type="text"
-        placeholder="ユーザー名"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        type="email"
+        placeholder="メールアドレス"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
         className="border px-3 py-2 mb-2 w-64 rounded"
       />
       <input
@@ -55,12 +49,13 @@ function Login({ setCurrentUser }: LoginProps) {
 
       <button
         onClick={handleLogin}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        disabled={loading}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
       >
-        ログイン
+        {loading ? 'ログイン中...' : 'ログイン'}
       </button>
     </div>
-  );
+  )
 }
 
-export default Login;
+export default Login

@@ -1,3 +1,4 @@
+// src/AppRoutes.tsx
 import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useStore } from './context/StoreContext';
@@ -10,7 +11,8 @@ import CastListPage from './pages/CastListPage';
 import AdminTableSettings from './pages/AdminTableSettings';
 import ChatPage from './pages/ChatPage';
 import Register from './pages/Register';
-import ProtectedRoute from './components/ProtectedRoute'; // 追加
+import Login from './pages/Login'; // ✅ 追加
+import ProtectedRoute from './components/ProtectedRoute';
 
 const AppRoutes: React.FC = () => {
   const location = useLocation();
@@ -30,6 +32,7 @@ const AppRoutes: React.FC = () => {
     <Routes>
       <Route path="/" element={<Navigate to="/tables" replace />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/login" element={<Login />} /> {/* ✅ ログインルート追加 */}
 
       <Route
         path="/stores/:subdomain"
