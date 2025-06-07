@@ -8,12 +8,13 @@ dotenv.config();
 const router = express.Router();
 
 const supabaseService = createClient(
-  process.env.VITE_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // 安全に保管される値
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY! // .env の鍵を使う
 );
 
 router.get('/', async (req, res) => {
   const { store_id } = req.query;
+
   if (!store_id || typeof store_id !== 'string') {
     return res.status(400).json({ error: 'Missing store_id' });
   }

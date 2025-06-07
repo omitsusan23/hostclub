@@ -4,7 +4,8 @@ import cors from 'cors'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import storeRoutes from './routes/storeRoutes.js' // ✅ 追加
+import 'dotenv/config' // ← .env を確実に読み込む
+import storeCheckRoute from './api/is-store-registered.js' // ← ルート正確に！
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const dataPath = path.join(__dirname, 'data', 'stores.json')
@@ -13,8 +14,8 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-// ✅ Supabaseのstore関連ルートを追加
-app.use('/api', storeRoutes)
+// ✅ Supabase の API ルート
+app.use('/api/is-store-registered', storeCheckRoute)
 
 // 静的ファイル（画像）
 app.use('/images', express.static(path.join(__dirname, '..', 'public', 'images')))
