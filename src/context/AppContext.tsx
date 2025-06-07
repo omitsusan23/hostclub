@@ -5,7 +5,6 @@ import React, {
   useReducer,
   ReactNode,
   useEffect,
-  useState,
 } from 'react';
 import { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
@@ -151,15 +150,48 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   useEffect(() => {
     const loadSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
+      const { data } = await supabase.auth.getSession();
       if (data?.session && data.session.user) {
         dispatch({
           type: 'SET_SESSION',
           payload: { session: data.session, supabaseUser: data.session.user },
         });
+        const meta = data.session.user.user_metadata as any;
+        dispatch({
+          type: 'SET_USER',
+          payload: {
+            username: data.session.user.email ?? '',
+            role: meta.role,
+            canManageTables: meta.role !== 'cast',
+          },
+        });
       }
     };
     loadSession();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_, session) => {
+      if (session) {
+        dispatch({
+          type: 'SET_SESSION',
+          payload: { session, supabaseUser: session.user },
+        });
+        const meta = session.user.user_metadata as any;
+        dispatch({
+          type: 'SET_USER',
+          payload: {
+            username: session.user.email ?? '',
+            role: meta.role,
+            canManageTables: meta.role !== 'cast',
+          },
+        });
+      } else {
+        dispatch({ type: 'LOGOUT' });
+      }
+    });
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (
