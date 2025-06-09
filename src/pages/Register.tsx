@@ -1,3 +1,4 @@
+// src/pages/Register.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -21,10 +22,11 @@ const Register = () => {
 
     const checkStore = async () => {
       try {
+        // ✅ 本番環境にも対応（Vercelの場合、相対パスで OK）
         const isLocalhost = hostname === 'localhost';
         const apiBaseUrl = isLocalhost
           ? 'http://localhost:3001'
-          : ''; // Vercel では '' = 相対パスで OK
+          : window.location.origin; // ← 修正箇所
 
         const res = await fetch(`${apiBaseUrl}/api/is-store-registered?subdomain=${subdomain}`);
         const json = await res.json();
