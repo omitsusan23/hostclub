@@ -1,4 +1,3 @@
-// src/App.tsx
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { StoreProvider } from './context/StoreContext';
@@ -8,7 +7,7 @@ import AppRoutes from './AppRoutes';
 
 const AppContent: React.FC = () => {
   const { state } = useAppContext();
-  const user = state.session?.user; // ✅ session.user を参照
+  const user = state.session?.user;
 
   useEffect(() => {
     if (user) {

@@ -1,4 +1,3 @@
-// src/context/StoreContext.tsx
 import React, {
   createContext,
   useContext,
@@ -31,7 +30,7 @@ const StoreContext = createContext<StoreContextValue>({
 });
 
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  console.log('StoreProvider is mounted');
+  console.log('🟢 StoreProvider is mounted');
 
   const { state } = useAppContext();
   const storeId = state.session?.user?.user_metadata?.store_id;
@@ -51,7 +50,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         .single();
 
       if (error) {
-        console.error('⚠️ 店舗情報取得エラー:', error.message);
+        console.error('❌ 店舗情報取得エラー:', error.message);
       } else if (data) {
         console.log('✅ Supabaseから取得した店舗データ:', data);
         setStores([data]);
