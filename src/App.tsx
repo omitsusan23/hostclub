@@ -1,3 +1,4 @@
+// src/App.tsx
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { StoreProvider } from './context/StoreContext';
@@ -21,19 +22,19 @@ const AppContent: React.FC = () => {
 
   return (
     <Router>
-      <Layout>
-        <AppRoutes />
-      </Layout>
+      <StoreProvider>
+        <Layout>
+          <AppRoutes />
+        </Layout>
+      </StoreProvider>
     </Router>
   );
 };
 
 const App: React.FC = () => (
-  <StoreProvider>
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
-  </StoreProvider>
+  <AppProvider>
+    <AppContent />
+  </AppProvider>
 );
 
 export default App;
