@@ -1,4 +1,3 @@
-console.log('StoreProvider is mounted');
 // src/context/StoreContext.tsx
 import React, {
   createContext,
@@ -12,6 +11,7 @@ import React, {
 export interface StoreInfo {
   id: string;
   name: string;
+  logo_url: string; // ← ✅ 追加：背景ロゴのURL
 }
 
 interface StoreContextValue {
@@ -29,6 +29,8 @@ const StoreContext = createContext<StoreContextValue>({
 });
 
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  console.log('StoreProvider is mounted'); // ← 追加ログ
+
   const [stores, setStores] = useState<StoreInfo[]>([]);
   const [currentStoreId, setCurrentStoreId] = useState<string | undefined>(undefined);
   const [isEmployeeView, setIsEmployeeView] = useState<boolean>(false);
