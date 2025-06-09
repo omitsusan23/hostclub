@@ -10,6 +10,10 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { currentStore } = useStore(); // 修正: currentStore を取得
 
+  // ✅ currentStore と logo_url をログ出力して確認
+  console.log('📦 現在の店舗 (currentStore):', currentStore);
+  console.log('🖼️ 背景ロゴURL (logo_url):', currentStore?.logo_url);
+
   return (
     <div className="relative flex flex-col min-h-screen bg-white overflow-hidden">
       {/* ✅ Supabaseから取得した背景ロゴを中央に配置 */}
