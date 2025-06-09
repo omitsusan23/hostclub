@@ -1,4 +1,4 @@
-// api/is-store-registered.ts (Vercel Edge Function 対応)
+// api/is-store-registered.ts (Vercel API Route)
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 
