@@ -7,11 +7,13 @@ import React, {
   ReactNode,
   useMemo,
 } from 'react';
+import { supabase } from '../lib/supabase';
+import { useAppContext } from './AppContext';
 
 export interface StoreInfo {
   id: string;
   name: string;
-  logo_url: string; // ← ✅ 追加：背景ロゴのURL
+  logo_url?: string; // オプションで追加
 }
 
 interface StoreContextValue {
@@ -29,26 +31,37 @@ const StoreContext = createContext<StoreContextValue>({
 });
 
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  console.log('StoreProvider is mounted'); // ← 追加ログ
+  console.log('StoreProvider is mounted');
+
+  const { state } = useAppContext();
+  const storeId = state.session?.user?.user_metadata?.store_id;
 
   const [stores, setStores] = useState<StoreInfo[]>([]);
-  const [currentStoreId, setCurrentStoreId] = useState<string | undefined>(undefined);
+  const [currentStoreId, setCurrentStoreId] = useState<string | undefined>(storeId);
   const [isEmployeeView, setIsEmployeeView] = useState<boolean>(false);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('/mock/store.json');
-        const store: StoreInfo = await res.json();
-        console.log('取得したモック店舗データ:', store); // ← 追加ログ
-        setStores([store]);
-        setCurrentStoreId(store.id);
+    const fetchStore = async () => {
+      if (!storeId) return;
+
+      const { data, error } = await supabase
+        .from('stores')
+        .select('id, name, logo_url')
+        .eq('id', storeId)
+        .single();
+
+      if (error) {
+        console.error('⚠️ 店舗情報取得エラー:', error.message);
+      } else if (data) {
+        console.log('✅ Supabaseから取得した店舗データ:', data);
+        setStores([data]);
+        setCurrentStoreId(data.id);
         setIsEmployeeView(true);
-      } catch (err) {
-        console.error('Failed to fetch mock store', err);
       }
-    })();
-  }, []);
+    };
+
+    fetchStore();
+  }, [storeId]);
 
   const currentStore = useMemo(
     () => stores.find((s) => s.id === currentStoreId),
