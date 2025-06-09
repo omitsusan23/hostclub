@@ -21,9 +21,12 @@ const Register = () => {
 
     const checkStore = async () => {
       try {
-        const res = await fetch(
-          `https://${hostname}/api/is-store-registered?store_id=${subdomain}`
-        )
+        const isLocalhost = hostname === 'localhost'
+        const apiBaseUrl = isLocalhost
+          ? 'http://localhost:3001'
+          : 'https://hostclub.vercel.app'
+
+        const res = await fetch(`${apiBaseUrl}/api/is-store-registered?store_id=${subdomain}`)
         const json = await res.json()
         setStoreExists(json.exists)
       } catch (err) {
