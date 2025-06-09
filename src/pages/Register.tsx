@@ -21,7 +21,9 @@ const Register = () => {
 
     const checkStore = async () => {
       try {
-        const res = await fetch(`/api/is-store-registered?store_id=${subdomain}`)
+        const res = await fetch(
+          `https://${hostname}/api/is-store-registered?store_id=${subdomain}`
+        )
         const json = await res.json()
         setStoreExists(json.exists)
       } catch (err) {
