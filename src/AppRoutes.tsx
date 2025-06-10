@@ -14,7 +14,7 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { supabase } from './lib/supabase';
-import Layout from './components/Layout'; // ✅ 追加
+import Layout from './components/Layout'; // ✅ Layout を追加
 
 const HomeRedirect: React.FC = () => {
   const [isStoreRegistered, setIsStoreRegistered] = useState<boolean | null>(null);
@@ -41,7 +41,7 @@ const HomeRedirect: React.FC = () => {
   }, []);
 
   if (isStoreRegistered === null) {
-    return <div>判定中...</div>;
+    return <div>判定中...</div>; // ローディング表示（任意）
   }
 
   return (
@@ -76,9 +76,7 @@ const AppRoutes: React.FC = () => {
         path="/stores/:subdomain"
         element={
           <ProtectedRoute allowedRoles={['admin', 'owner', 'operator']}>
-            <Layout>
-              <AdminDashboard />
-            </Layout>
+            <AdminDashboard />
           </ProtectedRoute>
         }
       />
@@ -86,9 +84,7 @@ const AppRoutes: React.FC = () => {
         path="/cast/:subdomain"
         element={
           <ProtectedRoute allowedRoles={['cast']}>
-            <Layout>
-              <CastDashboard />
-            </Layout>
+            <CastDashboard />
           </ProtectedRoute>
         }
       />
@@ -96,9 +92,7 @@ const AppRoutes: React.FC = () => {
         path="/tables"
         element={
           <ProtectedRoute>
-            <Layout>
-              <TableStatusPage />
-            </Layout>
+            <TableStatusPage />
           </ProtectedRoute>
         }
       />
@@ -106,9 +100,7 @@ const AppRoutes: React.FC = () => {
         path="/reservations"
         element={
           <ProtectedRoute>
-            <Layout>
-              <ReservationPage />
-            </Layout>
+            <ReservationPage />
           </ProtectedRoute>
         }
       />
@@ -116,9 +108,7 @@ const AppRoutes: React.FC = () => {
         path="/casts"
         element={
           <ProtectedRoute>
-            <Layout>
-              <CastListPage />
-            </Layout>
+            <CastListPage />
           </ProtectedRoute>
         }
       />
@@ -136,9 +126,7 @@ const AppRoutes: React.FC = () => {
         path="/chat"
         element={
           <ProtectedRoute>
-            <Layout>
-              <ChatPage />
-            </Layout>
+            <ChatPage />
           </ProtectedRoute>
         }
       />
