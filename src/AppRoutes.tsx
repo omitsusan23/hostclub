@@ -1,4 +1,3 @@
-// src/AppRoutes.tsx
 import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useStore } from './context/StoreContext';
@@ -16,8 +15,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 
 const HomeRedirect: React.FC = () => {
-  const { state } = useAppContext();
-  const session = state.session;
+  const {
+    state: { session },
+  } = useAppContext();
 
   if (!session || !session.user) return <Navigate to="/login" replace />;
   return <Navigate to="/tables" replace />;

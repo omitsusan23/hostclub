@@ -1,4 +1,3 @@
-// src/pages/Login.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -48,11 +47,7 @@ const Login = () => {
           },
         });
 
-        if (meta.role === 'cast') {
-          navigate(`/cast/${storeId}`);
-        } else {
-          navigate(`/tables`);
-        }
+        navigate('/tables');
       } else {
         setError('セッション情報が取得できませんでした。');
       }
