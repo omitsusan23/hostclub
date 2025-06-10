@@ -1,3 +1,4 @@
+// src/AppRoutes.tsx
 import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useStore } from './context/StoreContext';
@@ -12,7 +13,7 @@ import ChatPage from './pages/ChatPage';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
-import Layout from './components/Layout'; // ✅ Layout を追加
+import Layout from './components/Layout';
 
 const HomeRedirect: React.FC = () => {
   const { state } = useAppContext();
@@ -36,11 +37,9 @@ const AppRoutes: React.FC = () => {
     console.log('ログイン中のユーザー情報(user):', user);
   }, [location, stores, currentStore, user]);
 
-  // ✅ Footerを非表示にするパス
   const hideFooterRoutes = ['/register', '/login'];
   const isFooterHidden = hideFooterRoutes.includes(location.pathname);
 
-  // ✅ 条件付きで Layout をラップ
   const wrapWithLayout = (element: React.ReactNode) =>
     isFooterHidden ? <>{element}</> : <Layout>{element}</Layout>;
 

@@ -1,62 +1,44 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
-import { useAppContext } from '../context/AppContext'
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+// src/pages/Login.tsx
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
+import { useAppContext } from '../context/AppContext';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 const Login = () => {
-  const navigate = useNavigate()
-  const { dispatch } = useAppContext()
+  const navigate = useNavigate();
+  const { dispatch } = useAppContext();
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [storeId, setStoreId] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [storeId, setStoreId] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    const hostname = window.location.hostname
-    const subdomain = hostname.split('.')[0]
-    setStoreId(subdomain)
-
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession()
-      const session = data.session
-
-      // ✅ ?redirect=1 があるときだけ自動リダイレクト
-      const shouldRedirect = new URLSearchParams(window.location.search).get('redirect') === '1'
-
-      if (session?.user && shouldRedirect) {
-        const meta = session.user.user_metadata
-        if (meta.role === 'cast') {
-          navigate(`/cast/${subdomain}`)
-        } else {
-          navigate(`/stores/${subdomain}`)
-        }
-      }
-    }
-
-    checkSession()
-  }, [navigate])
+    const hostname = window.location.hostname;
+    const subdomain = hostname.split('.')[0];
+    setStoreId(subdomain);
+  }, []);
 
   const handleLogin = async () => {
-    setError('')
-    setLoading(true)
+    setError('');
+    setLoading(true);
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
-    })
+    });
 
     if (error) {
-      setError(error.message)
+      setError(error.message);
     } else {
-      const session = data.session
-      dispatch({ type: 'SET_SESSION', payload: session })
+      const session = data.session;
+      dispatch({ type: 'SET_SESSION', payload: session });
 
       if (session?.user) {
-        const meta = session.user.user_metadata
+        const meta = session.user.user_metadata;
         dispatch({
           type: 'SET_USER',
           payload: {
@@ -64,20 +46,20 @@ const Login = () => {
             role: meta.role,
             canManageTables: meta.role !== 'cast',
           },
-        })
+        });
 
         if (meta.role === 'cast') {
-          navigate(`/cast/${storeId}`)
+          navigate(`/cast/${storeId}`);
         } else {
-          navigate(`/tables/${storeId}`)
+          navigate(`/tables`);
         }
       } else {
-        setError('セッション情報が取得できませんでした。')
+        setError('セッション情報が取得できませんでした。');
       }
     }
 
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
@@ -105,11 +87,7 @@ const Login = () => {
           className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
           aria-label="パスワード表示切替"
         >
-          {showPassword ? (
-            <EyeSlashIcon className="h-5 w-5" />
-          ) : (
-            <EyeIcon className="h-5 w-5" />
-          )}
+          {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
         </button>
       </div>
 
@@ -123,7 +101,7 @@ const Login = () => {
         {loading ? 'ログイン中...' : 'ログイン'}
       </button>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
