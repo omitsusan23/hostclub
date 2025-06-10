@@ -20,12 +20,14 @@ const Login = () => {
     const subdomain = hostname.split('.')[0]
     setStoreId(subdomain)
 
-    // ✅ 自動ログイン：セッションがある場合はリダイレクト
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession()
       const session = data.session
 
-      if (session?.user) {
+      const pathname = window.location.pathname
+      const isExplicitLogin = pathname.includes('/login')
+
+      if (session?.user && isExplicitLogin) {
         const meta = session.user.user_metadata
         if (meta.role === 'cast') {
           navigate(`/cast/${subdomain}`)
