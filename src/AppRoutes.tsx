@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useStore } from './context/StoreContext';
 import { useAppContext } from './context/AppContext';
@@ -12,42 +12,13 @@ import ChatPage from './pages/ChatPage';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
-import { supabase } from './lib/supabase';
 
 const HomeRedirect: React.FC = () => {
-  const [isStoreRegistered, setIsStoreRegistered] = useState<boolean | null>(null);
+  const { state } = useAppContext();
+  const session = state.session;
 
-  useEffect(() => {
-    const checkStoreRegistration = async () => {
-      const subdomain = window.location.hostname.split('.')[0];
-      const { data, error } = await supabase.auth.admin.listUsers();
-
-      if (error) {
-        console.error('ユーザー一覧取得エラー:', error.message);
-        setIsStoreRegistered(false);
-        return;
-      }
-
-      const found = data?.users?.some(
-        (user) => user.user_metadata?.store_id === subdomain
-      );
-
-      setIsStoreRegistered(found);
-    };
-
-    checkStoreRegistration();
-  }, []);
-
-  if (isStoreRegistered === null) {
-    return <div>判定中...</div>;
-  }
-
-  return (
-    <Navigate
-      to={isStoreRegistered ? '/login' : '/register'}
-      replace
-    />
-  );
+  if (!session || !session.user) return <Navigate to="/login" replace />;
+  return <Navigate to="/tables" replace />;
 };
 
 const AppRoutes: React.FC = () => {
