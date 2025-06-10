@@ -75,7 +75,7 @@ const Register = () => {
         if (meta.role === 'cast') {
           navigate(`/cast/${storeId}`)
         } else {
-          navigate(`/stores/${storeId}`)
+          navigate(`/tables/${storeId}`)
         }
       } else {
         setError('セッション情報が取得できませんでした。')
