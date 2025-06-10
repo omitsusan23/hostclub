@@ -1,8 +1,8 @@
-// src/App.tsx
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { StoreProvider } from './context/StoreContext';
 import { AppProvider, useAppContext } from './context/AppContext';
+import Layout from './components/Layout';
 import AppRoutes from './AppRoutes';
 import { supabase } from './lib/supabase'; // ✅ 追加
 
@@ -44,7 +44,9 @@ const AppContent: React.FC = () => {
   return (
     <Router>
       <StoreProvider>
-        <AppRoutes />
+        <Layout>
+          <AppRoutes />
+        </Layout>
       </StoreProvider>
     </Router>
   );
