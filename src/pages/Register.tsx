@@ -5,7 +5,8 @@ import { useAppContext } from '../context/AppContext';
 
 const Register = () => {
   const navigate = useNavigate();
-  const { dispatch } = useAppContext();
+  const { state, dispatch } = useAppContext();
+  const session = state.session;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,6 +19,12 @@ const Register = () => {
     const hostname = window.location.hostname;
     const subdomain = hostname.split('.')[0];
     setStoreId(subdomain);
+
+    // 🔒 セッション復元中は処理しない
+    if (session === undefined) {
+      console.log('⏳ セッション復元中のため store 確認を保留');
+      return;
+    }
 
     const checkStore = async () => {
       try {
@@ -36,7 +43,7 @@ const Register = () => {
     };
 
     checkStore();
-  }, []);
+  }, [session]);
 
   const handleRegister = async () => {
     setError('');
@@ -86,8 +93,8 @@ const Register = () => {
   };
 
   const handleToLogin = async () => {
-    await supabase.auth.signOut(); // ✅ セッション破棄
-    navigate('/login'); // クエリ無し＝stay
+    await supabase.auth.signOut();
+    navigate('/login');
   };
 
   if (storeExists === null) {
