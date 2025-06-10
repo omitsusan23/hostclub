@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAppContext } from '../context/AppContext'
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline' // ← アイコン追加
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -19,7 +19,24 @@ const Login = () => {
     const hostname = window.location.hostname
     const subdomain = hostname.split('.')[0]
     setStoreId(subdomain)
-  }, [])
+
+    // ✅ 自動ログイン：セッションがある場合はリダイレクト
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession()
+      const session = data.session
+
+      if (session?.user) {
+        const meta = session.user.user_metadata
+        if (meta.role === 'cast') {
+          navigate(`/cast/${subdomain}`)
+        } else {
+          navigate(`/stores/${subdomain}`)
+        }
+      }
+    }
+
+    checkSession()
+  }, [navigate])
 
   const handleLogin = async () => {
     setError('')
@@ -64,7 +81,6 @@ const Login = () => {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
       <h1 className="text-2xl font-bold mb-4">ログイン</h1>
 
-      {/* メール欄 */}
       <input
         type="email"
         placeholder="メールアドレス"
@@ -73,7 +89,6 @@ const Login = () => {
         className="border px-3 py-2 mb-2 w-64 rounded font-sans"
       />
 
-      {/* パスワード欄＋アイコン */}
       <div className="relative w-64 mb-2">
         <input
           type={showPassword ? 'text' : 'password'}
