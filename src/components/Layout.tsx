@@ -1,4 +1,3 @@
-// src/components/Layout.tsx
 import React from 'react';
 import Footer from './Footer';
 import { useStore } from '../context/StoreContext';
@@ -12,7 +11,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { currentStore } = useStore();
   const location = useLocation();
 
-  const hideFooter = location.pathname === '/register' || location.pathname === '/login';
+  const hideFooter = ['/register', '/login'].some(path => location.pathname.startsWith(path));
 
   return (
     <div className="relative flex flex-col min-h-screen bg-white overflow-hidden">
