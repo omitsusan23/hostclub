@@ -33,13 +33,15 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   console.log('🟢 StoreProvider is mounted');
 
   const { state } = useAppContext();
-  const storeId = state.session?.user?.user_metadata?.store_id;
+  const session = state.session;
 
   const [stores, setStores] = useState<StoreInfo[]>([]);
-  const [currentStoreId, setCurrentStoreId] = useState<string | undefined>(storeId);
+  const [currentStoreId, setCurrentStoreId] = useState<string | undefined>(undefined);
   const [isEmployeeView, setIsEmployeeView] = useState<boolean>(false);
 
   useEffect(() => {
+    const storeId = session?.user?.user_metadata?.store_id;
+
     if (!storeId) {
       console.log('⚠️ store_id 未取得のため Supabase 問い合わせスキップ');
       return;
@@ -63,7 +65,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     };
 
     fetchStore();
-  }, [storeId]);
+  }, [session]); // ✅ sessionの変更時に再評価される
 
   const currentStore = useMemo(
     () => stores.find((s) => s.id === currentStoreId),
