@@ -12,6 +12,7 @@ const Login = () => {
   const [storeId, setStoreId] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false) // ← 追加
 
   useEffect(() => {
     const hostname = window.location.hostname
@@ -69,13 +70,23 @@ const Login = () => {
         onChange={(e) => setEmail(e.target.value)}
         className="border px-3 py-2 mb-2 w-64 rounded"
       />
-      <input
-        type="password"
-        placeholder="パスワード"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="border px-3 py-2 mb-2 w-64 rounded font-sans"
-      />
+
+      <div className="relative w-64 mb-2">
+        <input
+          type={showPassword ? 'text' : 'password'}
+          placeholder="パスワード"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="border px-3 py-2 w-full rounded font-sans"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-500 hover:text-gray-700"
+        >
+          {showPassword ? '非表示' : '表示'}
+        </button>
+      </div>
 
       {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
 
