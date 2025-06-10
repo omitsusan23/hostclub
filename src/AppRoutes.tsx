@@ -12,6 +12,7 @@ import ChatPage from './pages/ChatPage';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
+import Layout from './components/Layout'; // ✅ Layout を追加
 
 const HomeRedirect: React.FC = () => {
   const { state } = useAppContext();
@@ -35,6 +36,14 @@ const AppRoutes: React.FC = () => {
     console.log('ログイン中のユーザー情報(user):', user);
   }, [location, stores, currentStore, user]);
 
+  // ✅ Footerを非表示にするパス
+  const hideFooterRoutes = ['/register', '/login'];
+  const isFooterHidden = hideFooterRoutes.includes(location.pathname);
+
+  // ✅ 条件付きで Layout をラップ
+  const wrapWithLayout = (element: React.ReactNode) =>
+    isFooterHidden ? <>{element}</> : <Layout>{element}</Layout>;
+
   return (
     <Routes>
       <Route path="/" element={<HomeRedirect />} />
@@ -45,7 +54,7 @@ const AppRoutes: React.FC = () => {
         path="/stores/:subdomain"
         element={
           <ProtectedRoute allowedRoles={['admin', 'owner', 'operator']}>
-            <AdminDashboard />
+            {wrapWithLayout(<AdminDashboard />)}
           </ProtectedRoute>
         }
       />
@@ -53,7 +62,7 @@ const AppRoutes: React.FC = () => {
         path="/cast/:subdomain"
         element={
           <ProtectedRoute allowedRoles={['cast']}>
-            <CastDashboard />
+            {wrapWithLayout(<CastDashboard />)}
           </ProtectedRoute>
         }
       />
@@ -61,7 +70,7 @@ const AppRoutes: React.FC = () => {
         path="/tables"
         element={
           <ProtectedRoute>
-            <TableStatusPage />
+            {wrapWithLayout(<TableStatusPage />)}
           </ProtectedRoute>
         }
       />
@@ -69,7 +78,7 @@ const AppRoutes: React.FC = () => {
         path="/reservations"
         element={
           <ProtectedRoute>
-            <ReservationPage />
+            {wrapWithLayout(<ReservationPage />)}
           </ProtectedRoute>
         }
       />
@@ -77,7 +86,7 @@ const AppRoutes: React.FC = () => {
         path="/casts"
         element={
           <ProtectedRoute>
-            <CastListPage />
+            {wrapWithLayout(<CastListPage />)}
           </ProtectedRoute>
         }
       />
@@ -85,7 +94,7 @@ const AppRoutes: React.FC = () => {
         path="/settings"
         element={
           <ProtectedRoute>
-            <AdminTableSettings />
+            {wrapWithLayout(<AdminTableSettings />)}
           </ProtectedRoute>
         }
       />
@@ -93,7 +102,7 @@ const AppRoutes: React.FC = () => {
         path="/chat"
         element={
           <ProtectedRoute>
-            <ChatPage />
+            {wrapWithLayout(<ChatPage />)}
           </ProtectedRoute>
         }
       />
