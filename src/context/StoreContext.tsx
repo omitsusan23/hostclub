@@ -12,7 +12,7 @@ import { useAppContext } from './AppContext';
 export interface StoreInfo {
   id: string;
   name: string;
-  logo_url?: string; // オプションで追加
+  logo_url?: string;
 }
 
 interface StoreContextValue {
@@ -40,9 +40,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [isEmployeeView, setIsEmployeeView] = useState<boolean>(false);
 
   useEffect(() => {
-    const fetchStore = async () => {
-      if (!storeId) return;
+    if (!storeId) {
+      console.log('⚠️ store_id 未取得のため Supabase 問い合わせスキップ');
+      return;
+    }
 
+    const fetchStore = async () => {
       const { data, error } = await supabase
         .from('stores')
         .select('id, name, logo_url')
