@@ -1,4 +1,3 @@
-// src/AppRoutes.tsx
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useStore } from './context/StoreContext';
@@ -14,7 +13,6 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { supabase } from './lib/supabase';
-import Layout from './components/Layout'; // ✅ Layout を追加
 
 const HomeRedirect: React.FC = () => {
   const [isStoreRegistered, setIsStoreRegistered] = useState<boolean | null>(null);
@@ -41,7 +39,7 @@ const HomeRedirect: React.FC = () => {
   }, []);
 
   if (isStoreRegistered === null) {
-    return <div>判定中...</div>; // ローディング表示（任意）
+    return <div>判定中...</div>;
   }
 
   return (
@@ -116,9 +114,7 @@ const AppRoutes: React.FC = () => {
         path="/settings"
         element={
           <ProtectedRoute>
-            <Layout>
-              <AdminTableSettings />
-            </Layout>
+            <AdminTableSettings />
           </ProtectedRoute>
         }
       />

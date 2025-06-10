@@ -1,4 +1,3 @@
-// src/components/Footer.tsx
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import { FooterButton } from './FooterButton';
@@ -12,11 +11,12 @@ import SettingsIcon    from '../assets/icons/settings.svg';
 
 const Footer: React.FC = () => {
   const { state } = useAppContext();
-  const user = state.currentUser;
-  if (!user) return null;
+  const role = state.session?.user?.user_metadata?.role;
 
-  const isEmployee = user.role === 'owner' || user.role === 'operator';
-  const isCast     = user.role === 'cast';
+  if (!role) return null;
+
+  const isEmployee = role === 'owner' || role === 'operator';
+  const isCast     = role === 'cast';
 
   return (
     <footer
