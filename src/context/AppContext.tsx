@@ -137,7 +137,7 @@ const reducer = (state: AppState, action: Action): AppState => {
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  // ✅ セッションの初期復元と監視
+  // ✅ セッション復元と監視
   useEffect(() => {
     const initSession = async () => {
       const { data } = await supabase.auth.getSession()
@@ -181,24 +181,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   }, [])
 
-  // ✅ サブドメイン登録判定API呼び出し
+  // ✅ 店舗登録判定（セッション復元後に実行）
   useEffect(() => {
     const checkStoreRegistered = async () => {
       const subdomain = window.location.hostname.split('.')[0]
+
       try {
-        const response = await fetch(
-          `http://localhost:3001/api/is-store-registered/${subdomain}`
-        )
+        const response = await fetch(`/api/is-store-registered?subdomain=${subdomain}`)
         const data = await response.json()
-        dispatch({ type: 'SET_STORE_REGISTERED', payload: data.registered })
+        dispatch({ type: 'SET_STORE_REGISTERED', payload: data.exists })
       } catch (error) {
         console.error('サブドメイン確認エラー:', error)
         dispatch({ type: 'SET_STORE_REGISTERED', payload: false })
       }
     }
 
-    checkStoreRegistered()
-  }, [])
+    if (state.session !== undefined) {
+      checkStoreRegistered()
+    }
+  }, [state.session])
 
   return <AppContext.Provider value={{ state, dispatch }}>{children}</AppContext.Provider>
 }
