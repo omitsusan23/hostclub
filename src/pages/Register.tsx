@@ -1,4 +1,3 @@
-// src/pages/Register.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -22,11 +21,10 @@ const Register = () => {
 
     const checkStore = async () => {
       try {
-        // ✅ 本番環境にも対応（Vercelの場合、相対パスで OK）
         const isLocalhost = hostname === 'localhost';
         const apiBaseUrl = isLocalhost
           ? 'http://localhost:3001'
-          : window.location.origin; // ← 修正箇所
+          : window.location.origin;
 
         const res = await fetch(`${apiBaseUrl}/api/is-store-registered?subdomain=${subdomain}`);
         const json = await res.json();
@@ -87,6 +85,11 @@ const Register = () => {
     setLoading(false);
   };
 
+  const handleToLogin = async () => {
+    await supabase.auth.signOut(); // ✅ セッション破棄
+    navigate('/login'); // クエリ無し＝stay
+  };
+
   if (storeExists === null) {
     return <div className="text-center mt-20">読み込み中...</div>;
   }
@@ -97,7 +100,7 @@ const Register = () => {
         <h1 className="text-2xl font-bold text-red-600 mb-4">すでに管理者登録されています</h1>
         <p className="mb-4">この店舗ではすでに管理者が登録されています。ログイン画面からお進みください。</p>
         <button
-          onClick={() => navigate('/login')}
+          onClick={handleToLogin}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
           ログイン画面へ

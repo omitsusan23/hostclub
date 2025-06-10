@@ -24,10 +24,10 @@ const Login = () => {
       const { data } = await supabase.auth.getSession()
       const session = data.session
 
-      const pathname = window.location.pathname
-      const isExplicitLogin = pathname.includes('/login')
+      // ✅ ?redirect=1 があるときだけ自動リダイレクト
+      const shouldRedirect = new URLSearchParams(window.location.search).get('redirect') === '1'
 
-      if (session?.user && isExplicitLogin) {
+      if (session?.user && shouldRedirect) {
         const meta = session.user.user_metadata
         if (meta.role === 'cast') {
           navigate(`/cast/${subdomain}`)
