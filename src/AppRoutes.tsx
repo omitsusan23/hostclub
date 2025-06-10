@@ -19,7 +19,7 @@ const HomeRedirect: React.FC = () => {
   const session = state.session;
 
   if (!session || !session.user) return <Navigate to="/login" replace />;
-  return <Navigate to="/tables" replace />;
+  return <Navigate to="/tablesStatusPage" replace />;
 };
 
 const AppRoutes: React.FC = () => {
