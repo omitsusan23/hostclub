@@ -15,8 +15,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="relative flex flex-col min-h-screen bg-white overflow-hidden">
-      {/* ✅ 固定配置された大サイズの背景ロゴ */}
-      {currentStore?.logo_url && (
+      {/* ✅ 固定配置された大サイズの背景ロゴ（IDとロゴURLが揃ってるときのみ表示） */}
+      {currentStore?.id && currentStore.logo_url && (
         <img
           src={currentStore.logo_url}
           alt="背景ロゴ"
@@ -25,9 +25,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             w-[90vw] md:w-[60vw] lg:w-[50vw]
             opacity-10 pointer-events-none select-none z-0
           "
-          style={{
-            position: 'fixed', // スクロールでも動かない
-          }}
         />
       )}
 
