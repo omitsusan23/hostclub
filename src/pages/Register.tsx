@@ -20,9 +20,20 @@ const Register = () => {
     const subdomain = hostname.split('.')[0];
     setStoreId(subdomain);
 
-    // 🔒 セッション復元中は処理しない
     if (session === undefined) {
-      console.log('⏳ セッション復元中のため store 確認を保留');
+      console.log('⏳ セッション復元中のため処理保留');
+      return;
+    }
+
+    if (session?.user) {
+      // 🔁 ログイン中なら即リダイレクト
+      const meta = session.user.user_metadata;
+      const role = meta?.role;
+      if (role === 'cast') {
+        navigate(`/cast/${subdomain}`);
+      } else {
+        navigate(`/stores/${subdomain}`);
+      }
       return;
     }
 
@@ -43,7 +54,7 @@ const Register = () => {
     };
 
     checkStore();
-  }, [session]);
+  }, [session, navigate]);
 
   const handleRegister = async () => {
     setError('');
