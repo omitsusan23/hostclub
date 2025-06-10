@@ -1,4 +1,3 @@
-// src/context/AppContext.tsx
 import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
@@ -40,7 +39,7 @@ interface AppState {
 }
 
 type Action =
-  | { type: 'SET_USER'; payload: User }
+  | { type: 'SET_USER'; payload: User | null }
   | { type: 'SET_SESSION'; payload: any }
   | { type: 'SET_STORE_REGISTERED'; payload: boolean }
   | { type: 'LOGOUT' }
@@ -138,12 +137,48 @@ const reducer = (state: AppState, action: Action): AppState => {
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
 
+  // ✅ セッションの初期復元と監視
   useEffect(() => {
-    const getSession = async () => {
+    const initSession = async () => {
       const { data } = await supabase.auth.getSession()
       dispatch({ type: 'SET_SESSION', payload: data.session })
+
+      if (data.session?.user) {
+        const meta = data.session.user.user_metadata
+        dispatch({
+          type: 'SET_USER',
+          payload: {
+            username: data.session.user.email ?? '',
+            role: meta.role,
+            canManageTables: meta.role !== 'cast',
+          },
+        })
+      }
     }
-    getSession()
+
+    initSession()
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      dispatch({ type: 'SET_SESSION', payload: session })
+
+      if (session?.user) {
+        const meta = session.user.user_metadata
+        dispatch({
+          type: 'SET_USER',
+          payload: {
+            username: session.user.email ?? '',
+            role: meta.role,
+            canManageTables: meta.role !== 'cast',
+          },
+        })
+      } else {
+        dispatch({ type: 'SET_USER', payload: null })
+      }
+    })
+
+    return () => {
+      listener.subscription.unsubscribe()
+    }
   }, [])
 
   // ✅ サブドメイン登録判定API呼び出し
