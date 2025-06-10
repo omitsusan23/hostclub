@@ -20,21 +20,15 @@ const Register = () => {
     const subdomain = hostname.split('.')[0]
     setStoreId(subdomain)
 
-    // ✅ セッションが復元されるまで待つ
     if (session === undefined || storeExists === null) {
       console.log('⏳ 復元中。セッションまたは店舗判定が未完了')
       return
     }
 
-    // ✅ ログイン済みならリダイレクト
     if (session?.user) {
       const meta = session.user.user_metadata
       const role = meta?.role
-      if (role === 'cast') {
-        navigate(`/cast/${subdomain}`)
-      } else {
-        navigate(`/stores/${subdomain}`)
-      }
+      navigate('/tables')
     }
   }, [session, storeExists, navigate])
 
@@ -72,11 +66,7 @@ const Register = () => {
           },
         })
 
-        if (meta.role === 'cast') {
-          navigate(`/cast/${storeId}`)
-        } else {
-          navigate(`/tables`)
-        }
+        navigate('/tables')
       } else {
         setError('セッション情報が取得できませんでした。')
       }
