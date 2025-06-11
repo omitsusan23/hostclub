@@ -28,7 +28,8 @@ const Footer: React.FC = () => {
     <footer
       className="
         fixed bottom-0 left-0 right-0 z-50
-        shadow-lg border-t border-gray-300 px-2 pt-2 pb-10
+        shadow-lg border-t border-gray-300
+        px-2 pt-4 pb-12 mt-6
         before:content-[''] before:absolute before:inset-x-0 before:bottom-0
         before:h-[env(safe-area-inset-bottom)] before:z-[-1]
       "
