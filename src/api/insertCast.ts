@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { v4 as uuidv4 } from 'uuid'; // ← これを追加
 
 export async function insertCast({ role = 'cast' }: { role: string }) {
   const {
@@ -10,18 +11,9 @@ export async function insertCast({ role = 'cast' }: { role: string }) {
     throw new Error('ログインユーザーの取得に失敗しました');
   }
 
-  // ✅ メタデータの確認用ログ
-  console.log('📦 Supabase user metadata:', user.user_metadata);
-  console.log('🏪 store_id:', user.user_metadata?.store_id);
-
   const store_id = user.user_metadata?.store_id;
   const created_by = user.id;
-
-  if (!store_id) {
-    throw new Error('store_id がユーザーメタデータに含まれていません。RLSで拒否される可能性があります。');
-  }
-
-  const invite_token = uuidv4();
+  const invite_token = uuidv4(); // ← ここで使用
 
   const { error } = await supabase.from('casts').insert([
     {
