@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
   const { state } = useAppContext();
   const role = state.session?.user?.user_metadata?.role;
 
-  const isEmployee = role === 'owner' || role === 'operator';
+  const isEmployee = ['owner', 'operator', 'admin'].includes(role);
   const isCast = role === 'cast';
 
   console.log('🧪 Footer描画チェック', JSON.stringify({
@@ -45,20 +45,20 @@ const Footer: React.FC = () => {
       >
         {isEmployee && (
           <>
-            <FooterButton to="/casts" icon={CastIcon} label="キャスト" />
+            <FooterButton to="/casts"        icon={CastIcon}        label="キャスト" />
             <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
-            <FooterButton to="/tables" icon={TableStatusIcon} label="卓状況" />
-            <FooterButton to="/chat" icon={ChatIcon} label="チャット" />
-            <FooterButton to="/settings" icon={SettingsIcon} label="設定" />
+            <FooterButton to="/tables"       icon={TableStatusIcon} label="卓状況" />
+            <FooterButton to="/chat"         icon={ChatIcon}        label="チャット" />
+            <FooterButton to="/settings"     icon={SettingsIcon}    label="設定" />
           </>
         )}
 
         {isCast && (
           <>
-            <FooterButton to="/tables" icon={TableStatusIcon} label="卓状況" />
+            <FooterButton to="/tables"       icon={TableStatusIcon} label="卓状況" />
             <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
-            <FooterButton to="/chat" icon={ChatIcon} label="チャット" />
-            <FooterButton to="/settings" icon={SettingsIcon} label="設定" />
+            <FooterButton to="/chat"         icon={ChatIcon}        label="チャット" />
+            <FooterButton to="/settings"     icon={SettingsIcon}    label="設定" />
             <div className="hidden md:block" />
           </>
         )}
