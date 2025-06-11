@@ -3,26 +3,28 @@ import { useAppContext } from '../context/AppContext';
 import { FooterButton } from './FooterButton';
 
 /* アイコン */
-import CastIcon        from '../assets/icons/cast.svg';
+import CastIcon from '../assets/icons/cast.svg';
 import ReservationIcon from '../assets/icons/reservation.svg';
 import TableStatusIcon from '../assets/icons/table-status.svg';
-import ChatIcon        from '../assets/icons/chat.svg';
-import SettingsIcon    from '../assets/icons/settings.svg';
+import ChatIcon from '../assets/icons/chat.svg';
+import SettingsIcon from '../assets/icons/settings.svg';
 
 const Footer: React.FC = () => {
   const { state } = useAppContext();
   const role = state.session?.user?.user_metadata?.role;
 
+  const isEmployee = role === 'owner' || role === 'operator';
+  const isCast = role === 'cast';
+
   console.log('🧪 Footer描画チェック', JSON.stringify({
     session: state.session,
     role,
+    isEmployee,
+    isCast,
     user_metadata: state.session?.user?.user_metadata,
   }, null, 2));
 
   if (!role) return null;
-
-  const isEmployee = role === 'owner' || role === 'operator';
-  const isCast     = role === 'cast';
 
   return (
     <footer
@@ -43,20 +45,20 @@ const Footer: React.FC = () => {
       >
         {isEmployee && (
           <>
-            <FooterButton to="/casts"        icon={CastIcon}        label="キャスト" />
+            <FooterButton to="/casts" icon={CastIcon} label="キャスト" />
             <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
-            <FooterButton to="/tables"       icon={TableStatusIcon} label="卓状況"   />
-            <FooterButton to="/chat"         icon={ChatIcon}        label="チャット" />
-            <FooterButton to="/settings"     icon={SettingsIcon}    label="設定"     />
+            <FooterButton to="/tables" icon={TableStatusIcon} label="卓状況" />
+            <FooterButton to="/chat" icon={ChatIcon} label="チャット" />
+            <FooterButton to="/settings" icon={SettingsIcon} label="設定" />
           </>
         )}
 
         {isCast && (
           <>
-            <FooterButton to="/tables"       icon={TableStatusIcon} label="卓状況"   />
+            <FooterButton to="/tables" icon={TableStatusIcon} label="卓状況" />
             <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
-            <FooterButton to="/chat"         icon={ChatIcon}        label="チャット" />
-            <FooterButton to="/settings"     icon={SettingsIcon}    label="設定"     />
+            <FooterButton to="/chat" icon={ChatIcon} label="チャット" />
+            <FooterButton to="/settings" icon={SettingsIcon} label="設定" />
             <div className="hidden md:block" />
           </>
         )}
