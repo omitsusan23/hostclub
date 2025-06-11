@@ -1,8 +1,8 @@
-// src/pages/CastListPage.tsx
-
 import React, { useState, useEffect, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Header from '../components/Header'
+import { supabase } from '../lib/supabase'
+import { useAppContext } from '../context/AppContext'
 
 interface Invite {
   id: string
@@ -11,11 +11,13 @@ interface Invite {
 }
 
 export default function CastListPage() {
+  const { state } = useAppContext()
   const [invites, setInvites] = useState<Invite[]>(() => {
     const saved = localStorage.getItem('invites')
     return saved ? JSON.parse(saved) : []
   })
   const [modalOpen, setModalOpen] = useState(false)
+  const [selectedRole, setSelectedRole] = useState<'cast' | 'operator'>('cast')
   const firstShareButtonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -40,12 +42,31 @@ export default function CastListPage() {
 
   const issueAndShare = async (shareFn: (url: string) => void) => {
     const token = uuidv4()
+
+    // Supabaseに登録（store_id・role・token・created_by）
+    const { error } = await supabase.from('casts').insert([
+      {
+        invite_token: token,
+        store_id: state.session?.user?.user_metadata?.store_id,
+        role: selectedRole,
+        created_by: state.session?.user?.id,
+        is_active: true,
+        created_at: new Date().toISOString(),
+      },
+    ])
+
+    if (error) {
+      alert('招待の登録に失敗しました')
+      console.error(error)
+      return
+    }
+
     const newInvite: Invite = {
       id: token,
       token,
       createdAt: new Date().toLocaleString(),
     }
-    setInvites(prev => [newInvite, ...prev])
+    setInvites((prev) => [newInvite, ...prev])
     setModalOpen(false)
     const url = `https://your.app/signup?token=${token}`
     shareFn(url)
@@ -72,7 +93,7 @@ export default function CastListPage() {
   }
 
   const revokeInvite = (id: string) => {
-    setInvites(prev => prev.filter(inv => inv.id !== id))
+    setInvites((prev) => prev.filter((inv) => inv.id !== id))
   }
 
   return (
@@ -88,7 +109,7 @@ export default function CastListPage() {
 
       <div className="p-4 pb-16 pt-[calc(env(safe-area-inset-top)+66px)]">
         <ul className="space-y-4">
-          {invites.map(inv => (
+          {invites.map((inv) => (
             <li
               key={inv.id}
               className="flex flex-col md:flex-row justify-between items-start md:items-center border p-4 rounded bg-white"
@@ -137,6 +158,19 @@ export default function CastListPage() {
             >
               共有方法を選択
             </h3>
+
+            <div className="mb-4">
+              <label className="block mb-2 text-sm font-medium">役割を選択:</label>
+              <select
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value as 'cast' | 'operator')}
+                className="w-full border rounded px-3 py-2"
+              >
+                <option value="cast">キャスト</option>
+                <option value="operator">オペレーター</option>
+              </select>
+            </div>
+
             <div className="space-y-3">
               <button
                 ref={firstShareButtonRef}
