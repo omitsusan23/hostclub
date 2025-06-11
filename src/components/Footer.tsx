@@ -1,4 +1,3 @@
-// src/components/Footer.tsx
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import { FooterButton } from './FooterButton';
@@ -29,9 +28,9 @@ const Footer: React.FC = () => {
     <footer
       className="
         fixed bottom-0 left-0 right-0 z-50
-        bg-white shadow px-2 pt-2 pb-10
+        bg-green-200 shadow-lg border-t border-gray-300 px-2 pt-2 pb-10
         before:content-[''] before:absolute before:inset-x-0 before:bottom-0
-        before:h-[env(safe-area-inset-bottom)] before:bg-white before:z-[-1]
+        before:h-[env(safe-area-inset-bottom)] before:bg-green-200 before:z-[-1]
       "
     >
       <div

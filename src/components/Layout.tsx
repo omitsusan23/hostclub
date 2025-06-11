@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   });
 
   return (
-    <div className="relative flex flex-col min-h-screen bg-white overflow-hidden">
+    <div className="relative flex flex-col min-h-screen bg-white overflow-auto">
       {/* 背景ロゴ */}
       {currentStore?.id && currentStore.logo_url && (
         <img
@@ -33,7 +33,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         />
       )}
 
-      <main className="relative z-10 flex-grow container mx-auto px-4 py-6">
+      <main className="relative z-10 flex-grow container mx-auto px-4 pb-28 pt-6">
         {children}
       </main>
 
