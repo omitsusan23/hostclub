@@ -1,3 +1,4 @@
+// src/AppRoutes.tsx
 import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useStore } from './context/StoreContext';
@@ -38,7 +39,7 @@ const AppRoutes: React.FC = () => {
   }, [location, stores, currentStore, user]);
 
   const hideFooterRoutes = ['/register', '/login'];
-  const isFooterHidden = hideFooterRoutes.includes(location.pathname);
+  const isFooterHidden = hideFooterRoutes.some(path => location.pathname.startsWith(path));
 
   const wrapWithLayout = (element: React.ReactNode) =>
     isFooterHidden ? <>{element}</> : <Layout>{element}</Layout>;

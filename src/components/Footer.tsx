@@ -1,3 +1,4 @@
+// src/components/Footer.tsx
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import { FooterButton } from './FooterButton';
@@ -13,11 +14,11 @@ const Footer: React.FC = () => {
   const { state } = useAppContext();
   const role = state.session?.user?.user_metadata?.role;
 
-  console.log('🧪 Footer描画チェック', {
+  console.log('🧪 Footer描画チェック', JSON.stringify({
     session: state.session,
     role,
     user_metadata: state.session?.user?.user_metadata,
-  });
+  }, null, 2));
 
   if (!role) return null;
 
