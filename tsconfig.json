@@ -15,6 +15,10 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "baseUrl": ".",                         // ✅ 追加
+    "paths": {
+      "@/*": ["src/*"]                      // ✅ 追加: "@/lib/xxx" ⇒ "src/lib/xxx"
+    },
     "types": [
       "vite/client",
       "jest",
