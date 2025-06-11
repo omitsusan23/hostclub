@@ -13,6 +13,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const hideFooter = ['/register', '/login'].some(path => location.pathname.startsWith(path));
 
+  // 🧪 Footer表示条件のデバッグログ
+  console.log('🧩 Layoutログ', {
+    currentPath: location.pathname,
+    hideFooter,
+    currentStore,
+    storeId: currentStore?.id,
+    logoUrl: currentStore?.logo_url,
+  });
+
   return (
     <div className="relative flex flex-col min-h-screen bg-white overflow-hidden">
       {/* 背景ロゴ */}
