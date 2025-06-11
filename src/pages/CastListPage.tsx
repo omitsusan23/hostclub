@@ -4,25 +4,39 @@ import Header from '../components/Header'
 import { supabase } from '../lib/supabase'
 import { useAppContext } from '../context/AppContext'
 
-interface Invite {
+interface Cast {
   id: string
-  token: string
-  createdAt: string
+  role: 'cast' | 'operator'
+  invite_token: string
+  created_at: string
 }
 
 export default function CastListPage() {
   const { state } = useAppContext()
-  const [invites, setInvites] = useState<Invite[]>(() => {
-    const saved = localStorage.getItem('invites')
-    return saved ? JSON.parse(saved) : []
-  })
+  const [casts, setCasts] = useState<Cast[]>([])
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedRole, setSelectedRole] = useState<'cast' | 'operator'>('cast')
   const firstShareButtonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    localStorage.setItem('invites', JSON.stringify(invites))
-  }, [invites])
+    if (!state.session) return
+
+    const fetchCasts = async () => {
+      const { data, error } = await supabase
+        .from('casts')
+        .select('*')
+        .eq('store_id', state.session.user.user_metadata?.store_id)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('キャスト取得エラー:', error)
+      } else {
+        setCasts(data as Cast[])
+      }
+    }
+
+    fetchCasts()
+  }, [state.session])
 
   useEffect(() => {
     if (modalOpen) {
@@ -43,7 +57,6 @@ export default function CastListPage() {
   const issueAndShare = async (shareFn: (url: string) => void) => {
     const token = uuidv4()
 
-    // Supabaseに登録（store_id・role・token・created_by）
     const { error } = await supabase.from('casts').insert([
       {
         invite_token: token,
@@ -61,15 +74,20 @@ export default function CastListPage() {
       return
     }
 
-    const newInvite: Invite = {
-      id: token,
-      token,
-      createdAt: new Date().toLocaleString(),
-    }
-    setInvites((prev) => [newInvite, ...prev])
-    setModalOpen(false)
     const url = `https://your.app/signup?token=${token}`
     shareFn(url)
+    setModalOpen(false)
+
+    // 再取得
+    const { data, error: fetchError } = await supabase
+      .from('casts')
+      .select('*')
+      .eq('store_id', state.session.user.user_metadata?.store_id)
+      .order('created_at', { ascending: false })
+
+    if (!fetchError) {
+      setCasts(data as Cast[])
+    }
   }
 
   const shareViaLine = (url: string) => {
@@ -92,10 +110,6 @@ export default function CastListPage() {
     }
   }
 
-  const revokeInvite = (id: string) => {
-    setInvites((prev) => prev.filter((inv) => inv.id !== id))
-  }
-
   return (
     <>
       <Header title="在籍キャスト一覧">
@@ -109,35 +123,22 @@ export default function CastListPage() {
 
       <div className="p-4 pb-16 pt-[calc(env(safe-area-inset-top)+66px)]">
         <ul className="space-y-4">
-          {invites.map((inv) => (
+          {casts.map((cast) => (
             <li
-              key={inv.id}
+              key={cast.id}
               className="flex flex-col md:flex-row justify-between items-start md:items-center border p-4 rounded bg-white"
             >
               <div className="mb-2 md:mb-0 md:w-2/3">
                 <p className="text-sm text-gray-700 mb-1">
                   発行日時：
-                  <time dateTime={new Date(inv.createdAt).toISOString()}>
-                    {inv.createdAt}
+                  <time dateTime={cast.created_at}>
+                    {new Date(cast.created_at).toLocaleString()}
                   </time>
                 </p>
+                <p className="text-sm text-gray-800 mb-1">役割：{cast.role}</p>
                 <p className="text-sm break-all text-blue-600">
-                  https://your.app/signup?token={inv.token}
+                  https://your.app/signup?token={cast.invite_token}
                 </p>
-              </div>
-              <div className="flex space-x-4">
-                <button
-                  onClick={() => setModalOpen(true)}
-                  className="text-green-600 hover:underline focus:outline-none focus:ring-2 focus:ring-green-300"
-                >
-                  共有
-                </button>
-                <button
-                  onClick={() => revokeInvite(inv.id)}
-                  className="text-red-600 hover:underline focus:outline-none focus:ring-2 focus:ring-red-300"
-                >
-                  取り消し
-                </button>
               </div>
             </li>
           ))}
