@@ -1,11 +1,14 @@
-// api/is-store-registered.ts (Vercel API Route)
+// api/is-store-registered.ts
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const { VITE_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;
+
+if (!VITE_SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error('Missing Supabase credentials');
+}
+
+const supabase = createClient(VITE_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const subdomain = req.query.subdomain;
@@ -22,7 +25,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const exists = data.users.some(
-      (user) => user.user_metadata?.store_id === subdomain
+      (user) => String(user.user_metadata?.store_id || '').trim() === subdomain
     );
 
     return res.status(200).json({ exists });
