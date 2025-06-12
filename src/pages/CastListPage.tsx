@@ -112,10 +112,23 @@ export default function CastListPage() {
 
   const copyToClipboard = async (url: string) => {
     try {
-      await navigator.clipboard.writeText(url)
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url)
+      } else {
+        const textarea = document.createElement('textarea')
+        textarea.value = url
+        textarea.style.position = 'fixed'
+        textarea.style.opacity = '0'
+        document.body.appendChild(textarea)
+        textarea.focus()
+        textarea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textarea)
+      }
       alert('招待リンクをクリップボードにコピーしました')
-    } catch {
-      alert('コピーに失敗しました')
+    } catch (err) {
+      console.error('コピー失敗:', err)
+      alert('コピーに失敗しました。長押しで手動コピーしてください')
     }
   }
 
