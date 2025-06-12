@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import Header from '../components/Header'
 import { supabase } from '../lib/supabase'
 import { useAppContext } from '../context/AppContext'
-import { LineShareButton } from '../components/LineShareButton' // ✅ 追加
+import { LineShareButton } from '../components/LineShareButton'
 
 interface Cast {
   id: string
@@ -92,8 +92,16 @@ export default function CastListPage() {
   }
 
   const shareViaLine = (url: string) => {
-    const lineShare = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(url)
-    window.open(lineShare, '_blank')
+    const ua = navigator.userAgent.toLowerCase()
+    const message = encodeURIComponent(url)
+
+    if (ua.includes('android')) {
+      window.location.href = `intent://msg/text/${message}#Intent;scheme=line;package=jp.naver.line.android;end`
+    } else if (ua.includes('iphone') || ua.includes('ipad')) {
+      window.location.href = `line://msg/text/${message}`
+    } else {
+      alert('この端末ではLINE共有がサポートされていません。')
+    }
   }
 
   const shareViaMail = (url: string) => {
@@ -174,11 +182,13 @@ export default function CastListPage() {
             </div>
 
             <div className="space-y-3">
-              <LineShareButton
-                text=""
-                onGenerate={issueAndShare}
-                buttonRef={firstShareButtonRef}
-              />
+              <button
+                ref={firstShareButtonRef}
+                onClick={() => issueAndShare(shareViaLine)}
+                className="w-full py-2 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
+              >
+                LINEで共有
+              </button>
               <button
                 onClick={() => issueAndShare(shareViaMail)}
                 className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
