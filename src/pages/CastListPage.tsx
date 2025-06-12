@@ -11,6 +11,9 @@ interface Cast {
   invite_token: string
   created_at: string
   store_id: string
+  email?: string | null
+  username?: string | null
+  photo_url?: string | null
 }
 
 export default function CastListPage() {
@@ -156,17 +159,35 @@ export default function CastListPage() {
               key={cast.id}
               className="flex flex-col md:flex-row justify-between items-start md:items-center border p-4 rounded bg-white"
             >
-              <div className="mb-2 md:mb-0 md:w-2/3">
-                <p className="text-sm text-gray-700 mb-1">
-                  発行日時：
-                  <time dateTime={cast.created_at}>
-                    {new Date(cast.created_at).toLocaleString()}
-                  </time>
-                </p>
-                <p className="text-sm text-gray-800 mb-1">役割：{cast.role}</p>
-                <p className="text-sm break-all text-blue-600">
-                  https://{cast.store_id}.hostclub-tableststus.com/signup?token={cast.invite_token}
-                </p>
+              <div className="flex items-center space-x-4">
+                {cast.photo_url ? (
+                  <img
+                    src={cast.photo_url}
+                    alt={cast.username || 'キャスト'}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                ) : cast.email ? (
+                  <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
+                    {cast.username ? cast.username : '名前不明'}
+                  </div>
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-gray-300 text-gray-700 flex items-center justify-center text-xs">
+                    未登録
+                  </div>
+                )}
+
+                <div>
+                  <p className="text-sm text-gray-700 mb-1">
+                    発行日時：
+                    <time dateTime={cast.created_at}>
+                      {new Date(cast.created_at).toLocaleString()}
+                    </time>
+                  </p>
+                  <p className="text-sm text-gray-800 mb-1">役割：{cast.role}</p>
+                  <p className="text-sm break-all text-blue-600">
+                    https://{cast.store_id}.hostclub-tableststus.com/signup?token={cast.invite_token}
+                  </p>
+                </div>
               </div>
             </li>
           ))}
