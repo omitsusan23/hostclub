@@ -17,6 +17,7 @@ export default function CastListPage() {
   const [casts, setCasts] = useState<Cast[]>([])
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedRole, setSelectedRole] = useState<'cast' | 'operator'>('cast')
+  const [latestUrl, setLatestUrl] = useState<string | null>(null)
   const firstShareButtonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -76,10 +77,10 @@ export default function CastListPage() {
     }
 
     const url = `https://your.app/signup?token=${token}`
+    setLatestUrl(url)
     shareFn(url)
     setModalOpen(false)
 
-    // 再取得
     const { data, error: fetchError } = await supabase
       .from('casts')
       .select('*')
@@ -128,7 +129,7 @@ export default function CastListPage() {
       alert('招待リンクをクリップボードにコピーしました')
     } catch (err) {
       console.error('コピー失敗:', err)
-      alert('コピーに失敗しました。長押しで手動コピーしてください')
+      alert('コピーに失敗しました。長押しで手動コピーしてください\n\n' + url)
     }
   }
 
@@ -214,6 +215,14 @@ export default function CastListPage() {
               >
                 クリップボードにコピー
               </button>
+              {latestUrl && (
+                <div className="mt-4">
+                  <p className="text-sm text-gray-600 mb-1">手動コピー用リンク:</p>
+                  <div className="break-all text-blue-600 border rounded p-2 bg-gray-50 text-xs">
+                    {latestUrl}
+                  </div>
+                </div>
+              )}
               <button
                 onClick={() => setModalOpen(false)}
                 className="w-full py-2 text-sm text-gray-600 hover:underline focus:outline-none focus:ring-2 focus:ring-gray-300"
