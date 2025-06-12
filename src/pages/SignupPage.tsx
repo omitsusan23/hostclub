@@ -15,12 +15,12 @@ export default function SignupPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (!token) return
-
     const fetchInvite = async () => {
       const { data, error } = await supabase
         .from('casts')
@@ -44,7 +44,7 @@ export default function SignupPage() {
     setLoading(true)
     setError('')
 
-    const { error: signupError } = await supabase.auth.signUp({
+    const { data: signupData, error: signupError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -56,13 +56,49 @@ export default function SignupPage() {
       },
     })
 
-    if (signupError) {
-      setError(signupError.message)
-    } else {
-      alert('登録が完了しました。ログインしてください。')
-      navigate('/login')
+    if (signupError || !signupData.user) {
+      setError(signupError?.message || '登録に失敗しました')
+      setLoading(false)
+      return
     }
 
+    const userId = signupData.user.id
+    let photoUrl = null
+
+    // 写真が選ばれていればアップロード処理
+    if (photoFile) {
+      const fileExt = photoFile.name.split('.').pop()
+      const filePath = `${inviteInfo.store_id}/${userId}.${fileExt}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('cast-photos')
+        .upload(filePath, photoFile, {
+          cacheControl: '3600',
+          upsert: true,
+        })
+
+      if (!uploadError) {
+        const { data: urlData } = supabase.storage
+          .from('cast-photos')
+          .getPublicUrl(filePath)
+        photoUrl = urlData.publicUrl
+      }
+    }
+
+    // casts テーブルにアップロードURL保存
+    const { error: updateError } = await supabase
+      .from('casts')
+      .update({
+        photo_url: photoUrl,
+      })
+      .eq('invite_token', token)
+
+    if (updateError) {
+      console.error('画像URLの保存に失敗:', updateError)
+    }
+
+    alert('登録が完了しました。ログインしてください。')
+    navigate('/login')
     setLoading(false)
   }
 
@@ -116,6 +152,16 @@ export default function SignupPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               className="w-full border px-3 py-2 rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1">宣材写真（任意）</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setPhotoFile(e.target.files?.[0] || null)}
+              className="w-full"
             />
           </div>
 
