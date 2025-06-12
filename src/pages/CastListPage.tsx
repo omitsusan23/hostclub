@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import Header from '../components/Header'
 import { supabase } from '../lib/supabase'
 import { useAppContext } from '../context/AppContext'
+import { LineShareButton } from '../components/LineShareButton' // ✅ 追加
 
 interface Cast {
   id: string
@@ -173,13 +174,11 @@ export default function CastListPage() {
             </div>
 
             <div className="space-y-3">
-              <button
-                ref={firstShareButtonRef}
-                onClick={() => issueAndShare(shareViaLine)}
-                className="w-full py-2 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
-              >
-                LINEで共有
-              </button>
+              <LineShareButton
+                text=""
+                onGenerate={issueAndShare}
+                buttonRef={firstShareButtonRef}
+              />
               <button
                 onClick={() => issueAndShare(shareViaMail)}
                 className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
