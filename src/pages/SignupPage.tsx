@@ -65,7 +65,6 @@ export default function SignupPage() {
     const userId = signupData.user.id
     let photoUrl = null
 
-    // 写真が選ばれていればアップロード処理
     if (photoFile) {
       const fileExt = photoFile.name.split('.').pop()
       const filePath = `${inviteInfo.store_id}/${userId}.${fileExt}`
@@ -85,16 +84,16 @@ export default function SignupPage() {
       }
     }
 
-    // casts テーブルにアップロードURL保存
     const { error: updateError } = await supabase
       .from('casts')
       .update({
-        photo_url: photoUrl,
+        email,       // ← email 保存
+        photo_url: photoUrl, // ← 写真URL保存（任意）
       })
       .eq('invite_token', token)
 
     if (updateError) {
-      console.error('画像URLの保存に失敗:', updateError)
+      console.error('登録情報の保存に失敗:', updateError)
     }
 
     alert('登録が完了しました。ログインしてください。')
