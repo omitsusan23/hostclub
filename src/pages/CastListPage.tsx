@@ -130,7 +130,7 @@ export default function CastListPage() {
       }
     } catch (err) {
       console.error('コピー失敗:', err)
-      alert('長押しで手動コピーしてください')
+      alert(`コピーに失敗しました。長押しで手動コピーしてください。\n\n${url}`)
     }
   }
 
