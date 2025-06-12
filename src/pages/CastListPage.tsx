@@ -10,6 +10,7 @@ interface Cast {
   role: 'cast' | 'operator'
   invite_token: string
   created_at: string
+  store_id: string
 }
 
 export default function CastListPage() {
@@ -76,7 +77,10 @@ export default function CastListPage() {
       return
     }
 
-    const url = `https://your.app/signup?token=${token}`
+    const storeId = state.session?.user?.user_metadata?.store_id
+    const baseDomain = 'hostclub-tableststus.com'
+    const url = `https://${storeId}.${baseDomain}/signup?token=${token}`
+
     setLatestUrl(url)
     shareFn(url)
     setModalOpen(false)
@@ -84,7 +88,7 @@ export default function CastListPage() {
     const { data, error: fetchError } = await supabase
       .from('casts')
       .select('*')
-      .eq('store_id', state.session.user.user_metadata?.store_id)
+      .eq('store_id', storeId)
       .order('created_at', { ascending: false })
 
     if (!fetchError) {
@@ -161,7 +165,7 @@ export default function CastListPage() {
                 </p>
                 <p className="text-sm text-gray-800 mb-1">役割：{cast.role}</p>
                 <p className="text-sm break-all text-blue-600">
-                  https://your.app/signup?token={cast.invite_token}
+                  https://{cast.store_id}.hostclub-tableststus.com/signup?token={cast.invite_token}
                 </p>
               </div>
             </li>
