@@ -65,6 +65,7 @@ export default function SignupPage() {
     const userId = signupData.user.id
     let photoUrl = null
 
+    // 写真アップロード処理
     if (photoFile) {
       const fileExt = photoFile.name.split('.').pop()
       const filePath = `${inviteInfo.store_id}/${userId}.${fileExt}`
@@ -80,25 +81,32 @@ export default function SignupPage() {
         const { data: urlData } = supabase.storage
           .from('cast-photos')
           .getPublicUrl(filePath)
-
         photoUrl = urlData?.publicUrl || null
       } else {
         console.error('アップロード失敗:', uploadError)
       }
     }
 
-    // ✅ casts.id = userId を前提にして更新する
-    const { error: updateError } = await supabase
+    // invite_token で該当キャストを特定してから更新
+    const { data: castData, error: fetchCastError } = await supabase
       .from('casts')
-      .update({
-        photo_url: photoUrl,
-        email,
-        display_name: name,
-      })
-      .eq('id', userId)
+      .select('id')
+      .eq('invite_token', token)
+      .maybeSingle()
 
-    if (updateError) {
-      console.error('プロフィール情報の保存に失敗:', updateError)
+    if (!fetchCastError && castData?.id) {
+      const { error: updateError } = await supabase
+        .from('casts')
+        .update({
+          photo_url: photoUrl,
+          email,
+          display_name: name,
+        })
+        .eq('id', castData.id)
+
+      if (updateError) {
+        console.error('プロフィール情報の保存に失敗:', updateError)
+      }
     }
 
     alert('登録が完了しました。ログインしてください。')
