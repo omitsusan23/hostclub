@@ -1,3 +1,4 @@
+/// Login.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -15,7 +16,6 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // サブドメインからstoreIdを取得
   useEffect(() => {
     const hostname = window.location.hostname;
     const subdomain = hostname.split('.')[0];
@@ -26,13 +26,13 @@ const Login = () => {
     setError('');
     setLoading(true);
 
-    const { data, error: loginError } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (loginError || !data.session?.user) {
-      setError(loginError?.message || 'ログインに失敗しました');
+    if (error || !data.session?.user) {
+      setError(error?.message || 'ログインに失敗しました');
       setLoading(false);
       return;
     }
@@ -40,15 +40,13 @@ const Login = () => {
     const session = data.session;
     const meta = session.user.user_metadata;
 
-    // ✅ store_id が一致するかを確認
-    if (!meta.store_id || meta.store_id !== storeId) {
+    if (!meta?.store_id || meta.store_id !== storeId) {
       await supabase.auth.signOut();
       setError(`この店舗(${storeId})にはアクセスできません。`);
       setLoading(false);
       return;
     }
 
-    // ✅ セッションとユーザー情報を保存
     dispatch({ type: 'SET_SESSION', payload: session });
     dispatch({
       type: 'SET_USER',
