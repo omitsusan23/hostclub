@@ -1,5 +1,3 @@
-/* src/index.css */
-
 /* 1. フォントの読み込み */
 @font-face {
   font-family: "TamanegiKaisho";
@@ -51,4 +49,11 @@ a {
 }
 a:hover {
   text-decoration: underline;
+}
+
+/* 7. スクロール制御：PWAのズルッ防止 */
+html,
+body {
+  overscroll-behavior-y: none;
+  touch-action: pan-x pan-up;
 }
