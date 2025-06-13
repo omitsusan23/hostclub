@@ -1,4 +1,3 @@
-/// SignupPage.tsx
 import React, { useEffect, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
@@ -66,6 +65,7 @@ export default function SignupPage() {
     const userId = signupData.user.id
     let photoUrl = null
 
+    // 写真アップロード処理
     if (photoFile) {
       const fileExt = photoFile.name.split('.').pop()
       const filePath = `${inviteInfo.store_id}/${userId}.${fileExt}`
@@ -82,9 +82,12 @@ export default function SignupPage() {
           .from('cast-photos')
           .getPublicUrl(filePath)
         photoUrl = urlData?.publicUrl || null
+      } else {
+        console.error('アップロード失敗:', uploadError)
       }
     }
 
+    // invite_token で該当キャストを特定してから更新
     const { data: castData, error: fetchCastError } = await supabase
       .from('casts')
       .select('id')
@@ -98,7 +101,7 @@ export default function SignupPage() {
           photo_url: photoUrl,
           email,
           display_name: name,
-          created_by: userId,
+          created_by: userId, // ✅ ここでcreated_byも登録
         })
         .eq('id', castData.id)
 
@@ -119,7 +122,9 @@ export default function SignupPage() {
   return (
     <div className="p-6 max-w-md mx-auto">
       <h1 className="text-xl font-bold mb-4 text-center">キャスト登録</h1>
+
       {error && <p className="text-red-600 mb-4">{error}</p>}
+
       {!inviteInfo ? (
         <p className="text-gray-700">招待情報を確認中...</p>
       ) : (
@@ -140,6 +145,7 @@ export default function SignupPage() {
               className="w-full border px-3 py-2 rounded"
             />
           </div>
+
           <div>
             <label className="block mb-1">メールアドレス</label>
             <input
@@ -150,6 +156,7 @@ export default function SignupPage() {
               className="w-full border px-3 py-2 rounded"
             />
           </div>
+
           <div>
             <label className="block mb-1">パスワード</label>
             <input
@@ -160,6 +167,7 @@ export default function SignupPage() {
               className="w-full border px-3 py-2 rounded"
             />
           </div>
+
           <div>
             <label className="block mb-1">宣材写真（任意）</label>
             <input
@@ -169,6 +177,7 @@ export default function SignupPage() {
               className="w-full"
             />
           </div>
+
           <button
             type="submit"
             disabled={loading}
