@@ -44,7 +44,8 @@ export default function SignupPage() {
     setLoading(true)
     setError('')
 
-    const { data: signupData, error: signupError } = await supabase.auth.signUp({
+    // 認証ユーザー登録（store_idとrole必須）
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -56,16 +57,16 @@ export default function SignupPage() {
       },
     })
 
-    if (signupError || !signupData.user) {
-      setError(signupError?.message || '登録に失敗しました')
+    if (authError || !authData.user) {
+      setError(authError?.message || '登録に失敗しました')
       setLoading(false)
       return
     }
 
-    const userId = signupData.user.id
-    let photoUrl = null
+    const userId = authData.user.id
+    let photoUrl: string | null = null
 
-    // 写真アップロード処理
+    // ストレージアップロード処理
     if (photoFile) {
       const fileExt = photoFile.name.split('.').pop()
       const filePath = `${inviteInfo.store_id}/${userId}.${fileExt}`
@@ -87,7 +88,7 @@ export default function SignupPage() {
       }
     }
 
-    // invite_token で該当キャストを特定してから更新
+    // castsテーブル側を更新（すでにinvite_tokenで仮登録済み）
     const { data: castData, error: fetchCastError } = await supabase
       .from('casts')
       .select('id')
@@ -98,9 +99,10 @@ export default function SignupPage() {
       const { error: updateError } = await supabase
         .from('casts')
         .update({
-          photo_url: photoUrl,
           email,
           display_name: name,
+          photo_url: photoUrl,
+          created_by: userId,
         })
         .eq('id', castData.id)
 

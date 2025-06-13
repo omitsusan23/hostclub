@@ -15,6 +15,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // サブドメインからstoreIdを取得
   useEffect(() => {
     const hostname = window.location.hostname;
     const subdomain = hostname.split('.')[0];
@@ -25,34 +26,40 @@ const Login = () => {
     setError('');
     setLoading(true);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error: loginError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      const session = data.session;
-      dispatch({ type: 'SET_SESSION', payload: session });
-
-      if (session?.user) {
-        const meta = session.user.user_metadata;
-        dispatch({
-          type: 'SET_USER',
-          payload: {
-            username: session.user.email ?? '',
-            role: meta.role,
-            canManageTables: meta.role !== 'cast',
-          },
-        });
-
-        navigate('/tables');
-      } else {
-        setError('セッション情報が取得できませんでした。');
-      }
+    if (loginError || !data.session?.user) {
+      setError(loginError?.message || 'ログインに失敗しました');
+      setLoading(false);
+      return;
     }
 
+    const session = data.session;
+    const meta = session.user.user_metadata;
+
+    // ✅ store_id が一致するかを確認
+    if (!meta.store_id || meta.store_id !== storeId) {
+      await supabase.auth.signOut();
+      setError(`この店舗(${storeId})にはアクセスできません。`);
+      setLoading(false);
+      return;
+    }
+
+    // ✅ セッションとユーザー情報を保存
+    dispatch({ type: 'SET_SESSION', payload: session });
+    dispatch({
+      type: 'SET_USER',
+      payload: {
+        username: session.user.email ?? '',
+        role: meta.role,
+        canManageTables: meta.role !== 'cast',
+      },
+    });
+
+    navigate('/tables');
     setLoading(false);
   };
 
