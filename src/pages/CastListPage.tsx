@@ -153,8 +153,10 @@ export default function CastListPage() {
         </button>
       </Header>
 
-      {/* グリッド表示に変更 */}
-      <CastGrid casts={casts} />
+      {/* ✅ ヘッダーと重ならないようパディングを確保 */}
+      <main className="pt-[calc(env(safe-area-inset-top)+66px)]">
+        <CastGrid casts={casts} />
+      </main>
 
       {modalOpen && (
         <div
