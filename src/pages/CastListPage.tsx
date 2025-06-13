@@ -4,6 +4,7 @@ import Header from '../components/Header'
 import { supabase } from '../lib/supabase'
 import { useAppContext } from '../context/AppContext'
 import { LineShareButton } from '../components/LineShareButton'
+import CastGrid from '../components/CastGrid'
 
 interface Cast {
   id: string
@@ -152,47 +153,8 @@ export default function CastListPage() {
         </button>
       </Header>
 
-      <div className="p-4 pb-16 pt-[calc(env(safe-area-inset-top)+66px)]">
-        <ul className="space-y-4">
-          {casts.map((cast) => (
-            <li
-              key={cast.id}
-              className="flex flex-col md:flex-row justify-between items-start md:items-center border p-4 rounded bg-white"
-            >
-              <div className="flex items-center space-x-4">
-                {cast.photo_url ? (
-                  <img
-                    src={cast.photo_url}
-                    alt={cast.username || 'キャスト'}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                ) : cast.email ? (
-                  <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
-                    {cast.username ? cast.username : '名前不明'}
-                  </div>
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-gray-300 text-gray-700 flex items-center justify-center text-xs">
-                    未登録
-                  </div>
-                )}
-
-                <div>
-                  <p className="text-sm text-gray-700 mb-1">
-                    発行日時：
-                    <time dateTime={cast.created_at}>
-                      {new Date(cast.created_at).toLocaleString()}
-                    </time>
-                  </p>
-                  <p className="text-sm text-gray-800 mb-1">役割：{cast.role}</p>
-                  <p className="text-sm break-all text-blue-600">
-                    https://{cast.store_id}.hostclub-tableststus.com/signup?token={cast.invite_token}
-                  </p>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/* グリッド表示に変更 */}
+      <CastGrid casts={casts} />
 
       {modalOpen && (
         <div
