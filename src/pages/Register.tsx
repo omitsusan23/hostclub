@@ -59,14 +59,14 @@ const Register = () => {
       if (session?.user) {
         const meta = session.user.user_metadata
         const authUserId = session.user.id
-        const email = session.user.email
+        const userEmail = session.user.email
 
         // ✅ admins テーブルに insert
         const { error: insertError } = await supabase.from('admins').insert([
           {
             auth_user_id: authUserId,
             store_id: storeId,
-            email: email,
+            email: userEmail,
             role: 'admin',
           },
         ])
@@ -78,7 +78,7 @@ const Register = () => {
         dispatch({
           type: 'SET_USER',
           payload: {
-            username: email ?? '',
+            username: userEmail ?? '',
             role: meta.role,
             canManageTables: meta.role !== 'cast',
           },
