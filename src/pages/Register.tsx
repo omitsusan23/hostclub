@@ -25,9 +25,8 @@ const Register = () => {
       return
     }
 
-    if (session?.user) {
-      const meta = session.user.user_metadata
-      const role = meta?.role
+    // ✅ storeが登録済みならリダイレクト（未登録ならstay）
+    if (session?.user && storeExists) {
       navigate('/tables')
     }
   }, [session, storeExists, navigate])
@@ -36,7 +35,6 @@ const Register = () => {
     setError('')
     setLoading(true)
 
-    // ✅ Supabase Auth に store_id / role を登録（user_metadata として）
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -61,7 +59,6 @@ const Register = () => {
         const authUserId = session.user.id
         const userEmail = session.user.email
 
-        // ✅ admins テーブルに insert
         const { error: insertError } = await supabase.from('admins').insert([
           {
             auth_user_id: authUserId,
