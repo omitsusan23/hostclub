@@ -35,7 +35,10 @@ const Register = () => {
     setError('')
     setLoading(true)
 
-    const redirectUrl = `${location.origin}/auth/callback`
+    const hostname = window.location.hostname
+    const subdomain = hostname.split('.')[0]
+    const domain = hostname.split('.').slice(1).join('.')
+    const redirectUrl = `https://${subdomain}.${domain}/auth/callback`
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -43,7 +46,7 @@ const Register = () => {
       options: {
         emailRedirectTo: redirectUrl,
         data: {
-          store_id: storeId,
+          store_id: subdomain,
           role: 'admin',
         },
       },
@@ -52,7 +55,7 @@ const Register = () => {
     if (error) {
       setError(error.message)
     } else {
-      alert('確認メールを送信しました。メール内リンクから認証を完了してください。')
+      alert('確認メールを送信しました。メール内のリンクをクリックして登録を完了してください。')
       navigate('/login')
     }
 
@@ -109,7 +112,7 @@ const Register = () => {
         disabled={loading}
         className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
       >
-        {loading ? '登録中...' : '登録してメール確認'}
+        {loading ? '登録中...' : '登録して確認メールを送信'}
       </button>
     </div>
   )
