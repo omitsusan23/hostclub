@@ -16,6 +16,7 @@ import SignupPage from './pages/SignupPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import AuthCallback from './pages/AuthCallback'; // ✅ 追加
+import AdminProfilePage from './pages/AdminProfilePage'; // ✅ 追加
 
 const HomeRedirect: React.FC = () => {
   const {
@@ -53,6 +54,15 @@ const AppRoutes: React.FC = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
+
+      <Route
+        path="/admin/profile"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            {wrapWithLayout(<AdminProfilePage />)}
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/stores/:subdomain"

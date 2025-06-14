@@ -1,4 +1,3 @@
-// src/pages/AuthCallback.tsx
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
@@ -51,14 +50,12 @@ const AuthCallback = () => {
 
       // ✅ 未登録の場合のみ登録
       if (!existingAdmin) {
-        const { error: insertError } = await supabase.from('admins').insert([
-          {
-            auth_user_id: user.id,
-            store_id: storeId,
-            email: email,
-            role: role,
-          },
-        ])
+        const { error: insertError } = await supabase.from('admins').insert([{
+          auth_user_id: user.id,
+          store_id: storeId,
+          email: email,
+          role: role,
+        }])
 
         if (insertError) {
           console.error('❌ adminsテーブルへの登録失敗:', insertError)
@@ -68,7 +65,7 @@ const AuthCallback = () => {
         }
       }
 
-      // ✅ Context保存 → /tablesへ遷移
+      // ✅ Context保存 → /admin/profile に遷移（初回登録前提）
       dispatch({ type: 'SET_SESSION', payload: session })
       dispatch({
         type: 'SET_USER',
@@ -79,7 +76,7 @@ const AuthCallback = () => {
         },
       })
 
-      navigate('/tables')
+      navigate('/admin/profile')
     }
 
     handleAuth()
