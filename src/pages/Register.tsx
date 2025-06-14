@@ -35,10 +35,13 @@ const Register = () => {
     setError('')
     setLoading(true)
 
-    const { data, error } = await supabase.auth.signUp({
+    const redirectUrl = `${location.origin}/auth/callback`
+
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo: redirectUrl,
         data: {
           store_id: storeId,
           role: 'admin',
@@ -49,42 +52,8 @@ const Register = () => {
     if (error) {
       setError(error.message)
     } else {
-      const sessionResult = await supabase.auth.getSession()
-      const session = sessionResult.data.session
-
-      dispatch({ type: 'SET_SESSION', payload: session })
-
-      if (session?.user) {
-        const meta = session.user.user_metadata
-        const authUserId = session.user.id
-        const userEmail = session.user.email
-
-        const { error: insertError } = await supabase.from('admins').insert([
-          {
-            auth_user_id: authUserId,
-            store_id: storeId,
-            email: userEmail,
-            role: 'admin',
-          },
-        ])
-
-        if (insertError) {
-          console.error('❌ adminsテーブルへの登録に失敗:', insertError.message)
-        }
-
-        dispatch({
-          type: 'SET_USER',
-          payload: {
-            username: userEmail ?? '',
-            role: meta.role,
-            canManageTables: meta.role !== 'cast',
-          },
-        })
-
-        navigate('/tables')
-      } else {
-        setError('セッション情報が取得できませんでした。')
-      }
+      alert('確認メールを送信しました。メール内リンクから認証を完了してください。')
+      navigate('/login')
     }
 
     setLoading(false)
@@ -140,7 +109,7 @@ const Register = () => {
         disabled={loading}
         className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
       >
-        {loading ? '登録中...' : '登録してログイン'}
+        {loading ? '登録中...' : '登録してメール確認'}
       </button>
     </div>
   )
