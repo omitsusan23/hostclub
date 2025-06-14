@@ -6,7 +6,7 @@ import React, {
   ReactNode,
   useMemo,
 } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabaseClient';
 import { useAppContext } from './AppContext';
 
 export interface StoreInfo {

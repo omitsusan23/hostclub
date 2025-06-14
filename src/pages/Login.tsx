@@ -1,7 +1,7 @@
 /// Login.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabaseClient';
 import { useAppContext } from '../context/AppContext';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 

@@ -4,7 +4,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { StoreProvider } from './context/StoreContext';
 import { AppProvider, useAppContext } from './context/AppContext';
 import AppRoutes from './AppRoutes';
-import { supabase } from './lib/supabase'; // ✅ ← 忘れず復元
+import { supabase } from './lib/supabaseClient'; // ✅ ← 忘れず復元
 
 const AppContent: React.FC = () => {
   const { state } = useAppContext();

@@ -2,7 +2,7 @@ import { usePreventInitialScrollDown } from '../hooks/usePreventInitialScrollDow
 import React, { useState, useEffect, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Header from '../components/Header'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../lib/supabaseClient'
 import { useAppContext } from '../context/AppContext'
 import { LineShareButton } from '../components/LineShareButton'
 import CastGrid from '../components/CastGrid'
