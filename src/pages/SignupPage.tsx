@@ -44,6 +44,7 @@ export default function SignupPage() {
     setLoading(true)
     setError('')
 
+    // Supabase Auth にユーザーを登録
     const { data: signupData, error: signupError } = await supabase.auth.signUp({
       email,
       password,
@@ -101,7 +102,7 @@ export default function SignupPage() {
           photo_url: photoUrl,
           email,
           display_name: name,
-          created_by: userId, // ✅ ここでcreated_byも登録
+          auth_user_id: userId, // ← ここでログイン用IDを保存！
         })
         .eq('id', castData.id)
 
