@@ -36,6 +36,7 @@ const Register = () => {
     setError('')
     setLoading(true)
 
+    // ✅ Supabase Auth に store_id / role を登録（user_metadata として）
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -57,10 +58,27 @@ const Register = () => {
 
       if (session?.user) {
         const meta = session.user.user_metadata
+        const authUserId = session.user.id
+        const email = session.user.email
+
+        // ✅ admins テーブルに insert
+        const { error: insertError } = await supabase.from('admins').insert([
+          {
+            auth_user_id: authUserId,
+            store_id: storeId,
+            email: email,
+            role: 'admin',
+          },
+        ])
+
+        if (insertError) {
+          console.error('❌ adminsテーブルへの登録に失敗:', insertError.message)
+        }
+
         dispatch({
           type: 'SET_USER',
           payload: {
-            username: session.user.email ?? '',
+            username: email ?? '',
             role: meta.role,
             canManageTables: meta.role !== 'cast',
           },
