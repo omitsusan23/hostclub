@@ -35,10 +35,10 @@ const Register = () => {
     setError('')
     setLoading(true)
 
-    const hostname = window.location.hostname
-    const subdomain = hostname.split('.')[0]
-    const domain = hostname.split('.').slice(1).join('.')
-    const redirectUrl = `https://${subdomain}.${domain}/auth/callback`
+    const subdomain = window.location.hostname.split('.')[0]
+    const baseDomain =
+      import.meta.env.VITE_BASE_DOMAIN ?? 'hostclub-tableststus.com'
+    const redirectUrl = `https://${subdomain}.${baseDomain}/auth/callback`
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -74,8 +74,12 @@ const Register = () => {
   if (storeExists) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-        <h1 className="text-2xl font-bold text-red-600 mb-4">すでに管理者登録されています</h1>
-        <p className="mb-4">この店舗ではすでに管理者が登録されています。ログイン画面からお進みください。</p>
+        <h1 className="text-2xl font-bold text-red-600 mb-4">
+          すでに管理者登録されています
+        </h1>
+        <p className="mb-4">
+          この店舗ではすでに管理者が登録されています。ログイン画面からお進みください。
+        </p>
         <button
           onClick={handleToLogin}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
