@@ -12,9 +12,10 @@ import AdminTableSettings from './pages/AdminTableSettings';
 import ChatPage from './pages/ChatPage';
 import Register from './pages/Register';
 import Login from './pages/Login';
-import SignupPage from './pages/SignupPage'; // ✅ 追加済み
+import SignupPage from './pages/SignupPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
+import AuthCallback from './pages/AuthCallback'; // ✅ 追加
 
 const HomeRedirect: React.FC = () => {
   const {
@@ -39,7 +40,7 @@ const AppRoutes: React.FC = () => {
     console.log('ログイン中のユーザー情報(user):', user);
   }, [location, stores, currentStore, user]);
 
-  const hideFooterRoutes = ['/register', '/login', '/signup']; // ✅ ここに `/signup` を追加
+  const hideFooterRoutes = ['/register', '/login', '/signup'];
   const isFooterHidden = hideFooterRoutes.some(path => location.pathname.startsWith(path));
 
   const wrapWithLayout = (element: React.ReactNode) =>
@@ -50,7 +51,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/" element={<HomeRedirect />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<SignupPage />} /> {/* ✅ 追加済み */}
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
 
       <Route
         path="/stores/:subdomain"
