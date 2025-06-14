@@ -1,3 +1,4 @@
+// src/pages/Register.tsx
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
@@ -25,8 +26,8 @@ const Register = () => {
       return
     }
 
-    // ✅ storeが登録済みならリダイレクト（未登録ならstay）
-    if (session?.user && storeExists) {
+    // ✅ storeが登録済み ＋ confirmed_at 済み の場合のみリダイレクト
+    if (session?.user && storeExists && session.user.confirmed_at) {
       navigate('/tables')
     }
   }, [session, storeExists, navigate])

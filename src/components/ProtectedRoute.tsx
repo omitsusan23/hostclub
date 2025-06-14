@@ -18,6 +18,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
     return <Navigate to="/register" replace />
   }
 
+  // ✅ メール確認が済んでいない場合もブロック
+  if (!session.user.confirmed_at) {
+    return <Navigate to="/login" replace />
+  }
+
   // ✅ ロール制限があれば確認する
   if (allowedRoles && !allowedRoles.includes(currentUser.role)) {
     return <Navigate to="/not-authorized" replace />
