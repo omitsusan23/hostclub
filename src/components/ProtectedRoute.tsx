@@ -1,29 +1,49 @@
 // src/components/ProtectedRoute.tsx
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
+import { supabase } from '../lib/supabaseClient'
 
 interface ProtectedRouteProps {
   children: ReactNode
-  allowedRoles?: string[] // ロール制限（例: ['admin', 'owner']）
+  allowedRoles?: string[]
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
   const {
     state: { session, currentUser },
   } = useAppContext()
+  const [confirmed, setConfirmed] = useState<boolean | null>(null)
 
-  // ✅ セッションまたはユーザー情報がなければ /register にリダイレクト
-  if (!session || !currentUser) {
-    return <Navigate to="/register" replace />
+  useEffect(() => {
+    const checkConfirmation = async () => {
+      if (!session) {
+        setConfirmed(false)
+        return
+      }
+
+      const { data, error } = await supabase.auth.getUser()
+
+      if (error || !data.user) {
+        setConfirmed(false)
+        return
+      }
+
+      setConfirmed(!!data.user.confirmed_at)
+    }
+
+    checkConfirmation()
+  }, [session])
+
+  if (confirmed === null) {
+    return <div className="text-center mt-20">確認中...</div>
   }
 
-  // ✅ メール確認が済んでいない場合もブロック
-  if (!session.user.confirmed_at) {
+  // 未確認ならログインページに飛ばす
+  if (!session || !currentUser || confirmed === false) {
     return <Navigate to="/login" replace />
   }
 
-  // ✅ ロール制限があれば確認する
   if (allowedRoles && !allowedRoles.includes(currentUser.role)) {
     return <Navigate to="/not-authorized" replace />
   }
