@@ -14,7 +14,7 @@ export default function SignupPage() {
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [password, setPassword] = useState('') // ※現時点では使用されません（将来の認証方式変更に備えて残してもOK）
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -26,7 +26,7 @@ export default function SignupPage() {
         .from('casts')
         .select('store_id, role')
         .eq('invite_token', token)
-        .single()
+        .maybeSingle()
 
       if (error || !data) {
         setError('有効な招待が見つかりません')
@@ -40,13 +40,10 @@ export default function SignupPage() {
 
   const handleSignup = async () => {
     if (!inviteInfo) return
-
     setLoading(true)
     setError('')
 
-    let photoUrl = null
-
-    // ① 招待トークンで該当キャスト行を取得
+    // ① 対象キャスト行の取得（id を取得するため）
     const { data: castData, error: castError } = await supabase
       .from('casts')
       .select('id')
@@ -60,8 +57,9 @@ export default function SignupPage() {
     }
 
     const castId = castData.id
+    let photoUrl = null
 
-    // ② 写真がある場合はアップロード
+    // ② 写真アップロード（任意）
     if (photoFile) {
       const fileExt = photoFile.name.split('.').pop()
       const filePath = `${inviteInfo.store_id}/${castId}.${fileExt}`
@@ -83,7 +81,7 @@ export default function SignupPage() {
       }
     }
 
-    // ③ castsテーブルにプロフィール情報を更新
+    // ③ castsテーブルにUPDATE（display_name, email, photo_url）
     const { error: updateError } = await supabase
       .from('casts')
       .update({
@@ -94,6 +92,7 @@ export default function SignupPage() {
       .eq('id', castId)
 
     if (updateError) {
+      console.error('保存エラー:', updateError)
       setError('プロフィールの保存に失敗しました')
       setLoading(false)
       return
@@ -147,12 +146,11 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label className="block mb-1">パスワード</label>
+            <label className="block mb-1">パスワード（現在は未使用）</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
               className="w-full border px-3 py-2 rounded"
             />
           </div>
