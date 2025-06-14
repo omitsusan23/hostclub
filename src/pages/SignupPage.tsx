@@ -44,32 +44,27 @@ export default function SignupPage() {
     setLoading(true)
     setError('')
 
-    // Supabase Auth にユーザーを登録
-    const { data: signupData, error: signupError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          username: name,
-          role: inviteInfo.role,
-          store_id: inviteInfo.store_id,
-        },
-      },
-    })
+    let photoUrl = null
 
-    if (signupError || !signupData.user) {
-      setError(signupError?.message || '登録に失敗しました')
+    // ① 招待トークンで該当キャスト行を取得
+    const { data: castData, error: castError } = await supabase
+      .from('casts')
+      .select('id')
+      .eq('invite_token', token)
+      .maybeSingle()
+
+    if (castError || !castData?.id) {
+      setError('キャスト情報が見つかりません')
       setLoading(false)
       return
     }
 
-    const userId = signupData.user.id
-    let photoUrl = null
+    const castId = castData.id
 
-    // 写真アップロード処理
+    // ② 写真がある場合はアップロード
     if (photoFile) {
       const fileExt = photoFile.name.split('.').pop()
-      const filePath = `${inviteInfo.store_id}/${userId}.${fileExt}`
+      const filePath = `${inviteInfo.store_id}/${castId}.${fileExt}`
 
       const { error: uploadError } = await supabase.storage
         .from('cast-photos')
@@ -88,30 +83,23 @@ export default function SignupPage() {
       }
     }
 
-    // invite_token で該当キャストを特定してから更新
-    const { data: castData, error: fetchCastError } = await supabase
+    // ③ castsテーブルにプロフィール情報を更新
+    const { error: updateError } = await supabase
       .from('casts')
-      .select('id')
-      .eq('invite_token', token)
-      .maybeSingle()
+      .update({
+        display_name: name,
+        email,
+        photo_url: photoUrl,
+      })
+      .eq('id', castId)
 
-    if (!fetchCastError && castData?.id) {
-      const { error: updateError } = await supabase
-        .from('casts')
-        .update({
-          photo_url: photoUrl,
-          email,
-          display_name: name,
-          auth_user_id: userId, // ← ここでログイン用IDを保存！
-        })
-        .eq('id', castData.id)
-
-      if (updateError) {
-        console.error('プロフィール情報の保存に失敗:', updateError)
-      }
+    if (updateError) {
+      setError('プロフィールの保存に失敗しました')
+      setLoading(false)
+      return
     }
 
-    alert('登録が完了しました。ログインしてください。')
+    alert('登録が完了しました。ログイン認証は別途実装予定です。')
     navigate('/login')
     setLoading(false)
   }
