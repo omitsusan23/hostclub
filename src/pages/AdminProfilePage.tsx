@@ -33,8 +33,8 @@ const AdminProfilePage = () => {
       return
     }
 
-    // まず対象レコードの存在確認
-    const { data: existing, error: selectError } = await supabase
+    // 🔍 既存レコード確認
+    const { data: existingAdmin, error: selectError } = await supabase
       .from('admins')
       .select('id')
       .eq('auth_user_id', authUserId)
@@ -42,14 +42,14 @@ const AdminProfilePage = () => {
 
     if (selectError) {
       console.error('🔍 取得エラー:', selectError)
-      setError('プロフィール情報の取得に失敗しました')
+      setError('プロフィール情報の確認に失敗しました')
       return
     }
 
-    let updateError = null
+    let dbError = null
 
-    if (existing) {
-      // 既存レコードがある → UPDATE
+    if (existingAdmin) {
+      // UPDATE
       const { error } = await supabase
         .from('admins')
         .update({
@@ -57,9 +57,9 @@ const AdminProfilePage = () => {
           photo_url: photoUrl || null,
         })
         .eq('auth_user_id', authUserId)
-      updateError = error
+      dbError = error
     } else {
-      // レコードがない → INSERT
+      // INSERT
       const { error } = await supabase
         .from('admins')
         .insert({
@@ -68,12 +68,12 @@ const AdminProfilePage = () => {
           display_name: displayName,
           photo_url: photoUrl || null,
         })
-      updateError = error
+      dbError = error
     }
 
-    if (updateError) {
-      console.error('🛑 登録エラー:', updateError)
-      setError('プロフィールの保存に失敗しました')
+    if (dbError) {
+      console.error('🛑 登録エラー:', dbError)
+      setError('登録に失敗しました')
     } else {
       setSuccess('登録が完了しました')
       setTimeout(() => navigate('/tables'), 1500)
