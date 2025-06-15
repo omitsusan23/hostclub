@@ -27,21 +27,27 @@ const AdminProfilePage = () => {
     setSuccess('')
 
     const authUserId = session?.user.id
-    if (!authUserId) {
+    const storeId = session?.user.user_metadata.store_id
+
+    if (!authUserId || !storeId) {
       setError('ユーザー情報が取得できませんでした')
       return
     }
 
-    const { error: updateError } = await supabase
+    const { error: upsertError } = await supabase
       .from('admins')
-      .update({
-        display_name: displayName,
-        photo_url: photoUrl || null
-      })
-      .eq('auth_user_id', authUserId)
+      .upsert(
+        {
+          auth_user_id: authUserId,
+          store_id: storeId,
+          display_name: displayName,
+          photo_url: photoUrl || null
+        },
+        { onConflict: 'auth_user_id' }
+      )
 
-    if (updateError) {
-      console.error('🛑 update error:', updateError)
+    if (upsertError) {
+      console.error('🛑 upsert error:', upsertError)
       setError('登録に失敗しました')
     } else {
       setSuccess('登録が完了しました')
