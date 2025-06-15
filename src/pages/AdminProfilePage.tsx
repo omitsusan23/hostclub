@@ -25,14 +25,14 @@ const AdminProfilePage = () => {
   const handleSave = async () => {
     setError('')
     setSuccess('')
-    if (!displayName || !photoUrl) {
-      setError('源氏名と写真は必須です')
+    if (!displayName) {
+      setError('源氏名は必須です')
       return
     }
 
     const { error: updateError } = await supabase
       .from('admins')
-      .update({ display_name: displayName, photo_url: photoUrl })
+      .update({ display_name: displayName, photo_url: photoUrl || null })
       .eq('auth_user_id', session?.user.id)
 
     if (updateError) {
@@ -47,22 +47,16 @@ const AdminProfilePage = () => {
     try {
       setUploading(true)
       if (!e.target.files || e.target.files.length === 0) throw new Error('画像が選択されていません')
-
       const file = e.target.files[0]
-      const fileExt = file.name.split('.').pop() || 'jpg'
-      const userId = session?.user.id
-      const storeId = session?.user.user_metadata?.store_id
-      if (!storeId || !userId) throw new Error('store_idまたはuser_idが取得できません')
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${session?.user.id}.${fileExt}`
+      const storeId = session?.user.user_metadata.store_id
+      const filePath = `${storeId}/admin-icons/${fileName}`
 
-      const filePath = `${storeId}/${userId}.${fileExt}`
-
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: file.type,
-        })
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true,
+      })
 
       if (uploadError) throw uploadError
 
