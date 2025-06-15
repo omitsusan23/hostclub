@@ -49,6 +49,8 @@ const Register = () => {
         data: {
           store_id: subdomain,
           role: 'admin',
+          display_name: '', // ✅ 明示的に追加
+          photo_url: ''     // ✅ 明示的に追加
         },
       },
     })
