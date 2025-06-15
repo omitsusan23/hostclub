@@ -1,4 +1,3 @@
-// src/pages/AdminProfilePage.tsx
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
@@ -27,28 +26,54 @@ const AdminProfilePage = () => {
     setSuccess('')
 
     const authUserId = session?.user.id
-    const storeId = session?.user.user_metadata.store_id
+    const storeId = session?.user.user_metadata?.store_id
 
     if (!authUserId || !storeId) {
-      setError('ユーザー情報が取得できませんでした')
+      setError('ユーザー情報の取得に失敗しました')
       return
     }
 
-    const { error: upsertError } = await supabase
+    // まず対象レコードの存在確認
+    const { data: existing, error: selectError } = await supabase
       .from('admins')
-      .upsert(
-        {
+      .select('id')
+      .eq('auth_user_id', authUserId)
+      .maybeSingle()
+
+    if (selectError) {
+      console.error('🔍 取得エラー:', selectError)
+      setError('プロフィール情報の取得に失敗しました')
+      return
+    }
+
+    let updateError = null
+
+    if (existing) {
+      // 既存レコードがある → UPDATE
+      const { error } = await supabase
+        .from('admins')
+        .update({
+          display_name: displayName,
+          photo_url: photoUrl || null,
+        })
+        .eq('auth_user_id', authUserId)
+      updateError = error
+    } else {
+      // レコードがない → INSERT
+      const { error } = await supabase
+        .from('admins')
+        .insert({
           auth_user_id: authUserId,
           store_id: storeId,
           display_name: displayName,
-          photo_url: photoUrl || null
-        },
-        { onConflict: 'auth_user_id' }
-      )
+          photo_url: photoUrl || null,
+        })
+      updateError = error
+    }
 
-    if (upsertError) {
-      console.error('🛑 upsert error:', upsertError)
-      setError('登録に失敗しました')
+    if (updateError) {
+      console.error('🛑 登録エラー:', updateError)
+      setError('プロフィールの保存に失敗しました')
     } else {
       setSuccess('登録が完了しました')
       setTimeout(() => navigate('/tables'), 1500)
