@@ -1,4 +1,3 @@
-// src/pages/AdminProfilePage.tsx
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
@@ -13,6 +12,7 @@ const AdminProfilePage = () => {
 
   const [displayName, setDisplayName] = useState('')
   const [photoUrl, setPhotoUrl] = useState('')
+  const [croppedFile, setCroppedFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -37,6 +37,25 @@ const AdminProfilePage = () => {
       return
     }
 
+    let uploadedUrl = photoUrl
+
+    if (croppedFile) {
+      const filePath = `${storeId}/admin-icons/${authUserId}.jpg`
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, croppedFile, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: 'image/jpeg',
+      })
+      if (uploadError) {
+        console.error('Upload Error:', uploadError.message)
+        setError('画像アップロードに失敗しました')
+        return
+      }
+      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath)
+      uploadedUrl = data.publicUrl
+      setPhotoUrl(uploadedUrl)
+    }
+
     const { data: existingAdmin, error: selectError } = await supabase
       .from('admins')
       .select('id')
@@ -56,7 +75,7 @@ const AdminProfilePage = () => {
         .from('admins')
         .update({
           display_name: displayName,
-          photo_url: photoUrl || null,
+          photo_url: uploadedUrl || null,
         })
         .eq('auth_user_id', authUserId)
       dbError = error
@@ -67,7 +86,7 @@ const AdminProfilePage = () => {
           auth_user_id: authUserId,
           store_id: storeId,
           display_name: displayName,
-          photo_url: photoUrl || null,
+          photo_url: uploadedUrl || null,
         })
       dbError = error
     }
@@ -85,7 +104,6 @@ const AdminProfilePage = () => {
     if (!e.target.files || e.target.files.length === 0) return
     const file = e.target.files[0]
     const reader = new FileReader()
-
     reader.onload = () => {
       setImageSrc(reader.result as string)
       setShowCropper(true)
@@ -93,30 +111,11 @@ const AdminProfilePage = () => {
     reader.readAsDataURL(file)
   }
 
-  const handleCropComplete = async (croppedFile: File) => {
-    try {
-      setUploading(true)
-      const storeId = session?.user.user_metadata.store_id
-      const userId = session?.user.id
-      const filePath = `${storeId}/admin-icons/${userId}.jpg`
-
-      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, croppedFile, {
-        cacheControl: '3600',
-        upsert: true,
-        contentType: 'image/jpeg',
-      })
-
-      if (uploadError) throw uploadError
-
-      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath)
-      setPhotoUrl(data.publicUrl)
-      setShowCropper(false)
-    } catch (error: any) {
-      console.error('Upload Error:', error.message)
-      setError('画像アップロードに失敗しました')
-    } finally {
-      setUploading(false)
-    }
+  const handleCropComplete = async (cropped: File) => {
+    setCroppedFile(cropped)
+    const tempUrl = URL.createObjectURL(cropped)
+    setPhotoUrl(tempUrl)
+    setShowCropper(false)
   }
 
   return (
@@ -154,7 +153,7 @@ const AdminProfilePage = () => {
 
       {showCropper && imageSrc && (
         <AvatarCropper
-          image={imageSrc} // ✅ 修正済み
+          image={imageSrc}
           onComplete={handleCropComplete}
           onCancel={() => setShowCropper(false)}
         />
