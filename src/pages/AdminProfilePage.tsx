@@ -1,8 +1,10 @@
+// pages/AdminProfilePage.tsx
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAppContext } from '../context/AppContext'
 import AvatarCropper from '../components/AvatarCropper'
+import { uploadAvatar } from '../lib/uploadAvatar'
 
 const AdminProfilePage = () => {
   const navigate = useNavigate()
@@ -12,109 +14,77 @@ const AdminProfilePage = () => {
 
   const [displayName, setDisplayName] = useState('')
   const [photoUrl, setPhotoUrl] = useState('')
-  const [croppedFile, setCroppedFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [imageSrc, setImageSrc] = useState<string | null>(null)
+  const [croppedFile, setCroppedFile] = useState<File | null>(null)
   const [showCropper, setShowCropper] = useState(false)
 
   useEffect(() => {
-    if (!session?.user) {
-      navigate('/login')
-    }
+    if (!session?.user) navigate('/login')
   }, [session, navigate])
 
   const handleSave = async () => {
     setError('')
     setSuccess('')
-
-    const authUserId = session?.user.id
     const storeId = session?.user.user_metadata?.store_id
+    const userId = session?.user.id
 
-    if (!authUserId || !storeId) {
-      setError('ユーザー情報の取得に失敗しました')
+    if (!storeId || !userId || !croppedFile) {
+      setError('情報が不足しています')
       return
     }
 
-    let uploadedUrl = photoUrl
+    try {
+      setUploading(true)
 
-    if (croppedFile) {
-      const filePath = `${storeId}/admin-icons/${authUserId}.jpg`
-      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, croppedFile, {
-        cacheControl: '3600',
-        upsert: true,
-        contentType: 'image/jpeg',
+      const publicUrl = await uploadAvatar({
+        file: croppedFile,
+        storeId,
+        userId,
       })
-      if (uploadError) {
-        console.error('Upload Error:', uploadError.message)
-        setError('画像アップロードに失敗しました')
-        return
-      }
-      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath)
-      uploadedUrl = data.publicUrl
-      setPhotoUrl(uploadedUrl)
-    }
 
-    const { data: existingAdmin, error: selectError } = await supabase
-      .from('admins')
-      .select('id')
-      .eq('auth_user_id', authUserId)
-      .maybeSingle()
+      setPhotoUrl(publicUrl)
 
-    if (selectError) {
-      console.error('🔍 取得エラー:', selectError)
-      setError('プロフィール情報の確認に失敗しました')
-      return
-    }
-
-    let dbError = null
-
-    if (existingAdmin) {
-      const { error } = await supabase
+      const { data: existing, error: selectError } = await supabase
         .from('admins')
-        .update({
-          display_name: displayName,
-          photo_url: uploadedUrl || null,
-        })
-        .eq('auth_user_id', authUserId)
-      dbError = error
-    } else {
-      const { error } = await supabase
-        .from('admins')
-        .insert({
-          auth_user_id: authUserId,
-          store_id: storeId,
-          display_name: displayName,
-          photo_url: uploadedUrl || null,
-        })
-      dbError = error
-    }
+        .select('id')
+        .eq('auth_user_id', userId)
+        .maybeSingle()
 
-    if (dbError) {
-      console.error('🛑 登録エラー:', dbError)
-      setError('登録に失敗しました')
-    } else {
+      if (selectError) throw selectError
+
+      const upsert = existing
+        ? supabase.from('admins').update({ display_name: displayName, photo_url: publicUrl }).eq('auth_user_id', userId)
+        : supabase.from('admins').insert({ auth_user_id: userId, store_id: storeId, display_name: displayName, photo_url: publicUrl })
+
+      const { error } = await upsert
+      if (error) throw error
+
       setSuccess('登録が完了しました')
       setTimeout(() => navigate('/tables'), 1500)
+    } catch (e: any) {
+      console.error(e)
+      setError('登録またはアップロードに失敗しました')
+    } finally {
+      setUploading(false)
     }
   }
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return
-    const file = e.target.files[0]
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return
     const reader = new FileReader()
     reader.onload = () => {
       setImageSrc(reader.result as string)
       setShowCropper(true)
     }
-    reader.readAsDataURL(file)
+    reader.readAsDataURL(e.target.files[0])
   }
 
-  const handleCropComplete = async (cropped: File) => {
-    setCroppedFile(cropped)
-    const tempUrl = URL.createObjectURL(cropped)
-    setPhotoUrl(tempUrl)
+  const handleCropComplete = (file: File, previewUrl: string) => {
+    setCroppedFile(file)
+    setPhotoUrl(previewUrl)
     setShowCropper(false)
   }
 
@@ -138,14 +108,14 @@ const AdminProfilePage = () => {
         className="mb-4"
       />
 
-      {photoUrl && <img src={photoUrl} alt="プロフィール画像" className="w-24 h-24 rounded-full mb-4 object-cover" />}
+      {photoUrl && <img src={photoUrl} alt="preview" className="w-24 h-24 rounded-full object-cover mb-4" />}
 
-      {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-      {success && <p className="text-green-600 text-sm mb-2">{success}</p>}
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {success && <p className="text-green-600 text-sm">{success}</p>}
 
       <button
         onClick={handleSave}
-        disabled={uploading}
+        disabled={uploading || !croppedFile}
         className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
       >
         {uploading ? 'アップロード中...' : '登録する'}
@@ -154,8 +124,8 @@ const AdminProfilePage = () => {
       {showCropper && imageSrc && (
         <AvatarCropper
           image={imageSrc}
-          onComplete={handleCropComplete}
           onCancel={() => setShowCropper(false)}
+          onComplete={handleCropComplete}
         />
       )}
     </div>
