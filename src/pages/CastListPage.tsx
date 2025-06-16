@@ -1,10 +1,8 @@
-import { usePreventInitialScrollDown } from '../hooks/usePreventInitialScrollDown'
 import React, { useState, useEffect, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Header from '../components/Header'
 import { supabase } from '../lib/supabaseClient'
 import { useAppContext } from '../context/AppContext'
-import { LineShareButton } from '../components/LineShareButton'
 import CastGrid from '../components/CastGrid'
 
 interface Cast {
@@ -64,13 +62,16 @@ export default function CastListPage() {
 
   const issueAndShare = async (shareFn: (url: string) => void) => {
     const token = uuidv4()
+    const storeId = state.session?.user?.user_metadata?.store_id
+    const userId = state.session?.user?.id
+    const table = selectedRole === 'cast' ? 'casts' : 'operators'
 
-    const { error } = await supabase.from('casts').insert([
+    const { error } = await supabase.from(table).insert([
       {
         invite_token: token,
-        store_id: state.session?.user?.user_metadata?.store_id,
         role: selectedRole,
-        created_by: state.session?.user?.id,
+        store_id: storeId,
+        created_by: userId,
         is_active: true,
         created_at: new Date().toISOString(),
       },
@@ -82,14 +83,15 @@ export default function CastListPage() {
       return
     }
 
-    const storeId = state.session?.user?.user_metadata?.store_id
     const baseDomain = 'hostclub-tableststus.com'
-    const url = `https://${storeId}.${baseDomain}/signup?token=${token}`
+    const path = selectedRole === 'cast' ? '/cast/register' : '/operator/register'
+    const url = `https://${storeId}.${baseDomain}${path}?token=${token}`
 
     setLatestUrl(url)
     shareFn(url)
     setModalOpen(false)
 
+    // 招待後、再取得
     const { data, error: fetchError } = await supabase
       .from('casts')
       .select('*')
@@ -154,7 +156,6 @@ export default function CastListPage() {
         </button>
       </Header>
 
-      {/* ✅ ヘッダーと重ならないようパディングを確保 */}
       <main className="pt-[calc(env(safe-area-inset-top)+66px)]">
         <CastGrid casts={casts} />
       </main>

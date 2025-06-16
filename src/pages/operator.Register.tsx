@@ -1,4 +1,3 @@
-// src/pages/operator.Register.tsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
@@ -14,7 +13,6 @@ export default function OperatorRegisterPage() {
 
   const token = searchParams.get('token')
   const [storeId, setStoreId] = useState('')
-  const [role, setRole] = useState<'cast' | 'operator'>('operator')
 
   useEffect(() => {
     const checkInviteToken = async () => {
@@ -24,8 +22,8 @@ export default function OperatorRegisterPage() {
       }
 
       const { data, error } = await supabase
-        .from('casts')
-        .select('store_id, role')
+        .from('operators')
+        .select('store_id')
         .eq('invite_token', token)
         .eq('is_active', true)
         .maybeSingle()
@@ -36,7 +34,6 @@ export default function OperatorRegisterPage() {
       }
 
       setStoreId(data.store_id)
-      setRole(data.role)
       setValidToken(true)
     }
 
@@ -52,13 +49,17 @@ export default function OperatorRegisterPage() {
     setLoading(true)
     setError('')
 
+    const baseDomain = import.meta.env.VITE_BASE_DOMAIN ?? 'hostclub-tableststus.com'
+    const redirectUrl = `https://${storeId}.${baseDomain}/auth/callback`
+
     const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo: redirectUrl,
         data: {
           store_id: storeId,
-          role,
+          role: 'operator',
         },
       },
     })
