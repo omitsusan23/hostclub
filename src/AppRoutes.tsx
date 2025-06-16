@@ -1,8 +1,8 @@
-// src/AppRoutes.tsx
 import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useStore } from './context/StoreContext';
 import { useAppContext } from './context/AppContext';
+
 import TableStatusPage from './pages/TableStatusPage';
 import ReservationPage from './pages/ReservationPage';
 import AdminDashboard from './pages/AdminDashboard';
@@ -10,13 +10,21 @@ import CastDashboard from './pages/CastDashboard';
 import CastListPage from './pages/CastListPage';
 import AdminTableSettings from './pages/AdminTableSettings';
 import ChatPage from './pages/ChatPage';
+
 import Register from './pages/Register';
 import Login from './pages/Login';
-import SignupPage from './pages/SignupPage';
+import SignupRedirect from './pages/SignupRedirect';
+import AuthCallback from './pages/AuthCallback';
+
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
-import AuthCallback from './pages/AuthCallback'; // ✅ 追加
-import AdminProfilePage from './pages/AdminProfilePage'; // ✅ 追加
+
+import AdminProfilePage from './pages/AdminProfilePage';
+import CastProfilePage from './pages/CastProfilePage';
+import OperatProfilePage from './pages/OperatProfilePage';
+
+import CastRegisterPage from './pages/cast.Register';
+import OperatorRegisterPage from './pages/operator.Register';
 
 const HomeRedirect: React.FC = () => {
   const {
@@ -41,7 +49,7 @@ const AppRoutes: React.FC = () => {
     console.log('ログイン中のユーザー情報(user):', user);
   }, [location, stores, currentStore, user]);
 
-  const hideFooterRoutes = ['/register', '/login', '/signup'];
+  const hideFooterRoutes = ['/register', '/login', '/signup', '/cast/register', '/operator/register'];
   const isFooterHidden = hideFooterRoutes.some(path => location.pathname.startsWith(path));
 
   const wrapWithLayout = (element: React.ReactNode) =>
@@ -52,8 +60,28 @@ const AppRoutes: React.FC = () => {
       <Route path="/" element={<HomeRedirect />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/signup" element={<SignupRedirect />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
+
+      <Route path="/cast/register" element={<CastRegisterPage />} />
+      <Route path="/operator/register" element={<OperatorRegisterPage />} />
+
+      <Route
+        path="/cast/profile"
+        element={
+          <ProtectedRoute allowedRoles={['cast']}>
+            {wrapWithLayout(<CastProfilePage />)}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/operator/profile"
+        element={
+          <ProtectedRoute allowedRoles={['operator']}>
+            {wrapWithLayout(<OperatProfilePage />)}
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/admin/profile"
@@ -63,7 +91,6 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/stores/:subdomain"
         element={
