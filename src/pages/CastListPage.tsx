@@ -91,9 +91,9 @@ export default function CastListPage() {
     shareFn(url)
     setModalOpen(false)
 
-    // 招待後、再取得
+    // 招待後、再取得（roleに応じて）
     const { data, error: fetchError } = await supabase
-      .from('casts')
+      .from(table)
       .select('*')
       .eq('store_id', storeId)
       .order('created_at', { ascending: false })

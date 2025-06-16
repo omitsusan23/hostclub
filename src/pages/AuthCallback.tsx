@@ -1,3 +1,5 @@
+// src/pages/AuthCallback.tsx
+
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
@@ -34,23 +36,36 @@ const AuthCallback = () => {
         return
       }
 
-      // ✅ adminsテーブルに既に登録されているか確認
-      const { data: existingAdmin, error: checkError } = await supabase
-        .from('admins')
+      // 🔁 登録先を動的に決定
+      const table = role === 'admin'
+        ? 'admins'
+        : role === 'cast'
+        ? 'casts'
+        : role === 'operator'
+        ? 'operators'
+        : null
+
+      if (!table) {
+        setErrorMessage('不正なロールです')
+        setTimeout(() => navigate('/login'), 3000)
+        return
+      }
+
+      const { data: existing, error: checkError } = await supabase
+        .from(table)
         .select('id')
         .eq('auth_user_id', user.id)
         .maybeSingle()
 
       if (checkError) {
-        console.error('❌ adminsチェックエラー:', checkError)
-        setErrorMessage('管理者情報の確認に失敗しました。')
+        console.error(`❌ ${table}チェックエラー:`, checkError)
+        setErrorMessage('登録状況の確認に失敗しました。')
         setTimeout(() => navigate('/login'), 3000)
         return
       }
 
-      // ✅ 未登録の場合のみ登録
-      if (!existingAdmin) {
-        const { error: insertError } = await supabase.from('admins').insert([{
+      if (!existing) {
+        const { error: insertError } = await supabase.from(table).insert([{
           auth_user_id: user.id,
           store_id: storeId,
           email: email,
@@ -58,14 +73,13 @@ const AuthCallback = () => {
         }])
 
         if (insertError) {
-          console.error('❌ adminsテーブルへの登録失敗:', insertError)
-          setErrorMessage('管理者情報の登録に失敗しました。')
+          console.error(`❌ ${table}テーブルへの登録失敗:`, insertError)
+          setErrorMessage('初回登録に失敗しました。')
           setTimeout(() => navigate('/login'), 3000)
           return
         }
       }
 
-      // ✅ Context保存 → /admin/profile に遷移（初回登録前提）
       dispatch({ type: 'SET_SESSION', payload: session })
       dispatch({
         type: 'SET_USER',
@@ -76,7 +90,14 @@ const AuthCallback = () => {
         },
       })
 
-      navigate('/admin/profile')
+      const profilePath =
+        role === 'admin'
+          ? '/admin/profile'
+          : role === 'cast'
+          ? '/cast/profile'
+          : '/operator/profile'
+
+      navigate(profilePath)
     }
 
     handleAuth()
