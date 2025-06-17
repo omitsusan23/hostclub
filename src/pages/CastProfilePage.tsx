@@ -48,6 +48,7 @@ const CastProfilePage = () => {
       });
       setPhotoUrl(publicUrl);
 
+      // 🎯 必ず既存のinvite済みレコードが存在している前提
       const { data: invited, error: findError } = await supabase
         .from('casts')
         .select('id')
@@ -55,31 +56,24 @@ const CastProfilePage = () => {
         .eq('store_id', storeId)
         .maybeSingle();
 
-      if (findError) throw findError;
+      if (findError || !invited) {
+        throw new Error('招待レコードが見つかりません');
+      }
 
       const updatePayload = {
         display_name: displayName,
         photo_url: publicUrl,
         auth_user_id: userId,
         is_active: true,
+        invite_token: null,
       };
 
-      let result;
-      if (invited) {
-        result = await supabase
-          .from('casts')
-          .update(updatePayload)
-          .eq('id', invited.id);
-      } else {
-        result = await supabase.from('casts').insert({
-          ...updatePayload,
-          email,
-          store_id: storeId,
-          role: 'cast',
-        });
-      }
+      const { error: updateError } = await supabase
+        .from('casts')
+        .update(updatePayload)
+        .eq('id', invited.id);
 
-      if (result.error) throw result.error;
+      if (updateError) throw updateError;
 
       setSuccess('登録が完了しました');
       setTimeout(() => navigate('/tables'), 1500);

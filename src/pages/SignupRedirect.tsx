@@ -34,7 +34,6 @@ const SignupRedirect = () => {
         return
       }
 
-      // cast/operator登録先を動的に選定
       const table = role === 'cast' ? 'casts' : role === 'operator' ? 'operators' : null
       const profilePage = role === 'cast' ? '/cast/profile' : role === 'operator' ? '/operator/profile' : '/login'
 
@@ -45,7 +44,6 @@ const SignupRedirect = () => {
         return
       }
 
-      // 登録済みか確認
       const { data: existing, error: checkError } = await supabase
         .from(table)
         .select('id')
@@ -59,7 +57,12 @@ const SignupRedirect = () => {
         return
       }
 
-      // 未登録の場合のみ挿入（insertCast/Operatorはフロントで処理済みなのでここでは何もしない）
+      if (!existing) {
+        console.log('🆕 招待レコードあり。ただしauth_user_id未登録。プロフィール入力を促します。')
+      } else {
+        console.log('✅ 既にauth_user_idが登録済みのため、プロフィールへスキップします')
+      }
+
       dispatch({ type: 'SET_SESSION', payload: session })
       dispatch({
         type: 'SET_USER',
