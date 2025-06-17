@@ -63,25 +63,14 @@ export default function CastListPage() {
   const issueAndShare = async (shareFn: (url: string) => void) => {
     const token = uuidv4()
     const storeId = state.session?.user?.user_metadata?.store_id
-    const table = selectedRole === 'cast' ? 'casts' : 'operators'
     const path = selectedRole === 'cast' ? '/cast/register' : '/operator/register'
-
     const baseDomain = 'hostclub-tableststus.com'
     const url = `https://${storeId}.${baseDomain}${path}?token=${token}`
 
     setLatestUrl(url)
     shareFn(url)
     setModalOpen(false)
-
-    const { data, error: fetchError } = await supabase
-      .from(table)
-      .select('*')
-      .eq('store_id', storeId)
-      .order('created_at', { ascending: false })
-
-    if (!fetchError) {
-      setCasts(data as Cast[])
-    }
+    // ✅ 招待リンク生成のみ。DBアクセス不要
   }
 
   const shareViaLine = (url: string) => {
