@@ -51,16 +51,24 @@ export default function OperatorRegisterPage() {
     try {
       const { data: existingOperator, error: opError } = await supabase
         .from('operators')
-        .select('id')
+        .select('id, auth_user_id')
         .eq('email', email)
         .eq('store_id', storeId)
         .maybeSingle()
 
       if (opError) throw opError
       if (existingOperator) {
-        setError('このメールアドレスは既に登録されています。')
-        setLoading(false)
-        return
+        // 既存のデータがあれば、auth_user_id が null の場合に更新を行う
+        if (!existingOperator.auth_user_id) {
+          // 既存のデータに auth_user_id を更新
+          const { error: emailUpdateError } = await supabase
+            .from('operators')
+            .update({ email, auth_user_id: null }) // auth_user_idを更新
+            .eq('invite_token', token)
+            .eq('store_id', storeId)
+
+          if (emailUpdateError) throw emailUpdateError
+        }
       }
 
       const baseDomain = import.meta.env.VITE_BASE_DOMAIN ?? 'hostclub-tableststus.com'
@@ -83,15 +91,6 @@ export default function OperatorRegisterPage() {
         setLoading(false)
         return
       }
-
-      // ✅ ここで email を事前に発行された招待レコードに上書き
-      const { error: emailUpdateError } = await supabase
-        .from('operators')
-        .update({ email })
-        .eq('invite_token', token)
-        .eq('store_id', storeId)
-
-      if (emailUpdateError) throw emailUpdateError
 
       // ✅ 招待トークンの無効化
       const { error: updateError } = await supabase
