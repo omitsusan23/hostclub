@@ -1,5 +1,3 @@
-// src/pages/AuthCallback.tsx
-
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
@@ -11,96 +9,91 @@ const AuthCallback = () => {
   const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
-    const handleAuth = async () => {
-      const { data, error } = await supabase.auth.getSession()
-
-      if (error || !data.session) {
-        console.error('❌ セッション取得失敗:', error)
-        setErrorMessage('セッションの取得に失敗しました。ログインし直してください。')
-        setTimeout(() => navigate('/login'), 3000)
-        return
-      }
-
-      const session = data.session
-      const user = session.user
-      const meta = user.user_metadata
-      const email = user.email ?? ''
-      const role = meta?.role ?? ''
-      const storeId = meta?.store_id ?? ''
-      const currentSubdomain = window.location.hostname.split('.')[0]
-
-      if (storeId !== currentSubdomain) {
-        console.warn(`⛔ store_id(${storeId})とサブドメイン(${currentSubdomain})が一致しません`)
-        setErrorMessage('アクセス権限がありません。ログインし直してください。')
-        setTimeout(() => navigate('/login'), 3000)
-        return
-      }
-
-      // 🔁 登録先を動的に決定
-      const table = role === 'admin'
-        ? 'admins'
-        : role === 'cast'
-        ? 'casts'
-        : role === 'operator'
-        ? 'operators'
-        : null
-
-      if (!table) {
-        setErrorMessage('不正なロールです')
-        setTimeout(() => navigate('/login'), 3000)
-        return
-      }
-
-      const { data: existing, error: checkError } = await supabase
-        .from(table)
-        .select('id')
-        .eq('auth_user_id', user.id)
-        .maybeSingle()
-
-      if (checkError) {
-        console.error(`❌ ${table}チェックエラー:`, checkError)
-        setErrorMessage('登録状況の確認に失敗しました。')
-        setTimeout(() => navigate('/login'), 3000)
-        return
-      }
-
-      if (!existing) {
-        const { error: insertError } = await supabase.from(table).insert([{
-          auth_user_id: user.id,
-          store_id: storeId,
-          email: email,
-          role: role,
-        }])
-
-        if (insertError) {
-          console.error(`❌ ${table}テーブルへの登録失敗:`, insertError)
-          setErrorMessage('初回登録に失敗しました。')
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event !== 'SIGNED_IN' || !session) {
+          setErrorMessage('認証セッションの取得に失敗しました。ログインし直してください。')
           setTimeout(() => navigate('/login'), 3000)
           return
         }
-      }
 
-      dispatch({ type: 'SET_SESSION', payload: session })
-      dispatch({
-        type: 'SET_USER',
-        payload: {
-          username: email,
-          role,
-          canManageTables: role !== 'cast',
-        },
-      })
+        const user = session.user
+        const meta = user.user_metadata
+        const email = user.email ?? ''
+        const role = meta?.role ?? ''
+        const storeId = meta?.store_id ?? ''
+        const currentSubdomain = window.location.hostname.split('.')[0]
 
-      const profilePath =
-        role === 'admin'
-          ? '/admin/profile'
-          : role === 'cast'
-          ? '/cast/profile'
+        if (storeId !== currentSubdomain) {
+          console.warn(`⛔ store_id(${storeId})とサブドメイン(${currentSubdomain})が一致しません`)
+          setErrorMessage('アクセス権限がありません。ログインし直してください。')
+          setTimeout(() => navigate('/login'), 3000)
+          return
+        }
+
+        const table =
+          role === 'admin' ? 'admins'
+          : role === 'cast' ? 'casts'
+          : role === 'operator' ? 'operators'
+          : null
+
+        if (!table) {
+          setErrorMessage('不正なロールです')
+          setTimeout(() => navigate('/login'), 3000)
+          return
+        }
+
+        const { data: existing, error: checkError } = await supabase
+          .from(table)
+          .select('id')
+          .eq('auth_user_id', user.id)
+          .maybeSingle()
+
+        if (checkError) {
+          console.error(`❌ ${table}チェックエラー:`, checkError)
+          setErrorMessage('登録状況の確認に失敗しました。')
+          setTimeout(() => navigate('/login'), 3000)
+          return
+        }
+
+        if (!existing) {
+          const { error: insertError } = await supabase.from(table).insert([{
+            auth_user_id: user.id,
+            store_id: storeId,
+            email,
+            role,
+          }])
+
+          if (insertError) {
+            console.error(`❌ ${table}テーブルへの登録失敗:`, insertError)
+            setErrorMessage('初回登録に失敗しました。')
+            setTimeout(() => navigate('/login'), 3000)
+            return
+          }
+        }
+
+        dispatch({ type: 'SET_SESSION', payload: session })
+        dispatch({
+          type: 'SET_USER',
+          payload: {
+            username: email,
+            role,
+            canManageTables: role !== 'cast',
+          },
+        })
+
+        const profilePath =
+          role === 'admin' ? '/admin/profile'
+          : role === 'cast' ? '/cast/profile'
           : '/operator/profile'
 
-      navigate(profilePath)
-    }
+        navigate(profilePath)
+      }
+    )
 
-    handleAuth()
+    return () => {
+      listener?.subscription.unsubscribe()
+    }
   }, [dispatch, navigate])
 
   return (
