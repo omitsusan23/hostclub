@@ -59,15 +59,33 @@ const AuthCallback = () => {
       }
 
       if (!existing) {
-        const { error: insertError } = await supabase.from(table).insert([{
-          auth_user_id: user.id,
-          store_id: storeId,
-          email: email,
-          role: role,
-        }])
+        // ✅ invite_token で既存レコード取得し、上書き
+        const { data: invitedRow, error: findError } = await supabase
+          .from(table)
+          .select('id')
+          .eq('email', email)
+          .maybeSingle()
 
-        if (insertError) {
-          console.error(`❌ ${table}テーブルへの登録失敗:`, insertError)
+        if (findError) {
+          console.error('🔍 事前招待レコードの確認エラー:', findError)
+        }
+
+        let upsertError = null
+        if (invitedRow) {
+          const { error } = await supabase
+            .from(table)
+            .update({ auth_user_id: user.id, email, is_active: true })
+            .eq('id', invitedRow.id)
+          upsertError = error
+        } else {
+          const { error } = await supabase
+            .from(table)
+            .insert([{ auth_user_id: user.id, store_id: storeId, email, role }])
+          upsertError = error
+        }
+
+        if (upsertError) {
+          console.error(`❌ ${table}テーブルへの登録失敗:`, upsertError)
           setErrorMessage('初回登録に失敗しました。')
           setTimeout(() => navigate('/login'), 3000)
           return

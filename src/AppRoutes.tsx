@@ -49,7 +49,16 @@ const AppRoutes: React.FC = () => {
     console.log('ログイン中のユーザー情報(user):', user);
   }, [location, stores, currentStore, user]);
 
-  const hideFooterRoutes = ['/register', '/login', '/signup', '/cast/register', '/operator/register'];
+  const hideFooterRoutes = [
+    '/register',
+    '/login',
+    '/signup',
+    '/cast/register',
+    '/operator/register',
+    '/cast/profile',
+    '/operator/profile',
+  ];
+
   const isFooterHidden = hideFooterRoutes.some(path => location.pathname.startsWith(path));
 
   const wrapWithLayout = (element: React.ReactNode) =>
