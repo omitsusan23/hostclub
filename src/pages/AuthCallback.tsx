@@ -1,194 +1,131 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { v4 as uuidv4 } from 'uuid'
-import Header from '../components/Header'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAppContext } from '../context/AppContext'
-import CastGrid from '../components/CastGrid'
 
-interface Cast {
-  id: string
-  role: 'cast' | 'operator'
-  invite_token: string
-  created_at: string
-  store_id: string
-  email?: string | null
-  username?: string | null
-  photo_url?: string | null
-}
-
-export default function CastListPage() {
-  const { state } = useAppContext()
-  const [casts, setCasts] = useState<Cast[]>([])
-  const [modalOpen, setModalOpen] = useState(false)
-  const [selectedRole, setSelectedRole] = useState<'cast' | 'operator'>('cast')
-  const [latestUrl, setLatestUrl] = useState<string | null>(null)
-  const firstShareButtonRef = useRef<HTMLButtonElement>(null)
+const AuthCallback = () => {
+  const { dispatch } = useAppContext()
+  const navigate = useNavigate()
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
-    if (!state.session) return
-
-    const fetchCasts = async () => {
-      const { data, error } = await supabase
-        .from('casts')
-        .select('*')
-        .eq('store_id', state.session.user.user_metadata?.store_id)
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        console.error('キャスト取得エラー:', error)
-      } else {
-        setCasts(data as Cast[])
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!session) {
+        console.error('❌ セッションが取得できません')
+        setErrorMessage('セッションの取得に失敗しました。ログインし直してください。')
+        setTimeout(() => navigate('/login'), 3000)
+        return
       }
-    }
 
-    fetchCasts()
-  }, [state.session])
+      const user = session.user
+      const meta = user.user_metadata
+      const email = user.email ?? ''
+      const role = meta?.role ?? ''
+      const storeId = meta?.store_id ?? ''
+      const currentSubdomain = window.location.hostname.split('.')[0]
 
-  useEffect(() => {
-    if (modalOpen) {
-      firstShareButtonRef.current?.focus()
-    }
-  }, [modalOpen])
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && modalOpen) {
-        setModalOpen(false)
+      if (storeId !== currentSubdomain) {
+        console.warn(`⛔ store_id(${storeId})とサブドメイン(${currentSubdomain})が一致しません`)
+        setErrorMessage('アクセス権限がありません。ログインし直してください。')
+        setTimeout(() => navigate('/login'), 3000)
+        return
       }
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [modalOpen])
 
-  const issueAndShare = async (shareFn: (url: string) => void) => {
-    const token = uuidv4()
-    const storeId = state.session?.user?.user_metadata?.store_id
-    const role = selectedRole
+      const table = role === 'admin'
+        ? 'admins'
+        : role === 'cast'
+        ? 'casts'
+        : role === 'operator'
+        ? 'operators'
+        : null
 
-    const baseDomain = 'hostclub-tableststus.com'
-    const path = role === 'cast' ? '/cast/register' : '/operator/register'
-    const url = `https://${storeId}.${baseDomain}${path}?token=${token}`
-
-    // URLをフロント上だけで生成・表示し、DB登録しない構成に変更
-    setLatestUrl(url)
-    shareFn(url)
-    setModalOpen(false)
-  }
-
-  const shareViaLine = (url: string) => {
-    const ua = navigator.userAgent.toLowerCase()
-    const message = encodeURIComponent(url)
-
-    if (ua.includes('android')) {
-      window.location.href = `intent://msg/text/${message}#Intent;scheme=line;package=jp.naver.line.android;end`
-    } else if (ua.includes('iphone') || ua.includes('ipad')) {
-      window.location.href = `line://msg/text/${message}`
-    } else {
-      alert('この端末ではLINE共有がサポートされていません。')
-    }
-  }
-
-  const shareViaMail = (url: string) => {
-    window.location.href =
-      `mailto:?subject=${encodeURIComponent('キャスト招待リンク')}` +
-      `&body=${encodeURIComponent('こちらからサインアップしてください：\n' + url)}`
-  }
-
-  const copyToClipboard = async (url: string) => {
-    try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(url)
-        alert('招待リンクをクリップボードにコピーしました')
-      } else {
-        const textarea = document.createElement('textarea')
-        textarea.value = url
-        textarea.style.position = 'fixed'
-        textarea.style.opacity = '0'
-        document.body.appendChild(textarea)
-        textarea.focus()
-        textarea.select()
-        document.execCommand('copy')
-        document.body.removeChild(textarea)
-        alert('招待リンクをクリップボードにコピーしました')
+      if (!table) {
+        setErrorMessage('不正なロールです')
+        setTimeout(() => navigate('/login'), 3000)
+        return
       }
-    } catch (err) {
-      console.error('コピー失敗:', err)
-      alert(`コピーに失敗しました。長押しで手動コピーしてください。\n\n${url}`)
+
+      const { data: existing, error: checkError } = await supabase
+        .from(table)
+        .select('id')
+        .eq('auth_user_id', user.id)
+        .maybeSingle()
+
+      if (checkError) {
+        console.error(`❌ ${table}チェックエラー:`, checkError)
+        setErrorMessage('登録状況の確認に失敗しました。')
+        setTimeout(() => navigate('/login'), 3000)
+        return
+      }
+
+      if (!existing) {
+        // ✅ invite_token で既存レコード取得し、上書き
+        const { data: invitedRow, error: findError } = await supabase
+          .from(table)
+          .select('id')
+          .eq('email', email)
+          .maybeSingle()
+
+        if (findError) {
+          console.error('🔍 事前招待レコードの確認エラー:', findError)
+        }
+
+        let upsertError = null
+        if (invitedRow) {
+          const { error } = await supabase
+            .from(table)
+            .update({ auth_user_id: user.id, email, is_active: true })
+            .eq('id', invitedRow.id)
+          upsertError = error
+        } else {
+          const { error } = await supabase
+            .from(table)
+            .insert([{ auth_user_id: user.id, store_id: storeId, email, role }])
+          upsertError = error
+        }
+
+        if (upsertError) {
+          console.error(`❌ ${table}テーブルへの登録失敗:`, upsertError)
+          setErrorMessage('初回登録に失敗しました。')
+          setTimeout(() => navigate('/login'), 3000)
+          return
+        }
+      }
+
+      dispatch({ type: 'SET_SESSION', payload: session })
+      dispatch({
+        type: 'SET_USER',
+        payload: {
+          username: email,
+          role,
+          canManageTables: role !== 'cast',
+        },
+      })
+
+      const profilePath =
+        role === 'admin'
+          ? '/admin/profile'
+          : role === 'cast'
+          ? '/cast/profile'
+          : '/operator/profile'
+
+      navigate(profilePath)
+    })
+
+    return () => {
+      authListener.subscription.unsubscribe()
     }
-  }
+  }, [dispatch, navigate])
 
   return (
-    <>
-      <Header title="在籍キャスト一覧">
-        <button
-          onClick={() => setModalOpen(true)}
-          className="ml-2 px-3 py-1 bg-blue-500 text-white rounded"
-        >
-          追加
-        </button>
-      </Header>
-
-      <main className="pt-[calc(env(safe-area-inset-top)+66px)]">
-        <CastGrid casts={casts} />
-      </main>
-
-      {modalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="invite-modal-title"
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center px-4 z-50"
-        >
-          <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
-            <h3
-              id="invite-modal-title"
-              className="text-lg font-semibold mb-4 text-center"
-            >
-              共有方法を選択
-            </h3>
-
-            <div className="mb-4">
-              <label className="block mb-2 text-sm font-medium">役割を選択:</label>
-              <select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value as 'cast' | 'operator')}
-                className="w-full border rounded px-3 py-2"
-              >
-                <option value="cast">キャスト</option>
-                <option value="operator">オペレーター</option>
-              </select>
-            </div>
-
-            <div className="space-y-3">
-              <button
-                ref={firstShareButtonRef}
-                onClick={() => issueAndShare(shareViaLine)}
-                className="w-full py-2 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
-              >
-                LINEで共有
-              </button>
-              <button
-                onClick={() => issueAndShare(shareViaMail)}
-                className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
-              >
-                メールで送信
-              </button>
-              <button
-                onClick={() => issueAndShare(copyToClipboard)}
-                className="w-full py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400"
-              >
-                クリップボードにコピー
-              </button>
-              <button
-                onClick={() => setModalOpen(false)}
-                className="w-full py-2 text-sm text-gray-600 hover:underline focus:outline-none focus:ring-2 focus:ring-gray-300"
-              >
-                キャンセル
-              </button>
-            </div>
-          </div>
-        </div>
+    <div className="text-center mt-20">
+      {errorMessage ? (
+        <div className="text-red-600">{errorMessage}</div>
+      ) : (
+        <div>ログイン処理中...</div>
       )}
-    </>
+    </div>
   )
 }
+
+export default AuthCallback
