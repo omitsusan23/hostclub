@@ -63,35 +63,16 @@ export default function CastListPage() {
   const issueAndShare = async (shareFn: (url: string) => void) => {
     const token = uuidv4()
     const storeId = state.session?.user?.user_metadata?.store_id
-    const userId = state.session?.user?.id
     const table = selectedRole === 'cast' ? 'casts' : 'operators'
-
-    const { error } = await supabase.from(table).insert([
-      {
-        invite_token: token,
-        role: selectedRole,
-        store_id: storeId,
-        created_by: userId,
-        is_active: true,
-        created_at: new Date().toISOString(),
-      },
-    ])
-
-    if (error) {
-      alert('招待の登録に失敗しました')
-      console.error(error)
-      return
-    }
+    const path = selectedRole === 'cast' ? '/cast/register' : '/operator/register'
 
     const baseDomain = 'hostclub-tableststus.com'
-    const path = selectedRole === 'cast' ? '/cast/register' : '/operator/register'
     const url = `https://${storeId}.${baseDomain}${path}?token=${token}`
 
     setLatestUrl(url)
     shareFn(url)
     setModalOpen(false)
 
-    // 招待後、再取得（roleに応じて）
     const { data, error: fetchError } = await supabase
       .from(table)
       .select('*')
