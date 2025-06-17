@@ -27,6 +27,9 @@ export default function CastListPage() {
   useEffect(() => {
     if (!state.session) return
 
+    const role = state.session.user.user_metadata?.role
+    if (role !== 'admin' && role !== 'operator') return
+
     const fetchCasts = async () => {
       const { data, error } = await supabase
         .from('casts')
@@ -71,7 +74,7 @@ export default function CastListPage() {
     shareFn(url)
     setModalOpen(false)
 
-    // ❌ 不要な Supabase DB アクセスを削除
+    // ❌ Supabaseへのinsertはここでは行わない
   }
 
   const shareViaLine = (url: string) => {
