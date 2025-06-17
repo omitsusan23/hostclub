@@ -58,8 +58,8 @@ const AuthCallback = () => {
         return
       }
 
+      // ✅ 初回登録時のみ事前招待レコードを探して上書き
       if (!existing) {
-        // ✅ invite_token で既存レコード取得し、上書き
         const { data: invitedRow, error: findError } = await supabase
           .from(table)
           .select('id')
@@ -68,21 +68,22 @@ const AuthCallback = () => {
 
         if (findError) {
           console.error('🔍 事前招待レコードの確認エラー:', findError)
+          setErrorMessage('招待レコードの確認に失敗しました。')
+          setTimeout(() => navigate('/login'), 3000)
+          return
         }
 
-        let upsertError = null
-        if (invitedRow) {
-          const { error } = await supabase
-            .from(table)
-            .update({ auth_user_id: user.id, email, is_active: true })
-            .eq('id', invitedRow.id)
-          upsertError = error
-        } else {
-          const { error } = await supabase
-            .from(table)
-            .insert([{ auth_user_id: user.id, store_id: storeId, email, role }])
-          upsertError = error
+        if (!invitedRow) {
+          console.warn(`⛔ 招待レコードが存在しません（email: ${email}）`)
+          setErrorMessage('このメールアドレスには招待が行われていません。')
+          setTimeout(() => navigate('/login'), 3000)
+          return
         }
+
+        const { error: upsertError } = await supabase
+          .from(table)
+          .update({ auth_user_id: user.id, email, is_active: true })
+          .eq('id', invitedRow.id)
 
         if (upsertError) {
           console.error(`❌ ${table}テーブルへの登録失敗:`, upsertError)
@@ -92,6 +93,7 @@ const AuthCallback = () => {
         }
       }
 
+      // ✅ セッション・ユーザー情報をContextに保存
       dispatch({ type: 'SET_SESSION', payload: session })
       dispatch({
         type: 'SET_USER',
