@@ -36,6 +36,7 @@ const AuthCallback = () => {
         return
       }
 
+      // テーブルの選択: role によってテーブルを決定
       const table = role === 'cast' ? 'casts' : role === 'operator' ? 'operators' : 'admins'
 
       // 🔍 事前招待レコードの確認（auth_user_id が null の状態）
@@ -43,6 +44,7 @@ const AuthCallback = () => {
         .from(table)
         .select('id')
         .eq('email', email)
+        .eq('store_id', storeId)
         .maybeSingle()
 
       if (findError) {
@@ -63,12 +65,17 @@ const AuthCallback = () => {
       setUserMetadata(metadata)
 
       // 🎯 招待レコードに auth_user_id を上書き
-      await supabase
+      const { error: updateError } = await supabase
         .from(table)
-        .update({ auth_user_id: user.id })
+        .update({ auth_user_id: user.id, is_active: true }) // auth_user_id を更新し、is_active を true に
         .eq('email', email)
         .eq('store_id', storeId)
 
+      if (updateError) {
+        console.error('🔍 招待レコード更新エラー:', updateError)
+        setErrorMessage('招待レコードの更新に失敗しました。')
+        return
+      }
 
       // 🎯 次のページに遷移
       if (role === 'cast') {
