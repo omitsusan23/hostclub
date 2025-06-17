@@ -1,130 +1,86 @@
+// src/pages/AuthCallback.tsx
+
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
-import { useAppContext } from '../context/AppContext'
+import { useStore } from '../contexts/StoreContext'
 
 const AuthCallback = () => {
-  const { dispatch } = useAppContext()
   const navigate = useNavigate()
-  const [errorMessage, setErrorMessage] = useState('')
+  const { setSession, setUserMetadata } = useStore()
+
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!session) {
-        console.error('❌ セッションが取得できません')
-        setErrorMessage('セッションの取得に失敗しました。ログインし直してください。')
-        setTimeout(() => navigate('/login'), 3000)
+    const handleCallback = async () => {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession()
+
+      if (error || !session || !session.user) {
+        console.error('❌ セッション取得失敗:', error)
+        setErrorMessage('ログインに失敗しました。')
         return
       }
 
       const user = session.user
-      const meta = user.user_metadata
-      const email = user.email ?? ''
-      const role = meta?.role ?? ''
-      const storeId = meta?.store_id ?? ''
-      const currentSubdomain = window.location.hostname.split('.')[0]
+      const metadata = user.user_metadata
+      const role = metadata.role
+      const storeId = metadata.store_id
+      const email = metadata.email
 
-      if (storeId !== currentSubdomain) {
-        console.warn(`⛔ store_id(${storeId})とサブドメイン(${currentSubdomain})が一致しません`)
-        setErrorMessage('アクセス権限がありません。ログインし直してください。')
-        setTimeout(() => navigate('/login'), 3000)
+      if (!role || !storeId || !email) {
+        console.warn('⚠️ 必須情報が不足しています')
+        setErrorMessage('ユーザー情報が不足しています。')
         return
       }
 
-      const table = role === 'admin'
-        ? 'admins'
-        : role === 'cast'
-        ? 'casts'
-        : role === 'operator'
-        ? 'operators'
-        : null
+      const table = role === 'cast' ? 'casts' : role === 'operator' ? 'operators' : 'admins'
 
-      if (!table) {
-        setErrorMessage('不正なロールです')
-        setTimeout(() => navigate('/login'), 3000)
-        return
-      }
-
-      const { data: existing, error: checkError } = await supabase
+      // 🔍 事前招待レコードの確認（auth_user_id が null の状態）
+      const { data: invitedRow, error: findError } = await supabase
         .from(table)
         .select('id')
-        .eq('auth_user_id', user.id)
+        .eq('email', email)
         .maybeSingle()
 
-      if (checkError) {
-        console.error(`❌ ${table}チェックエラー:`, checkError)
-        setErrorMessage('登録状況の確認に失敗しました。')
+      if (findError) {
+        console.error('🔍 招待レコード取得エラー:', findError)
+        setErrorMessage('招待確認中にエラーが発生しました。')
+        return
+      }
+
+      if (!invitedRow) {
+        console.warn('⚠️ 招待レコードが見つかりません')
+        setErrorMessage('このメールアドレスは招待されていません。管理者に確認してください。')
         setTimeout(() => navigate('/login'), 3000)
         return
       }
 
-      // ✅ 初回登録時のみ事前招待レコードを探して上書き
-      if (!existing) {
-        const { data: invitedRow, error: findError } = await supabase
-          .from(table)
-          .select('id')
-          .eq('email', email)
-          .maybeSingle()
+      // ✅ セッションとユーザーメタデータを保存
+      setSession(session)
+      setUserMetadata(metadata)
 
-        if (findError) {
-          console.error('🔍 事前招待レコードの確認エラー:', findError)
-          setErrorMessage('招待レコードの確認に失敗しました。')
-          setTimeout(() => navigate('/login'), 3000)
-          return
-        }
-
-        if (!invitedRow) {
-          console.warn(`⛔ 招待レコードが存在しません（email: ${email}）`)
-          setErrorMessage('このメールアドレスには招待が行われていません。')
-          setTimeout(() => navigate('/login'), 3000)
-          return
-        }
-
-        const { error: upsertError } = await supabase
-          .from(table)
-          .update({ auth_user_id: user.id, email, is_active: true })
-          .eq('id', invitedRow.id)
-
-        if (upsertError) {
-          console.error(`❌ ${table}テーブルへの登録失敗:`, upsertError)
-          setErrorMessage('初回登録に失敗しました。')
-          setTimeout(() => navigate('/login'), 3000)
-          return
-        }
+      // 🎯 次のページに遷移
+      if (role === 'cast') {
+        navigate('/cast/profile')
+      } else if (role === 'operator') {
+        navigate('/operator/profile')
+      } else {
+        navigate('/admin/profile')
       }
-
-      // ✅ セッション・ユーザー情報をContextに保存
-      dispatch({ type: 'SET_SESSION', payload: session })
-      dispatch({
-        type: 'SET_USER',
-        payload: {
-          username: email,
-          role,
-          canManageTables: role !== 'cast',
-        },
-      })
-
-      const profilePath =
-        role === 'admin'
-          ? '/admin/profile'
-          : role === 'cast'
-          ? '/cast/profile'
-          : '/operator/profile'
-
-      navigate(profilePath)
-    })
-
-    return () => {
-      authListener.subscription.unsubscribe()
     }
-  }, [dispatch, navigate])
+
+    handleCallback()
+  }, [navigate, setSession, setUserMetadata])
 
   return (
-    <div className="text-center mt-20">
+    <div className="flex items-center justify-center h-screen">
       {errorMessage ? (
-        <div className="text-red-600">{errorMessage}</div>
+        <p className="text-red-500">{errorMessage}</p>
       ) : (
-        <div>ログイン処理中...</div>
+        <p className="text-gray-700">ログイン中です...</p>
       )}
     </div>
   )
