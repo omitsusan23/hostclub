@@ -60,7 +60,7 @@ export default function CastListPage() {
     return () => window.removeEventListener('keydown', handler)
   }, [modalOpen])
 
-  const issueAndShare = async (shareFn: (url: string) => void) => {
+  const issueAndShare = (shareFn: (url: string) => void) => {
     const token = uuidv4()
     const storeId = state.session?.user?.user_metadata?.store_id
     const path = selectedRole === 'cast' ? '/cast/register' : '/operator/register'
@@ -70,7 +70,8 @@ export default function CastListPage() {
     setLatestUrl(url)
     shareFn(url)
     setModalOpen(false)
-    // ✅ 招待リンク生成のみ。DBアクセス不要
+
+    // ❌ 不要な Supabase DB アクセスを削除
   }
 
   const shareViaLine = (url: string) => {
@@ -138,10 +139,7 @@ export default function CastListPage() {
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center px-4 z-50"
         >
           <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
-            <h3
-              id="invite-modal-title"
-              className="text-lg font-semibold mb-4 text-center"
-            >
+            <h3 id="invite-modal-title" className="text-lg font-semibold mb-4 text-center">
               共有方法を選択
             </h3>
 
