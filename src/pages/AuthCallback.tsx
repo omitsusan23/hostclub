@@ -36,7 +36,6 @@ const AuthCallback = () => {
         return
       }
 
-      // テーブルの選択: role によってテーブルを決定
       const table = role === 'cast' ? 'casts' : role === 'operator' ? 'operators' : 'admins'
 
       // 🔍 事前招待レコードの確認（auth_user_id が null の状態）
@@ -73,7 +72,7 @@ const AuthCallback = () => {
           is_active: true 
         })
         .eq('email', email)
-        .eq('store_id', storeId)
+        .eq('store_id', storeId) // これで、同一のstore_idとemailを持つレコードが確実に更新されます
 
       if (updateError) {
         console.error('🔍 招待レコード更新エラー:', updateError)
