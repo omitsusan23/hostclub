@@ -38,11 +38,11 @@ const AuthCallback = () => {
 
       const table = role === 'cast' ? 'casts' : role === 'operator' ? 'operators' : 'admins'
 
-      // 🔍 事前招待レコードの確認（auth_user_id が null の状態）
+      // 🔍 invite_tokenでレコード確認（auth_user_idがnullの状態で確認）
       const { data: invitedRow, error: findError } = await supabase
         .from(table)
-        .select('id, email')
-        .eq('email', email)
+        .select('id, auth_user_id, invite_token')
+        .eq('invite_token', metadata.invite_token)  // invite_tokenを使って検索
         .eq('store_id', storeId)
         .maybeSingle()
 
@@ -63,21 +63,19 @@ const AuthCallback = () => {
       setSession(session)
       setUserMetadata(metadata)
 
-      // 🎯 招待レコードに auth_user_id を上書きし、emailも更新する
-      const { error: updateError } = await supabase
-        .from(table)
-        .update({ 
-          auth_user_id: user.id, 
-          email: email, // 新規登録の際にメールアドレスを更新
-          is_active: true 
-        })
-        .eq('email', email)
-        .eq('store_id', storeId) // これで、同一のstore_idとemailを持つレコードが確実に更新されます
+      // 🎯 auth_user_idがnullの場合にのみauth_user_idを更新
+      if (invitedRow.auth_user_id === null) {
+        const { error: updateError } = await supabase
+          .from(table)
+          .update({ auth_user_id: user.id, is_active: true }) // auth_user_idを更新
+          .eq('invite_token', metadata.invite_token)
+          .eq('store_id', storeId)
 
-      if (updateError) {
-        console.error('🔍 招待レコード更新エラー:', updateError)
-        setErrorMessage('招待レコードの更新に失敗しました。')
-        return
+        if (updateError) {
+          console.error('🔍 招待レコード更新エラー:', updateError)
+          setErrorMessage('招待レコードの更新に失敗しました。')
+          return
+        }
       }
 
       // 🎯 次のページに遷移
