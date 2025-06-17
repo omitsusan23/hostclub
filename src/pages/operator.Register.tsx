@@ -57,17 +57,17 @@ export default function OperatorRegisterPage() {
         .maybeSingle()
 
       if (opError) throw opError
+
+      // 既存データがあれば、auth_user_id が null の場合に更新する
       if (existingOperator) {
-        // 既存のデータがあれば、auth_user_id が null の場合に更新を行う
         if (!existingOperator.auth_user_id) {
-          // 既存のデータに auth_user_id を更新
-          const { error: emailUpdateError } = await supabase
+          const { error: updateError } = await supabase
             .from('operators')
-            .update({ email, auth_user_id: null }) // auth_user_idを更新
+            .update({ email })  // emailを更新
             .eq('invite_token', token)
             .eq('store_id', storeId)
 
-          if (emailUpdateError) throw emailUpdateError
+          if (updateError) throw updateError
         }
       }
 
@@ -92,7 +92,20 @@ export default function OperatorRegisterPage() {
         return
       }
 
-      // ✅ 招待トークンの無効化
+      // auth_user_idを更新
+      const { error: authUpdateError } = await supabase
+        .from('operators')
+        .update({ auth_user_id: (await supabase.auth.getSession()).data.session.user.id })
+        .eq('invite_token', token)
+        .eq('store_id', storeId)
+
+      if (authUpdateError) {
+        setError('auth_user_idの更新に失敗しました')
+        setLoading(false)
+        return
+      }
+
+      // 招待トークンを無効化
       const { error: updateError } = await supabase
         .from('operators')
         .update({
