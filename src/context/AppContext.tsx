@@ -137,7 +137,6 @@ const reducer = (state: AppState, action: Action): AppState => {
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  // ✅ セッション復元と監視
   useEffect(() => {
     const initSession = async () => {
       const { data } = await supabase.auth.getSession()
@@ -181,7 +180,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   }, [])
 
-  // ✅ 店舗登録判定（セッション復元後に実行）
   useEffect(() => {
     const checkStoreRegistered = async () => {
       const subdomain = window.location.hostname.split('.')[0]

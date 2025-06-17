@@ -1,4 +1,4 @@
-// src/pages/CastProfilePage.tsx
+// src/pages/OperatProfilePage.tsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
@@ -6,7 +6,7 @@ import { useAppContext } from '../context/AppContext';
 import AvatarCropper from '../components/AvatarCropper';
 import { uploadAvatar } from '../lib/uploadAvatar';
 
-const CastProfilePage = () => {
+const OperatProfilePage = () => {
   const navigate = useNavigate();
   const {
     state: { session },
@@ -49,7 +49,7 @@ const CastProfilePage = () => {
       setPhotoUrl(publicUrl);
 
       const { data: invited, error: findError } = await supabase
-        .from('casts')
+        .from('operators')
         .select('id')
         .eq('email', email)
         .eq('store_id', storeId)
@@ -67,15 +67,15 @@ const CastProfilePage = () => {
       let result;
       if (invited) {
         result = await supabase
-          .from('casts')
+          .from('operators')
           .update(updatePayload)
           .eq('id', invited.id);
       } else {
-        result = await supabase.from('casts').insert({
+        result = await supabase.from('operators').insert({
           ...updatePayload,
           email,
           store_id: storeId,
-          role: 'cast',
+          role: 'operator',
         });
       }
 
@@ -110,11 +110,11 @@ const CastProfilePage = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
       <h1 className="text-2xl font-bold mb-4">プロフィール登録</h1>
-      <p className="text-gray-600 mb-4">源氏名と画像を登録してください</p>
+      <p className="text-gray-600 mb-4">オペレーターとしての名前とアイコン画像を登録してください。</p>
 
       <input
         type="text"
-        placeholder="源氏名"
+        placeholder="表示名"
         value={displayName}
         onChange={(e) => setDisplayName(e.target.value)}
         className="border px-3 py-2 mb-2 w-64 rounded"
@@ -141,7 +141,7 @@ const CastProfilePage = () => {
       <button
         onClick={handleSave}
         disabled={uploading || !croppedFile}
-        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
       >
         {uploading ? 'アップロード中...' : '登録する'}
       </button>
@@ -160,4 +160,4 @@ const CastProfilePage = () => {
   );
 };
 
-export default CastProfilePage;
+export default OperatProfilePage;

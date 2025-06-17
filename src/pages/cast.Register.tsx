@@ -48,32 +48,62 @@ export default function CastRegisterPage() {
     setLoading(true)
     setError('')
 
-    const baseDomain = import.meta.env.VITE_BASE_DOMAIN ?? 'hostclub-tableststus.com'
-    const redirectUrl = `https://${storeId}.${baseDomain}/auth/callback`
+    try {
+      // ✅ 重複チェック（auth.usersには直接アクセスできないため、castsで確認）
+      const { data: existingCast, error: castError } = await supabase
+        .from('casts')
+        .select('id')
+        .eq('email', email)
+        .eq('store_id', storeId)
+        .maybeSingle()
 
-    const { error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          store_id: storeId,
-          role: 'cast',
+      if (castError) throw castError
+      if (existingCast) {
+        setError('このメールアドレスは既に登録されています。')
+        setLoading(false)
+        return
+      }
+
+      const baseDomain = import.meta.env.VITE_BASE_DOMAIN ?? 'hostclub-tableststus.com'
+      const redirectUrl = `https://${storeId}.${baseDomain}/auth/callback`
+
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            store_id: storeId,
+            role: 'cast',
+          },
         },
-      },
-    })
+      })
 
-    if (signUpError) {
-      setError(signUpError.message)
+      if (signUpError) {
+        setError(signUpError.message)
+        setLoading(false)
+        return
+      }
+
+      // ✅ 招待トークンを明示的に無効化
+      const { error: updateError } = await supabase
+        .from('casts')
+        .update({
+          is_active: false,
+          invite_token: null, // ✅ 再利用防止
+        })
+        .eq('invite_token', token)
+
+      if (updateError) throw updateError
+
+      alert('確認メールを送信しました。メールのリンクをクリックして登録を完了してください。')
+      navigate('/login')
+    } catch (e: any) {
+      console.error(e)
+      setError('登録中にエラーが発生しました')
+    } finally {
       setLoading(false)
-      return
     }
-
-    // ✅ 招待トークンを無効化
-    await supabase.from('casts').update({ is_active: false }).eq('invite_token', token)
-
-    alert('確認メールを送信しました。メールのリンクをクリックして登録を完了してください。')
-    navigate('/login')
   }
 
   if (!validToken) {
@@ -89,17 +119,38 @@ export default function CastRegisterPage() {
     <div className="p-6 max-w-md mx-auto">
       <h1 className="text-xl font-bold mb-4 text-center">キャスト登録</h1>
       {error && <p className="text-red-600 mb-2 text-center">{error}</p>}
-
-      <form onSubmit={(e) => { e.preventDefault(); handleRegister() }} className="space-y-4">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          handleRegister()
+        }}
+        className="space-y-4"
+      >
         <div>
           <label className="block mb-1">メールアドレス</label>
-          <input type="email" value={email} required onChange={(e) => setEmail(e.target.value)} className="w-full border px-3 py-2 rounded" />
+          <input
+            type="email"
+            value={email}
+            required
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full border px-3 py-2 rounded"
+          />
         </div>
         <div>
           <label className="block mb-1">パスワード</label>
-          <input type="password" value={password} required onChange={(e) => setPassword(e.target.value)} className="w-full border px-3 py-2 rounded" />
+          <input
+            type="password"
+            value={password}
+            required
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full border px-3 py-2 rounded"
+          />
         </div>
-        <button type="submit" disabled={loading} className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50">
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+        >
           {loading ? '登録中...' : '確認メールを送信'}
         </button>
       </form>
