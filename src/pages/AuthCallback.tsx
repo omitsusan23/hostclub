@@ -42,7 +42,7 @@ const AuthCallback = () => {
       // 🔍 事前招待レコードの確認（auth_user_id が null の状態）
       const { data: invitedRow, error: findError } = await supabase
         .from(table)
-        .select('id')
+        .select('id, email')
         .eq('email', email)
         .eq('store_id', storeId)
         .maybeSingle()
@@ -64,10 +64,14 @@ const AuthCallback = () => {
       setSession(session)
       setUserMetadata(metadata)
 
-      // 🎯 招待レコードに auth_user_id を上書き
+      // 🎯 招待レコードに auth_user_id を上書きし、emailも更新する
       const { error: updateError } = await supabase
         .from(table)
-        .update({ auth_user_id: user.id, is_active: true }) // auth_user_id を更新し、is_active を true に
+        .update({ 
+          auth_user_id: user.id, 
+          email: email, // 新規登録の際にメールアドレスを更新
+          is_active: true 
+        })
         .eq('email', email)
         .eq('store_id', storeId)
 
