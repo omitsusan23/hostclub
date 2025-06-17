@@ -1,3 +1,4 @@
+// src/pages/operator.Register.tsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
@@ -10,7 +11,6 @@ export default function OperatorRegisterPage() {
   const [validToken, setValidToken] = useState(false)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-
   const token = searchParams.get('token')
   const [storeId, setStoreId] = useState('')
 
@@ -87,33 +87,16 @@ export default function OperatorRegisterPage() {
     <div className="p-6 max-w-md mx-auto">
       <h1 className="text-xl font-bold mb-4 text-center">オペレーター登録</h1>
       {error && <p className="text-red-600 mb-2 text-center">{error}</p>}
-
       <form onSubmit={(e) => { e.preventDefault(); handleRegister() }} className="space-y-4">
         <div>
           <label className="block mb-1">メールアドレス</label>
-          <input
-            type="email"
-            value={email}
-            required
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
-          />
+          <input type="email" value={email} required onChange={(e) => setEmail(e.target.value)} className="w-full border px-3 py-2 rounded" />
         </div>
         <div>
           <label className="block mb-1">パスワード</label>
-          <input
-            type="password"
-            value={password}
-            required
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
-          />
+          <input type="password" value={password} required onChange={(e) => setPassword(e.target.value)} className="w-full border px-3 py-2 rounded" />
         </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-        >
+        <button type="submit" disabled={loading} className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50">
           {loading ? '登録中...' : '確認メールを送信'}
         </button>
       </form>
