@@ -1,6 +1,6 @@
 // src/pages/OperatProfilePage.tsx
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useAppContext } from '../context/AppContext';
 import AvatarCropper from '../components/AvatarCropper';
@@ -8,6 +8,9 @@ import { uploadAvatar } from '../lib/uploadAvatar';
 
 const OperatProfilePage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const inviteToken = searchParams.get('token');
+
   const {
     state: { session },
   } = useAppContext();
@@ -31,10 +34,9 @@ const OperatProfilePage = () => {
     setUploading(true);
 
     const storeId = session?.user.user_metadata?.store_id;
-    const email = session?.user.email;
     const userId = session?.user.id;
 
-    if (!storeId || !userId || !croppedFile || !email) {
+    if (!storeId || !userId || !croppedFile || !inviteToken) {
       setError('情報が不足しています');
       setUploading(false);
       return;
@@ -48,38 +50,32 @@ const OperatProfilePage = () => {
       });
       setPhotoUrl(publicUrl);
 
+      // 🎯 invite_token に一致する招待レコードを取得
       const { data: invited, error: findError } = await supabase
         .from('operators')
         .select('id')
-        .eq('email', email)
+        .eq('invite_token', inviteToken)
         .eq('store_id', storeId)
         .maybeSingle();
 
-      if (findError) throw findError;
+      if (findError || !invited) {
+        throw new Error('招待レコードが見つかりません');
+      }
 
       const updatePayload = {
         display_name: displayName,
         photo_url: publicUrl,
         auth_user_id: userId,
         is_active: true,
+        invite_token: null, // セキュリティのために消す
       };
 
-      let result;
-      if (invited) {
-        result = await supabase
-          .from('operators')
-          .update(updatePayload)
-          .eq('id', invited.id);
-      } else {
-        result = await supabase.from('operators').insert({
-          ...updatePayload,
-          email,
-          store_id: storeId,
-          role: 'operator',
-        });
-      }
+      const { error: updateError } = await supabase
+        .from('operators')
+        .update(updatePayload)
+        .eq('id', invited.id);
 
-      if (result.error) throw result.error;
+      if (updateError) throw updateError;
 
       setSuccess('登録が完了しました');
       setTimeout(() => navigate('/tables'), 1500);
