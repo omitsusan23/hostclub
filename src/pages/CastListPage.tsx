@@ -74,7 +74,7 @@ export default function CastListPage() {
     const url = `https://${storeId}.${baseDomain}${path}?token=${token}`
 
     // Supabase に招待レコードを insert
-    const { error } = await supabase.from(table).insert({
+    const { data, error } = await supabase.from(table).insert({
       invite_token: token,
       role,
       store_id: storeId,
@@ -83,10 +83,12 @@ export default function CastListPage() {
     })
 
     if (error) {
-      console.error(`${table} 招待レコード作成失敗:`, error)
-      alert('招待リンクの作成に失敗しました')
+      console.error(`${table} 招待レコード作成失敗:`, error.message)
+      alert(`招待リンクの作成に失敗しました。エラー: ${error.message}`)
       return
     }
+
+    console.log('招待レコード作成成功:', data)
 
     setLatestUrl(url)
     shareFn(url)
