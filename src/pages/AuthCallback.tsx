@@ -70,6 +70,8 @@ const AuthCallback = () => {
           .update({ auth_user_id: user.id, is_active: true }) // auth_user_idを更新
           .eq('invite_token', metadata.invite_token)
           .eq('store_id', storeId)
+          .is('auth_user_id', null) // 明示的にnullをチェックして更新
+          .single()  // 一致するレコードが1つだけであることを確認
 
         if (updateError) {
           console.error('🔍 招待レコード更新エラー:', updateError)
