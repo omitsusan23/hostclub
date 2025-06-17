@@ -62,6 +62,14 @@ const AuthCallback = () => {
       setSession(session)
       setUserMetadata(metadata)
 
+      // 🎯 招待レコードに auth_user_id を上書き
+      await supabase
+        .from(table)
+        .update({ auth_user_id: user.id })
+        .eq('email', email)
+        .eq('store_id', storeId)
+
+
       // 🎯 次のページに遷移
       if (role === 'cast') {
         navigate('/cast/profile')

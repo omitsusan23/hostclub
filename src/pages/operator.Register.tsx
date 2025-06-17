@@ -49,7 +49,6 @@ export default function OperatorRegisterPage() {
     setError('')
 
     try {
-      // ✅ 重複チェック（operators テーブル内で確認）
       const { data: existingOperator, error: opError } = await supabase
         .from('operators')
         .select('id')
@@ -85,7 +84,16 @@ export default function OperatorRegisterPage() {
         return
       }
 
-      // ✅ 招待トークンの無効化と削除
+      // ✅ ここで email を事前に発行された招待レコードに上書き
+      const { error: emailUpdateError } = await supabase
+        .from('operators')
+        .update({ email })
+        .eq('invite_token', token)
+        .eq('store_id', storeId)
+
+      if (emailUpdateError) throw emailUpdateError
+
+      // ✅ 招待トークンの無効化
       const { error: updateError } = await supabase
         .from('operators')
         .update({
