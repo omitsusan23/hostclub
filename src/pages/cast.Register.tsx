@@ -1,4 +1,3 @@
-// src/pages/cast.Register.tsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
@@ -70,6 +69,9 @@ export default function CastRegisterPage() {
       return
     }
 
+    // ✅ 招待トークンを無効化
+    await supabase.from('casts').update({ is_active: false }).eq('invite_token', token)
+
     alert('確認メールを送信しました。メールのリンクをクリックして登録を完了してください。')
     navigate('/login')
   }
@@ -87,6 +89,7 @@ export default function CastRegisterPage() {
     <div className="p-6 max-w-md mx-auto">
       <h1 className="text-xl font-bold mb-4 text-center">キャスト登録</h1>
       {error && <p className="text-red-600 mb-2 text-center">{error}</p>}
+
       <form onSubmit={(e) => { e.preventDefault(); handleRegister() }} className="space-y-4">
         <div>
           <label className="block mb-1">メールアドレス</label>

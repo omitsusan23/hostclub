@@ -1,4 +1,3 @@
-// src/pages/operator.Register.tsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
@@ -22,7 +21,7 @@ export default function OperatorRegisterPage() {
       }
 
       const { data, error } = await supabase
-        .from('operators')
+        .from('operators') // ✅ 正しく operators を参照
         .select('store_id')
         .eq('invite_token', token)
         .eq('is_active', true)
@@ -70,6 +69,9 @@ export default function OperatorRegisterPage() {
       return
     }
 
+    // ✅ 招待トークンを無効化
+    await supabase.from('operators').update({ is_active: false }).eq('invite_token', token)
+
     alert('確認メールを送信しました。メールのリンクをクリックして登録を完了してください。')
     navigate('/login')
   }
@@ -87,6 +89,7 @@ export default function OperatorRegisterPage() {
     <div className="p-6 max-w-md mx-auto">
       <h1 className="text-xl font-bold mb-4 text-center">オペレーター登録</h1>
       {error && <p className="text-red-600 mb-2 text-center">{error}</p>}
+
       <form onSubmit={(e) => { e.preventDefault(); handleRegister() }} className="space-y-4">
         <div>
           <label className="block mb-1">メールアドレス</label>
