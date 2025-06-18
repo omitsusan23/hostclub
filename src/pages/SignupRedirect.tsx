@@ -10,7 +10,12 @@ const SignupRedirect = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
+    let alreadyHandled = false;
+
     const handleSignupRedirect = async () => {
+      if (alreadyHandled) return;
+      alreadyHandled = true;
+
       const { data, error } = await supabase.auth.getSession();
 
       if (error || !data.session) {
@@ -58,30 +63,22 @@ const SignupRedirect = () => {
         return;
       }
 
+      dispatch({ type: 'SET_SESSION', payload: session });
+      dispatch({
+        type: 'SET_USER',
+        payload: {
+          username: email,
+          role,
+          canManageTables: role !== 'cast',
+        },
+      });
+
       if (existing) {
         console.log('✅ プロフィール登録済み → スキップして一覧画面へ');
-        dispatch({ type: 'SET_SESSION', payload: session });
-        dispatch({
-          type: 'SET_USER',
-          payload: {
-            username: email,
-            role,
-            canManageTables: role !== 'cast',
-          },
-        });
-        navigate('/tables');
+        navigate('/tables', { replace: true });
       } else {
         console.log('🆕 初回登録ユーザー → プロフィール入力ページへ誘導');
-        dispatch({ type: 'SET_SESSION', payload: session });
-        dispatch({
-          type: 'SET_USER',
-          payload: {
-            username: email,
-            role,
-            canManageTables: role !== 'cast',
-          },
-        });
-        navigate(profilePage);
+        navigate(profilePage, { replace: true });
       }
     };
 

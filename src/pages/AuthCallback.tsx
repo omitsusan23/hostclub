@@ -10,7 +10,12 @@ const AuthCallback = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    let alreadyHandled = false;
+
     const handleCallback = async () => {
+      if (alreadyHandled) return;
+      alreadyHandled = true;
+
       const {
         data: { session },
         error,
@@ -35,7 +40,6 @@ const AuthCallback = () => {
 
       const table = role === 'cast' ? 'casts' : 'operators';
 
-      // すでにauth_user_idで登録済みなら何もしない
       const { data: alreadyExists, error: fetchError } = await supabase
         .from(table)
         .select('id')
@@ -47,15 +51,17 @@ const AuthCallback = () => {
         return;
       }
 
-      // NOTE: プランBでは未登録なら INSERT はプロフィール画面で行う
-      // ここでは何もしない
-
+      // ✅ プランBではinsertせず、プロフィールページで処理
       setSession(session);
       setUserMetadata(metadata);
 
-      if (role === 'cast') navigate('/cast/profile');
-      else if (role === 'operator') navigate('/operator/profile');
-      else navigate('/admin/profile');
+      if (role === 'cast') {
+        navigate('/cast/profile', { replace: true });
+      } else if (role === 'operator') {
+        navigate('/operator/profile', { replace: true });
+      } else {
+        navigate('/admin/profile', { replace: true });
+      }
     };
 
     handleCallback();
