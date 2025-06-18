@@ -1,4 +1,4 @@
-// src/pages/OperatProfilePage.tsx
+// src/pages/OperatortProfilePage.tsx
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
@@ -6,7 +6,7 @@ import { useAppContext } from '../context/AppContext';
 import AvatarCropper from '../components/AvatarCropper';
 import { uploadAvatar } from '../lib/uploadAvatar';
 
-const OperatProfilePage = () => {
+const OperatortProfilePage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const inviteToken = searchParams.get('token');
@@ -156,4 +156,4 @@ const OperatProfilePage = () => {
   );
 };
 
-export default OperatProfilePage;
+export default OperatorProfilePage;
