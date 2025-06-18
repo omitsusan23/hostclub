@@ -1,6 +1,6 @@
-// src/pages/OperatortProfilePage.tsx
+// src/pages/OperatorProfilePage.tsx
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useAppContext } from '../context/AppContext';
 import AvatarCropper from '../components/AvatarCropper';
@@ -8,9 +8,6 @@ import { uploadAvatar } from '../lib/uploadAvatar';
 
 const OperatorProfilePage = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const inviteToken = searchParams.get('token');
-
   const {
     state: { session },
   } = useAppContext();
@@ -36,46 +33,29 @@ const OperatorProfilePage = () => {
     const storeId = session?.user.user_metadata?.store_id;
     const userId = session?.user.id;
 
-    if (!storeId || !userId || !croppedFile || !inviteToken) {
+    if (!storeId || !userId || !croppedFile) {
       setError('情報が不足しています');
       setUploading(false);
       return;
     }
 
     try {
-      const publicUrl = await uploadAvatar({
-        file: croppedFile,
-        storeId,
-        userId,
-      });
+      const publicUrl = await uploadAvatar({ file: croppedFile, storeId, userId });
       setPhotoUrl(publicUrl);
 
-      // 🎯 invite_token に一致する招待レコードを取得
-      const { data: invited, error: findError } = await supabase
-        .from('operators')
-        .select('id')
-        .eq('invite_token', inviteToken)
-        .eq('store_id', storeId)
-        .maybeSingle();
-
-      if (findError || !invited) {
-        throw new Error('招待レコードが見つかりません');
-      }
-
-      const updatePayload = {
+      const insertPayload = {
         display_name: displayName,
         photo_url: publicUrl,
         auth_user_id: userId,
         is_active: true,
-        invite_token: null, // セキュリティのために消す
+        store_id: storeId,
       };
 
-      const { error: updateError } = await supabase
+      const { error: insertError } = await supabase
         .from('operators')
-        .update(updatePayload)
-        .eq('id', invited.id);
+        .insert(insertPayload);
 
-      if (updateError) throw updateError;
+      if (insertError) throw insertError;
 
       setSuccess('登録が完了しました');
       setTimeout(() => navigate('/tables'), 1500);
