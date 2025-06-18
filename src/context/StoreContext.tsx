@@ -20,6 +20,8 @@ interface StoreContextValue {
   currentStore?: StoreInfo;
   setCurrentStoreById: (id: string) => void;
   isEmployeeView: boolean;
+  setSession: (session: any) => void;
+  setUserMetadata: (metadata: any) => void;
 }
 
 const StoreContext = createContext<StoreContextValue>({
@@ -27,12 +29,14 @@ const StoreContext = createContext<StoreContextValue>({
   currentStore: undefined,
   setCurrentStoreById: () => {},
   isEmployeeView: false,
+  setSession: () => {},
+  setUserMetadata: () => {},
 });
 
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   console.log('🟢 StoreProvider is mounted');
 
-  const { state } = useAppContext();
+  const { state, dispatch } = useAppContext();
   const session = state.session;
 
   const [stores, setStores] = useState<StoreInfo[]>([]);
@@ -65,7 +69,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     };
 
     fetchStore();
-  }, [session]); // ✅ sessionの変更時に再評価される
+  }, [session]);
 
   const currentStore = useMemo(
     () => stores.find((s) => s.id === currentStoreId),
@@ -74,6 +78,21 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const setCurrentStoreById = (id: string) => setCurrentStoreId(id);
 
+  const setSession = (session: any) => {
+    dispatch({ type: 'SET_SESSION', payload: session });
+  };
+
+  const setUserMetadata = (metadata: any) => {
+    dispatch({
+      type: 'SET_USER',
+      payload: {
+        username: metadata.email,
+        role: metadata.role,
+        canManageTables: metadata.role !== 'cast',
+      },
+    });
+  };
+
   return (
     <StoreContext.Provider
       value={{
@@ -81,6 +100,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         currentStore,
         setCurrentStoreById,
         isEmployeeView,
+        setSession,
+        setUserMetadata,
       }}
     >
       {children}
