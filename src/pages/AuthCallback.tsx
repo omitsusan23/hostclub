@@ -1,4 +1,3 @@
-// src/pages/AuthCallback.tsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
@@ -51,9 +50,13 @@ const AuthCallback = () => {
         return;
       }
 
-      // ✅ プランBではinsertせず、プロフィールページで処理
-      setSession(session);
-      setUserMetadata(metadata);
+      // ✅ 安全な関数呼び出し
+      try {
+        setSession?.(session);
+        setUserMetadata?.(metadata);
+      } catch (e) {
+        console.error('❌ Context関数の呼び出しエラー:', e);
+      }
 
       if (role === 'cast') {
         navigate('/cast/profile', { replace: true });
