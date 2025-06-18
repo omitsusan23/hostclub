@@ -64,18 +64,16 @@ export default function CastListPage() {
   }, [modalOpen])
 
   const issueAndShare = async (shareFn: (url: string) => void) => {
-    const token = uuidv4()
+    const token = uuidv4() // Generate unique token
     const storeId = state.session?.user?.user_metadata?.store_id
     const role = selectedRole
     const path = role === 'cast' ? '/cast/register' : '/operator/register'
     const baseDomain = 'hostclub-tableststus.com'
     const url = `https://${storeId}.${baseDomain}${path}?token=${token}&role=${role}`
 
-    // ⛔ Supabaseへのinsertは完全に削除（プランB）
-    // 🎯 URLにtokenとroleを含めるだけ
-
+    // URLの生成とシェアのみ。インサートは行わない。
     setLatestUrl(url)
-    shareFn(url)
+    shareFn(url) // URLをシェア
     setModalOpen(false)
   }
 
