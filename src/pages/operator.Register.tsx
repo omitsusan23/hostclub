@@ -17,7 +17,6 @@ export default function OperatorRegisterPage() {
   const storeId = window.location.hostname.split('.')[0];
 
   useEffect(() => {
-    // 最小限、invite_token と role が URLにあることだけを検証
     if (!token || !roleParam || !['operator', 'cast'].includes(roleParam)) {
       setError('URLが無効です');
     } else {
@@ -32,7 +31,7 @@ export default function OperatorRegisterPage() {
 
     try {
       const baseDomain = import.meta.env.VITE_BASE_DOMAIN ?? 'hostclub-tableststus.com';
-      const redirectUrl = `https://${storeId}.${baseDomain}/auth/callback?token=${token}`;
+      const redirectUrl = `https://${storeId}.${baseDomain}/auth/callback`;
 
       const { error: signUpError } = await supabase.auth.signUp({
         email,

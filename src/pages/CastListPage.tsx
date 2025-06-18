@@ -66,30 +66,12 @@ export default function CastListPage() {
   const issueAndShare = async (shareFn: (url: string) => void) => {
     const token = uuidv4()
     const storeId = state.session?.user?.user_metadata?.store_id
-    const createdBy = state.session?.user?.id
     const role = selectedRole
-    const table = role === 'cast' ? 'casts' : 'operators'
     const path = role === 'cast' ? '/cast/register' : '/operator/register'
     const baseDomain = 'hostclub-tableststus.com'
-    const url = `https://${storeId}.${baseDomain}${path}?token=${token}`
+    const url = `https://${storeId}.${baseDomain}${path}?token=${token}&role=${role}`
 
-    // Supabase に招待レコードを insert
-    const { data, error } = await supabase.from(table).insert({
-      invite_token: token,
-      role,
-      store_id: storeId,
-      created_by: createdBy,
-      is_active: false,
-    })
-
-    if (error) {
-      console.error(`${table} 招待レコード作成失敗:`, error.message)
-      alert(`招待リンクの作成に失敗しました。エラー: ${error.message}`)
-      return
-    }
-
-    console.log('招待レコード作成成功:', data)
-
+    // 🔄 DBにレコードを挿入しない（招待URLだけ生成）
     setLatestUrl(url)
     shareFn(url)
     setModalOpen(false)
