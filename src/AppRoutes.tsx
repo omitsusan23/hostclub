@@ -21,7 +21,7 @@ import Layout from './components/Layout';
 
 import AdminProfilePage from './pages/AdminProfilePage';
 import CastProfilePage from './pages/CastProfilePage';
-import OperatortProfilePage from './pages/OperatorProfilePage';
+import OperatorProfilePage from './pages/OperatorProfilePage';
 
 import CastRegisterPage from './pages/cast.Register';
 import OperatorRegisterPage from './pages/operator.Register';
