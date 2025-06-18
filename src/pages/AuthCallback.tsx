@@ -1,3 +1,4 @@
+// src/pages/AuthCallback.tsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
@@ -24,11 +25,10 @@ const AuthCallback = () => {
       const metadata = user.user_metadata;
       const storeId = metadata.store_id;
       const role = metadata.role;
-      const token = metadata.invite_token;
       const email = user.email;
       const authUserId = user.id;
 
-      if (!storeId || !role || !token || !email || !authUserId) {
+      if (!storeId || !role || !email || !authUserId) {
         setErrorMessage('必要な情報が不足しています');
         return;
       }
@@ -47,35 +47,8 @@ const AuthCallback = () => {
         return;
       }
 
-      if (!alreadyExists) {
-        // 招待トークンで既存レコードを探してupdate
-        const { data: inviteRecord, error: inviteFetchError } = await supabase
-          .from(table)
-          .select('id')
-          .eq('invite_token', token)
-          .eq('store_id', storeId)
-          .maybeSingle();
-
-        if (inviteFetchError || !inviteRecord) {
-          setErrorMessage('招待レコードが見つかりません');
-          return;
-        }
-
-        const { error: updateError } = await supabase
-          .from(table)
-          .update({
-            auth_user_id: authUserId,
-            email,
-            is_active: true,
-            invite_token: null,
-          })
-          .eq('id', inviteRecord.id);
-
-        if (updateError) {
-          setErrorMessage('ユーザー情報の更新に失敗しました');
-          return;
-        }
-      }
+      // NOTE: プランBでは未登録なら INSERT はプロフィール画面で行う
+      // ここでは何もしない
 
       setSession(session);
       setUserMetadata(metadata);
