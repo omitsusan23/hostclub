@@ -87,7 +87,7 @@ const AppRoutes: React.FC = () => {
         path="/operator/profile"
         element={
           <ProtectedRoute allowedRoles={['operator']}>
-            {wrapWithLayout(<OperatProfilePage />)}
+            {wrapWithLayout(<OperatorProfilePage />)}
           </ProtectedRoute>
         }
       />
