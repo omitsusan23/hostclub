@@ -58,12 +58,12 @@ export default function OperatorRegisterPage() {
 
       if (opError) throw opError
 
-      // 既存データがあれば、auth_user_id が null の場合に更新する
       if (existingOperator) {
         if (!existingOperator.auth_user_id) {
+          // auth_user_idが空の場合、招待時のデータを更新
           const { error: updateError } = await supabase
             .from('operators')
-            .update({ email })  // emailを更新
+            .update({ email })
             .eq('invite_token', token)
             .eq('store_id', storeId)
 
@@ -74,7 +74,8 @@ export default function OperatorRegisterPage() {
       const baseDomain = import.meta.env.VITE_BASE_DOMAIN ?? 'hostclub-tableststus.com'
       const redirectUrl = `https://${storeId}.${baseDomain}/auth/callback`
 
-      const { error: signUpError } = await supabase.auth.signUp({
+      // ここで最初にsignUpを行う
+      const { user, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -92,10 +93,10 @@ export default function OperatorRegisterPage() {
         return
       }
 
-      // auth_user_idを更新
+      // auth_user_idをユーザーのIDで更新
       const { error: authUpdateError } = await supabase
         .from('operators')
-        .update({ auth_user_id: (await supabase.auth.getSession()).data.session.user.id })
+        .update({ auth_user_id: user?.id })
         .eq('invite_token', token)
         .eq('store_id', storeId)
 
