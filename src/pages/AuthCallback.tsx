@@ -1,3 +1,4 @@
+// src/pages/AuthCallback.tsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
@@ -50,7 +51,6 @@ const AuthCallback = () => {
         return;
       }
 
-      // ✅ 安全な関数呼び出し
       try {
         setSession?.(session);
         setUserMetadata?.(metadata);
