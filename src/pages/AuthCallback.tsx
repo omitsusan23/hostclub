@@ -48,21 +48,7 @@ const AuthCallback = () => {
         return
       }
 
-      if (!existing) {
-        const { error: insertError } = await supabase.from(table).insert({
-          auth_user_id: authUserId,
-          email,
-          store_id: storeId,
-          role,
-          invite_token: token,
-          is_active: true,
-        })
-
-        if (insertError) {
-          setErrorMessage('ユーザー情報の登録に失敗しました')
-          return
-        }
-      }
+     
 
       setSession(session)
       setUserMetadata(metadata)
