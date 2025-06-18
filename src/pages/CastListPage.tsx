@@ -71,7 +71,9 @@ export default function CastListPage() {
     const baseDomain = 'hostclub-tableststus.com'
     const url = `https://${storeId}.${baseDomain}${path}?token=${token}&role=${role}`
 
-    // 🔄 DBにレコードを挿入しない（招待URLだけ生成）
+    // ⛔ Supabaseへのinsertは完全に削除（プランB）
+    // 🎯 URLにtokenとroleを含めるだけ
+
     setLatestUrl(url)
     shareFn(url)
     setModalOpen(false)
@@ -92,7 +94,7 @@ export default function CastListPage() {
 
   const shareViaMail = (url: string) => {
     window.location.href =
-      `mailto:?subject=${encodeURIComponent('キャスト招待リンク')}` +
+      `mailto:?subject=${encodeURIComponent('招待リンク')}` +
       `&body=${encodeURIComponent('こちらからサインアップしてください：\n' + url)}`
   }
 
