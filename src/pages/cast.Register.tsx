@@ -1,71 +1,37 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { supabase } from '../lib/supabaseClient'
+// src/pages/CastRegisterPage.tsx
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { supabase } from '../lib/supabaseClient';
 
 export default function CastRegisterPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [validToken, setValidToken] = useState(false)
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const token = searchParams.get('token')
-  const [storeId, setStoreId] = useState('')
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [validToken, setValidToken] = useState(false);
+  const [role, setRole] = useState<'cast' | 'operator' | null>(null);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
+  const roleParam = searchParams.get('role');
+  const storeId = window.location.hostname.split('.')[0];
 
   useEffect(() => {
-    const checkInviteToken = async () => {
-      if (!token) {
-        setError('招待トークンが見つかりません')
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('casts')
-        .select('store_id')
-        .eq('invite_token', token)
-        .eq('is_active', true)
-        .maybeSingle()
-
-      if (error || !data) {
-        setError('この招待リンクは無効です')
-        return
-      }
-
-      setStoreId(data.store_id)
-      setValidToken(true)
+    if (!token || !roleParam || !['cast', 'operator'].includes(roleParam)) {
+      setError('URLが無効です');
+    } else {
+      setRole(roleParam as 'cast' | 'operator');
+      setValidToken(true);
     }
-
-    checkInviteToken()
-  }, [token])
+  }, [token, roleParam]);
 
   const handleRegister = async () => {
-    if (!storeId || !token) {
-      setError('招待情報が不正です')
-      return
-    }
-
-    setLoading(true)
-    setError('')
+    setError('');
+    setLoading(true);
 
     try {
-      // ✅ 重複チェック（auth.usersには直接アクセスできないため、castsで確認）
-      const { data: existingCast, error: castError } = await supabase
-        .from('casts')
-        .select('id')
-        .eq('email', email)
-        .eq('store_id', storeId)
-        .maybeSingle()
-
-      if (castError) throw castError
-      if (existingCast) {
-        setError('このメールアドレスは既に登録されています。')
-        setLoading(false)
-        return
-      }
-
-      const baseDomain = import.meta.env.VITE_BASE_DOMAIN ?? 'hostclub-tableststus.com'
-      const redirectUrl = `https://${storeId}.${baseDomain}/auth/callback`
+      const baseDomain = import.meta.env.VITE_BASE_DOMAIN ?? 'hostclub-tableststus.com';
+      const redirectUrl = `https://${storeId}.${baseDomain}/auth/callback`;
 
       const { error: signUpError } = await supabase.auth.signUp({
         email,
@@ -74,45 +40,26 @@ export default function CastRegisterPage() {
           emailRedirectTo: redirectUrl,
           data: {
             store_id: storeId,
-            role: 'cast',
+            role,
+            invite_token: token,
           },
         },
-      })
+      });
 
-      if (signUpError) {
-        setError(signUpError.message)
-        setLoading(false)
-        return
-      }
+      if (signUpError) throw signUpError;
 
-      // ✅ 招待トークンを明示的に無効化
-      const { error: updateError } = await supabase
-        .from('casts')
-        .update({
-          is_active: false,
-          invite_token: null, // ✅ 再利用防止
-        })
-        .eq('invite_token', token)
-
-      if (updateError) throw updateError
-
-      alert('確認メールを送信しました。メールのリンクをクリックして登録を完了してください。')
-      navigate('/login')
+      alert('確認メールを送信しました');
+      navigate('/login');
     } catch (e: any) {
-      console.error(e)
-      setError('登録中にエラーが発生しました')
+      console.error(e);
+      setError(e.message || '登録に失敗しました');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (!validToken) {
-    return (
-      <div className="p-6 max-w-md mx-auto text-center">
-        <h1 className="text-xl font-bold mb-2">キャスト登録</h1>
-        <p className="text-red-500">{error || 'トークンを検証中...'}</p>
-      </div>
-    )
+    return <p className="text-center text-red-600">{error || '検証中...'}</p>;
   }
 
   return (
@@ -121,8 +68,8 @@ export default function CastRegisterPage() {
       {error && <p className="text-red-600 mb-2 text-center">{error}</p>}
       <form
         onSubmit={(e) => {
-          e.preventDefault()
-          handleRegister()
+          e.preventDefault();
+          handleRegister();
         }}
         className="space-y-4"
       >
@@ -149,11 +96,11 @@ export default function CastRegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+          className="w-full py-2 bg-pink-500 text-white rounded hover:bg-pink-600 disabled:opacity-50"
         >
           {loading ? '登録中...' : '確認メールを送信'}
         </button>
       </form>
     </div>
-  )
+  );
 }

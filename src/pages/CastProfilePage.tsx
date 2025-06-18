@@ -31,49 +31,28 @@ const CastProfilePage = () => {
     setUploading(true);
 
     const storeId = session?.user.user_metadata?.store_id;
-    const email = session?.user.email;
     const userId = session?.user.id;
 
-    if (!storeId || !userId || !croppedFile || !email) {
+    if (!storeId || !userId || !croppedFile) {
       setError('情報が不足しています');
       setUploading(false);
       return;
     }
 
     try {
-      const publicUrl = await uploadAvatar({
-        file: croppedFile,
-        storeId,
-        userId,
-      });
+      const publicUrl = await uploadAvatar({ file: croppedFile, storeId, userId });
       setPhotoUrl(publicUrl);
 
-      // 🎯 必ず既存のinvite済みレコードが存在している前提
-      const { data: invited, error: findError } = await supabase
-        .from('casts')
-        .select('id')
-        .eq('email', email)
-        .eq('store_id', storeId)
-        .maybeSingle();
-
-      if (findError || !invited) {
-        throw new Error('招待レコードが見つかりません');
-      }
-
-      const updatePayload = {
+      const insertPayload = {
         display_name: displayName,
         photo_url: publicUrl,
         auth_user_id: userId,
         is_active: true,
-        invite_token: null,
+        store_id: storeId,
       };
 
-      const { error: updateError } = await supabase
-        .from('casts')
-        .update(updatePayload)
-        .eq('id', invited.id);
-
-      if (updateError) throw updateError;
+      const { error: insertError } = await supabase.from('casts').insert(insertPayload);
+      if (insertError) throw insertError;
 
       setSuccess('登録が完了しました');
       setTimeout(() => navigate('/tables'), 1500);
@@ -104,7 +83,7 @@ const CastProfilePage = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
       <h1 className="text-2xl font-bold mb-4">プロフィール登録</h1>
-      <p className="text-gray-600 mb-4">源氏名と画像を登録してください</p>
+      <p className="text-gray-600 mb-4">キャストとしての名前とアイコン画像を登録してください。</p>
 
       <input
         type="text"
@@ -135,7 +114,7 @@ const CastProfilePage = () => {
       <button
         onClick={handleSave}
         disabled={uploading || !croppedFile}
-        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
+        className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 disabled:opacity-50"
       >
         {uploading ? 'アップロード中...' : '登録する'}
       </button>
