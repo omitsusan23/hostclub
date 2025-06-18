@@ -6,7 +6,7 @@ import { useAppContext } from '../context/AppContext';
 import AvatarCropper from '../components/AvatarCropper';
 import { uploadAvatar } from '../lib/uploadAvatar';
 
-const OperatortProfilePage = () => {
+const OperatorProfilePage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const inviteToken = searchParams.get('token');
