@@ -1,76 +1,38 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { supabase } from '../lib/supabaseClient'
+// src/pages/OperatorRegisterPage.tsx
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { supabase } from '../lib/supabaseClient';
 
 export default function OperatorRegisterPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [validToken, setValidToken] = useState(false)
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const token = searchParams.get('token')
-  const [storeId, setStoreId] = useState('')
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [validToken, setValidToken] = useState(false);
+  const [role, setRole] = useState<'operator' | 'cast' | null>(null);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
+  const roleParam = searchParams.get('role');
+  const storeId = window.location.hostname.split('.')[0];
 
   useEffect(() => {
-    const checkInviteToken = async () => {
-      if (!token) {
-        setError('招待トークンが見つかりません')
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('operators')
-        .select('store_id')
-        .eq('invite_token', token)
-        .eq('is_active', true)
-        .maybeSingle()
-
-      if (error || !data) {
-        setError('この招待リンクは無効です')
-        return
-      }
-
-      setStoreId(data.store_id)
-      setValidToken(true)
+    // 最小限、invite_token と role が URLにあることだけを検証
+    if (!token || !roleParam || !['operator', 'cast'].includes(roleParam)) {
+      setError('URLが無効です');
+    } else {
+      setRole(roleParam as 'operator' | 'cast');
+      setValidToken(true);
     }
-
-    checkInviteToken()
-  }, [token])
+  }, [token, roleParam]);
 
   const handleRegister = async () => {
-    if (!storeId || !token) {
-      setError('招待情報が不正です')
-      return
-    }
-
-    setLoading(true)
-    setError('')
+    setError('');
+    setLoading(true);
 
     try {
-      // ✅ まず token で対象を特定し、email を事前に上書きする
-      const { data: invitedRow, error: findError } = await supabase
-        .from('operators')
-        .select('id')
-        .eq('invite_token', token)
-        .eq('is_active', true)
-        .maybeSingle()
-
-      if (findError || !invitedRow) {
-        throw new Error('有効な招待が見つかりません')
-      }
-
-      const { error: emailUpdateError } = await supabase
-        .from('operators')
-        .update({ email })
-        .eq('invite_token', token)
-
-      if (emailUpdateError) throw emailUpdateError
-
-      // ✅ この時点で email がテーブルに存在するため signUp が通る
-      const baseDomain = import.meta.env.VITE_BASE_DOMAIN ?? 'hostclub-tableststus.com'
-      const redirectUrl = `https://${storeId}.${baseDomain}/auth/callback`
+      const baseDomain = import.meta.env.VITE_BASE_DOMAIN ?? 'hostclub-tableststus.com';
+      const redirectUrl = `https://${storeId}.${baseDomain}/auth/callback?token=${token}`;
 
       const { error: signUpError } = await supabase.auth.signUp({
         email,
@@ -79,42 +41,38 @@ export default function OperatorRegisterPage() {
           emailRedirectTo: redirectUrl,
           data: {
             store_id: storeId,
-            role: 'operator',
+            role,
+            invite_token: token,
           },
         },
-      })
+      });
 
-      if (signUpError) throw signUpError
+      if (signUpError) throw signUpError;
 
-      alert('確認メールを送信しました。メールのリンクをクリックして登録を完了してください。')
-      navigate('/login')
+      alert('確認メールを送信しました');
+      navigate('/login');
     } catch (e: any) {
-      console.error(e)
-      setError(e.message || '登録中にエラーが発生しました')
+      console.error(e);
+      setError(e.message || '登録に失敗しました');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
+  };
 
   if (!validToken) {
-    return (
-      <div className="p-6 max-w-md mx-auto text-center">
-        <h1 className="text-xl font-bold mb-2">オペレーター登録</h1>
-        <p className="text-red-500">{error || 'トークンを検証中...'}</p>
-      </div>
-    )
+    return <p className="text-center text-red-600">{error || '検証中...'}</p>;
   }
 
   return (
     <div className="p-6 max-w-md mx-auto">
-      <h1 className="text-xl font-bold mb-4 text-center">オペレーター登録</h1>
+      <h1 className="text-xl font-bold mb-4 text-center">
+        オペレーター登録
+      </h1>
       {error && <p className="text-red-600 mb-2 text-center">{error}</p>}
-
       <form
         onSubmit={(e) => {
-          e.preventDefault()
-          handleRegister()
+          e.preventDefault();
+          handleRegister();
         }}
         className="space-y-4"
       >
@@ -147,5 +105,5 @@ export default function OperatorRegisterPage() {
         </button>
       </form>
     </div>
-  )
+  );
 }
