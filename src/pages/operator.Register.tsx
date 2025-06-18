@@ -49,33 +49,30 @@ export default function OperatorRegisterPage() {
     setError('')
 
     try {
-      const { data: existingOperator, error: opError } = await supabase
+      // ✅ まず token で対象を特定し、email を事前に上書きする
+      const { data: invitedRow, error: findError } = await supabase
         .from('operators')
-        .select('id, auth_user_id')
-        .eq('email', email)
-        .eq('store_id', storeId)
+        .select('id')
+        .eq('invite_token', token)
+        .eq('is_active', true)
         .maybeSingle()
 
-      if (opError) throw opError
-
-      if (existingOperator) {
-        if (!existingOperator.auth_user_id) {
-          // auth_user_idが空の場合、招待時のデータを更新
-          const { error: updateError } = await supabase
-            .from('operators')
-            .update({ email })
-            .eq('invite_token', token)
-            .eq('store_id', storeId)
-
-          if (updateError) throw updateError
-        }
+      if (findError || !invitedRow) {
+        throw new Error('有効な招待が見つかりません')
       }
 
+      const { error: emailUpdateError } = await supabase
+        .from('operators')
+        .update({ email })
+        .eq('invite_token', token)
+
+      if (emailUpdateError) throw emailUpdateError
+
+      // ✅ この時点で email がテーブルに存在するため signUp が通る
       const baseDomain = import.meta.env.VITE_BASE_DOMAIN ?? 'hostclub-tableststus.com'
       const redirectUrl = `https://${storeId}.${baseDomain}/auth/callback`
 
-      // ここで最初にsignUpを行う
-      const { user, error: signUpError } = await supabase.auth.signUp({
+      const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -87,45 +84,18 @@ export default function OperatorRegisterPage() {
         },
       })
 
-      if (signUpError) {
-        setError(signUpError.message)
-        setLoading(false)
-        return
-      }
-
-      // auth_user_idをユーザーのIDで更新
-      const { error: authUpdateError } = await supabase
-        .from('operators')
-        .update({ auth_user_id: user?.id })
-        .eq('invite_token', token)
-        .eq('store_id', storeId)
-
-      if (authUpdateError) {
-        setError('auth_user_idの更新に失敗しました')
-        setLoading(false)
-        return
-      }
-
-      // 招待トークンを無効化
-      const { error: updateError } = await supabase
-        .from('operators')
-        .update({
-          is_active: false,
-          invite_token: null,
-        })
-        .eq('invite_token', token)
-
-      if (updateError) throw updateError
+      if (signUpError) throw signUpError
 
       alert('確認メールを送信しました。メールのリンクをクリックして登録を完了してください。')
       navigate('/login')
     } catch (e: any) {
       console.error(e)
-      setError('登録中にエラーが発生しました')
+      setError(e.message || '登録中にエラーが発生しました')
     } finally {
       setLoading(false)
     }
   }
+
 
   if (!validToken) {
     return (
