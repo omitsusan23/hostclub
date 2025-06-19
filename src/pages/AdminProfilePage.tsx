@@ -1,4 +1,3 @@
-// ✅ 修正済み AdminProfilePage（全文）
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
@@ -32,16 +31,23 @@ const AdminProfilePage = () => {
 
     const storeId = session?.user.user_metadata?.store_id;
     const userId = session?.user.id;
+    const email = session?.user.email;
+    const role = session?.user.user_metadata?.role;
 
-    if (!storeId || !userId || !croppedFile) {
+    if (!storeId || !userId || !email || !role) {
       setError('情報が不足しています');
       setUploading(false);
       return;
     }
 
     try {
-      const publicUrl = await uploadAvatar({ file: croppedFile, storeId, userId });
-      setPhotoUrl(publicUrl);
+      let publicUrl = '';
+
+      // ✅ croppedFileがあるときだけ画像アップロード
+      if (croppedFile) {
+        publicUrl = await uploadAvatar({ file: croppedFile, storeId, userId });
+        setPhotoUrl(publicUrl);
+      }
 
       const insertPayload = {
         display_name: displayName,
@@ -49,16 +55,13 @@ const AdminProfilePage = () => {
         auth_user_id: userId,
         is_active: true,
         store_id: storeId,
-        email: session?.user.email,
-        role: session?.user.user_metadata?.role,
+        email,
+        role,
       };
 
       console.log('💾 insert payload', insertPayload);
 
-      const { error: insertError } = await supabase
-        .from('admins')
-        .insert(insertPayload);
-
+      const { error: insertError } = await supabase.from('admins').insert(insertPayload);
       if (insertError) throw insertError;
 
       setSuccess('登録が完了しました');
@@ -120,7 +123,7 @@ const AdminProfilePage = () => {
 
       <button
         onClick={handleSave}
-        disabled={uploading || !croppedFile}
+        disabled={uploading}
         className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
       >
         {uploading ? 'アップロード中...' : '登録する'}
