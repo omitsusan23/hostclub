@@ -1,27 +1,27 @@
 // lib/uploadAvatar.ts
-import { supabase } from './supabaseClient'
+import { supabase } from './supabaseClient';
 
 export const uploadAvatar = async ({
   file,
   storeId,
   userId,
 }: {
-  file: File
-  storeId: string
-  userId: string
+  file: File;
+  storeId: string;
+  userId: string;
 }) => {
-  const filePath = `${storeId}/${userId}.jpg`
+  const filePath = `${storeId}/${userId}.jpg`;
 
   const { data, error } = await supabase.storage
     .from('avatars')
     .upload(filePath, file, {
       upsert: true,
-      contentType: file.type,
-    })
+      contentType: file.type || 'image/jpeg', // ✅ fallback を追加
+    });
 
   if (error) {
-    throw error
+    throw error;
   }
 
-  return data.path
-}
+  return data.path;
+};
