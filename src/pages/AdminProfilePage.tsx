@@ -49,6 +49,8 @@ const AdminProfilePage = () => {
         auth_user_id: userId,
         is_active: true,
         store_id: storeId,
+        email: session?.user.email,
+        role: session?.user.user_metadata?.role,
       };
 
       const { error: insertError } = await supabase
