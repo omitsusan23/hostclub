@@ -1,4 +1,3 @@
-// src/pages/SignupRedirect.tsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
@@ -40,16 +39,27 @@ const SignupRedirect = () => {
         return;
       }
 
-      const table = role === 'cast' ? 'casts' : role === 'operator' ? 'operators' : null;
-      const profilePage = role === 'cast' ? '/cast/profile' : role === 'operator' ? '/operator/profile' : '/login';
+      // ✅ テーブル・リダイレクト先を role に応じて分岐
+      let table = '';
+      let profilePage = '';
 
-      if (!table) {
+      if (role === 'cast') {
+        table = 'casts';
+        profilePage = '/cast/profile';
+      } else if (role === 'operator') {
+        table = 'operators';
+        profilePage = '/operator/profile';
+      } else if (role === 'admin') {
+        table = 'admins';
+        profilePage = '/admin/profile';
+      } else {
         console.error('❌ 不明なロール:', role);
         setErrorMessage('不明なユーザー種別です。');
         setTimeout(() => navigate('/login'), 3000);
         return;
       }
 
+      // ✅ すでにプロフィール登録済みかチェック
       const { data: existing, error: checkError } = await supabase
         .from(table)
         .select('id')

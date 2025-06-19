@@ -1,4 +1,3 @@
-// src/pages/AuthCallback.tsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
@@ -28,26 +27,9 @@ const AuthCallback = () => {
 
       const user = session.user;
       const metadata = user.user_metadata;
-      const storeId = metadata.store_id;
-      const role = metadata.role;
-      const email = user.email;
-      const authUserId = user.id;
 
-      if (!storeId || !role || !email || !authUserId) {
+      if (!metadata?.store_id || !metadata?.role || !user.email || !user.id) {
         setErrorMessage('必要な情報が不足しています');
-        return;
-      }
-
-      const table = role === 'cast' ? 'casts' : 'operators';
-
-      const { data: alreadyExists, error: fetchError } = await supabase
-        .from(table)
-        .select('id')
-        .eq('auth_user_id', authUserId)
-        .maybeSingle();
-
-      if (fetchError) {
-        setErrorMessage('登録済み確認に失敗しました');
         return;
       }
 
@@ -58,13 +40,8 @@ const AuthCallback = () => {
         console.error('❌ Context関数の呼び出しエラー:', e);
       }
 
-      if (role === 'cast') {
-        navigate('/cast/profile', { replace: true });
-      } else if (role === 'operator') {
-        navigate('/operator/profile', { replace: true });
-      } else {
-        navigate('/admin/profile', { replace: true });
-      }
+      // ✅ すべてのロールで共通のRedirect先に統一
+      navigate('/signup', { replace: true });
     };
 
     handleCallback();
