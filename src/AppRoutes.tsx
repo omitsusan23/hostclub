@@ -57,6 +57,7 @@ const AppRoutes: React.FC = () => {
     '/operator/register',
     '/cast/profile',
     '/operator/profile',
+    '/admin/profile',
   ];
 
   const isFooterHidden = hideFooterRoutes.some(path => location.pathname.startsWith(path));
