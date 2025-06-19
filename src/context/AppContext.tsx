@@ -119,7 +119,7 @@ const reducer = (state: AppState, action: Action): AppState => {
         ...state,
         reservations: state.reservations.filter((r) => r.id !== action.payload.id),
         tables: [
-          ...state.tables,
+          ...state.tables.filter((t) => t.id !== action.payload.id),
           {
             id: action.payload.id,
             tableNumber: action.payload.requestedTable,
@@ -194,10 +194,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     }
 
-    if (state.session !== undefined) {
+    if (state.session?.user) {
       checkStoreRegistered()
     }
-  }, [state.session])
+  }, [state.session?.user])
 
   return <AppContext.Provider value={{ state, dispatch }}>{children}</AppContext.Provider>
 }
