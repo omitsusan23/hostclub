@@ -126,7 +126,7 @@ const AdminProfilePage = () => {
 
       <button
         onClick={handleSave}
-        disabled={uploading}
+        disabled={uploading || !displayName}
         className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
       >
         {uploading ? 'アップロード中...' : '登録する'}

@@ -119,7 +119,7 @@ const handleSave = async () => {
 
       <button
         onClick={handleSave}
-        disabled={uploading || !croppedFile}
+        disabled={uploading || !displayName}
         className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
       >
         {uploading ? 'アップロード中...' : '登録する'}
