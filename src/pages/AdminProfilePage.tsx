@@ -40,10 +40,10 @@ const AdminProfilePage = () => {
       return;
     }
 
-    try {
-      let publicUrl = '';
+    let publicUrl = '';
 
-      // ✅ croppedFileがあるときだけ画像アップロード
+    try {
+      // ✅ croppedFileがあるときのみアップロード
       if (croppedFile) {
         publicUrl = await uploadAvatar({ file: croppedFile, storeId, userId });
         setPhotoUrl(publicUrl);
@@ -51,7 +51,7 @@ const AdminProfilePage = () => {
 
       const insertPayload = {
         display_name: displayName,
-        photo_url: publicUrl,
+        photo_url: publicUrl || null, // 空のときnullでOK
         auth_user_id: userId,
         is_active: true,
         store_id: storeId,
@@ -61,14 +61,17 @@ const AdminProfilePage = () => {
 
       console.log('💾 insert payload', insertPayload);
 
-      const { error: insertError } = await supabase.from('admins').insert(insertPayload);
+      const { error: insertError } = await supabase
+        .from('admins')
+        .insert(insertPayload);
+
       if (insertError) throw insertError;
 
       setSuccess('登録が完了しました');
       setTimeout(() => navigate('/tables'), 1500);
     } catch (err: any) {
       console.error(err);
-      setError('登録またはアップロードに失敗しました');
+      setError('登録に失敗しました（画像アップロードに失敗しても登録は可能です）');
     } finally {
       setUploading(false);
     }
