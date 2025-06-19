@@ -16,17 +16,19 @@ const Register = () => {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+  // ⏳ サブドメイン取得とセッション状況確認
   useEffect(() => {
     const hostname = window.location.hostname
     const subdomain = hostname.split('.')[0]
     setStoreId(subdomain)
 
+    // ✅ セッション・店舗確認未完了なら待機
     if (session === undefined || storeExists === null) {
       console.log('⏳ 復元中。セッションまたは店舗判定が未完了')
       return
     }
 
-    // ✅ storeが登録済み ＋ confirmed_at 済み の場合のみリダイレクト
+    // ✅ すでに登録されてるならダッシュボードへ
     if (session?.user && storeExists && session.user.confirmed_at) {
       navigate('/tables')
     }
@@ -37,8 +39,7 @@ const Register = () => {
     setLoading(true)
 
     const subdomain = window.location.hostname.split('.')[0]
-    const baseDomain =
-      import.meta.env.VITE_BASE_DOMAIN ?? 'hostclub-tableststus.com'
+    const baseDomain = import.meta.env.VITE_BASE_DOMAIN ?? 'hostclub-tableststus.com'
     const redirectUrl = `https://${subdomain}.${baseDomain}/auth/callback`
 
     const { error } = await supabase.auth.signUp({
@@ -49,8 +50,8 @@ const Register = () => {
         data: {
           store_id: subdomain,
           role: 'admin',
-          display_name: '', // ✅ 明示的に追加
-          photo_url: ''     // ✅ 明示的に追加
+          display_name: '',
+          photo_url: ''
         },
       },
     })
@@ -70,10 +71,12 @@ const Register = () => {
     navigate('/login')
   }
 
+  // ✅ 読み込み中（セッション・登録判定が完了してない）
   if (session === undefined || storeExists === null) {
     return <div className="text-center mt-20">読み込み中...</div>
   }
 
+  // ✅ 登録済み店舗ならメッセージ表示
   if (storeExists) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
@@ -93,6 +96,7 @@ const Register = () => {
     )
   }
 
+  // ✅ 登録フォームの表示
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
       <h1 className="text-2xl font-bold mb-4">管理者アカウント登録</h1>
