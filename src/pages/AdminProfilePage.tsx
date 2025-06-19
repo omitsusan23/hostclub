@@ -53,6 +53,8 @@ const AdminProfilePage = () => {
         role: session?.user.user_metadata?.role,
       };
 
+      console.log('💾 insert payload', insertPayload);
+
       const { error: insertError } = await supabase
         .from('admins')
         .insert(insertPayload);
