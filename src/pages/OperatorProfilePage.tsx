@@ -25,47 +25,50 @@ const OperatorProfilePage = () => {
     if (!session?.user) navigate('/login');
   }, [session, navigate]);
 
-  const handleSave = async () => {
-    setError('');
-    setSuccess('');
-    setUploading(true);
+  // 該当の関数 handleSave のみ再掲（全文は不要）
+const handleSave = async () => {
+  setError('');
+  setSuccess('');
+  setUploading(true);
 
-    const storeId = session?.user.user_metadata?.store_id;
-    const userId = session?.user.id;
+  const storeId = session?.user.user_metadata?.store_id;
+  const userId = session?.user.id;
 
-    if (!storeId || !userId || !croppedFile) {
-      setError('情報が不足しています');
-      setUploading(false);
-      return;
-    }
+  if (!storeId || !userId || !displayName) {
+    setError('表示名は必須です');
+    setUploading(false);
+    return;
+  }
 
-    try {
-      const publicUrl = await uploadAvatar({ file: croppedFile, storeId, userId });
+  try {
+    let publicUrl = photoUrl;
+
+    if (croppedFile) {
+      publicUrl = await uploadAvatar({ file: croppedFile, storeId, userId });
       setPhotoUrl(publicUrl);
-
-      const insertPayload = {
-        display_name: displayName,
-        photo_url: publicUrl,
-        auth_user_id: userId,
-        is_active: true,
-        store_id: storeId,
-      };
-
-      const { error: insertError } = await supabase
-        .from('operators')
-        .insert(insertPayload);
-
-      if (insertError) throw insertError;
-
-      setSuccess('登録が完了しました');
-      setTimeout(() => navigate('/tables'), 1500);
-    } catch (err: any) {
-      console.error(err);
-      setError('登録またはアップロードに失敗しました');
-    } finally {
-      setUploading(false);
     }
-  };
+
+    const insertPayload = {
+      display_name: displayName,
+      auth_user_id: userId,
+      store_id: storeId,
+      is_active: true,
+      ...(publicUrl && { photo_url: publicUrl }),
+    };
+
+    const { error: insertError } = await supabase.from('operators').insert(insertPayload);
+    if (insertError) throw insertError;
+
+    setSuccess('登録が完了しました');
+    setTimeout(() => navigate('/tables'), 1500);
+  } catch (err: any) {
+    console.error(err);
+    setError('登録またはアップロードに失敗しました');
+  } finally {
+    setUploading(false);
+  }
+};
+
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
