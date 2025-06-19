@@ -1,101 +1,96 @@
-// pages/AdminProfilePage.tsx
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabaseClient'
-import { useAppContext } from '../context/AppContext'
-import AvatarCropper from '../components/AvatarCropper'
-import { uploadAvatar } from '../lib/uploadAvatar'
+// ✅ 修正済み AdminProfilePage（全文）
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabaseClient';
+import { useAppContext } from '../context/AppContext';
+import AvatarCropper from '../components/AvatarCropper';
+import { uploadAvatar } from '../lib/uploadAvatar';
 
 const AdminProfilePage = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const {
     state: { session },
-  } = useAppContext()
+  } = useAppContext();
 
-  const [displayName, setDisplayName] = useState('')
-  const [photoUrl, setPhotoUrl] = useState('')
-  const [uploading, setUploading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
-  const [imageSrc, setImageSrc] = useState<string | null>(null)
-  const [croppedFile, setCroppedFile] = useState<File | null>(null)
-  const [showCropper, setShowCropper] = useState(false)
+  const [displayName, setDisplayName] = useState('');
+  const [photoUrl, setPhotoUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [croppedFile, setCroppedFile] = useState<File | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
 
   useEffect(() => {
-    if (!session?.user) navigate('/login')
-  }, [session, navigate])
+    if (!session?.user) navigate('/login');
+  }, [session, navigate]);
 
   const handleSave = async () => {
-    setError('')
-    setSuccess('')
-    const storeId = session?.user.user_metadata?.store_id
-    const userId = session?.user.id
+    setError('');
+    setSuccess('');
+    setUploading(true);
+
+    const storeId = session?.user.user_metadata?.store_id;
+    const userId = session?.user.id;
 
     if (!storeId || !userId || !croppedFile) {
-      setError('情報が不足しています')
-      return
+      setError('情報が不足しています');
+      setUploading(false);
+      return;
     }
 
     try {
-      setUploading(true)
+      const publicUrl = await uploadAvatar({ file: croppedFile, storeId, userId });
+      setPhotoUrl(publicUrl);
 
-      const publicUrl = await uploadAvatar({
-        file: croppedFile,
-        storeId,
-        userId,
-      })
+      const insertPayload = {
+        display_name: displayName,
+        photo_url: publicUrl,
+        auth_user_id: userId,
+        is_active: true,
+        store_id: storeId,
+      };
 
-      setPhotoUrl(publicUrl)
-
-      const { data: existing, error: selectError } = await supabase
+      const { error: insertError } = await supabase
         .from('admins')
-        .select('id')
-        .eq('auth_user_id', userId)
-        .maybeSingle()
+        .insert(insertPayload);
 
-      if (selectError) throw selectError
+      if (insertError) throw insertError;
 
-      const upsert = existing
-        ? supabase.from('admins').update({ display_name: displayName, photo_url: publicUrl }).eq('auth_user_id', userId)
-        : supabase.from('admins').insert({ auth_user_id: userId, store_id: storeId, display_name: displayName, photo_url: publicUrl })
-
-      const { error } = await upsert
-      if (error) throw error
-
-      setSuccess('登録が完了しました')
-      setTimeout(() => navigate('/tables'), 1500)
-    } catch (e: any) {
-      console.error(e)
-      setError('登録またはアップロードに失敗しました')
+      setSuccess('登録が完了しました');
+      setTimeout(() => navigate('/tables'), 1500);
+    } catch (err: any) {
+      console.error(err);
+      setError('登録またはアップロードに失敗しました');
     } finally {
-      setUploading(false)
+      setUploading(false);
     }
-  }
+  };
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) return
-    const reader = new FileReader()
+    if (!e.target.files?.length) return;
+    const reader = new FileReader();
     reader.onload = () => {
-      setImageSrc(reader.result as string)
-      setShowCropper(true)
-    }
-    reader.readAsDataURL(e.target.files[0])
-  }
+      setImageSrc(reader.result as string);
+      setShowCropper(true);
+    };
+    reader.readAsDataURL(e.target.files[0]);
+  };
 
   const handleCropComplete = (file: File, previewUrl: string) => {
-    setCroppedFile(file)
-    setPhotoUrl(previewUrl)
-    setShowCropper(false)
-  }
+    setCroppedFile(file);
+    setPhotoUrl(previewUrl);
+    setShowCropper(false);
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
       <h1 className="text-2xl font-bold mb-4">プロフィール登録</h1>
-      <p className="text-gray-600 mb-4">サイト内で使用する源氏名とアイコン画像を登録してください。</p>
+      <p className="text-gray-600 mb-4">管理者としての名前とアイコン画像を登録してください。</p>
 
       <input
         type="text"
-        placeholder="源氏名"
+        placeholder="表示名"
         value={displayName}
         onChange={(e) => setDisplayName(e.target.value)}
         className="border px-3 py-2 mb-2 w-64 rounded"
@@ -108,7 +103,13 @@ const AdminProfilePage = () => {
         className="mb-4"
       />
 
-      {photoUrl && <img src={photoUrl} alt="preview" className="w-24 h-24 rounded-full object-cover mb-4" />}
+      {photoUrl && (
+        <img
+          src={photoUrl}
+          alt="preview"
+          className="w-24 h-24 rounded-full object-cover mb-4"
+        />
+      )}
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
       {success && <p className="text-green-600 text-sm">{success}</p>}
@@ -125,11 +126,14 @@ const AdminProfilePage = () => {
         <AvatarCropper
           image={imageSrc}
           onCancel={() => setShowCropper(false)}
-          onComplete={handleCropComplete}
+          onComplete={(file) => {
+            const preview = URL.createObjectURL(file);
+            handleCropComplete(file, preview);
+          }}
         />
       )}
     </div>
-  )
-}
+  );
+};
 
-export default AdminProfilePage
+export default AdminProfilePage;
