@@ -7,6 +7,10 @@
     "hostclub-production": {
       "url": "https://hostclub-1.vercel.app/api/mcp",
       "description": "Hostclub MCP Server (本番環境) - デプロイ後に有効化"
+    },
+    "figma": {
+      "url": "http://127.0.0.1:3845/sse",
+      "description": "Figma Dev Mode MCP Server - デザインからコード生成"
     }
   }
 } 
