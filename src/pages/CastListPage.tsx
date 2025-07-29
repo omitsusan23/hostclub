@@ -121,7 +121,7 @@ export default function CastListPage() {
 
   return (
     <>
-      <Header title="在籍キャスト一覧">
+      <Header title="キャスト一覧">
         <button
           onClick={() => setModalOpen(true)}
           className="ml-2 px-3 py-1 bg-blue-500 text-white rounded"
