@@ -33,7 +33,7 @@ const Footer: React.FC = () => {
       className="
         fixed bottom-0 left-0 right-0 z-50
         bg-gray-100 shadow-lg border-t border-gray-300
-        px-2 pt-1 pb-8 mt-6
+        px-2 pt-3 pb-8 mt-6
         before:content-[''] before:absolute before:inset-x-0 before:bottom-0
         before:h-[env(safe-area-inset-bottom)] before:z-[-1]
       "
@@ -44,6 +44,7 @@ const Footer: React.FC = () => {
           grid grid-cols-5 max-w-[390px] mx-auto
           md:max-w-none md:w-full
           md:flex md:justify-between md:px-8
+          items-center
         "
       >
         {isOperator && (
@@ -52,12 +53,12 @@ const Footer: React.FC = () => {
             <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
             <button
               onClick={handlePlusClick}
-              className="flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
+              className="relative flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
             >
-              <div className="w-12 h-12 mb-1 bg-black rounded-full flex items-center justify-center text-white font-bold text-2xl">
+              <div className="absolute -top-4 w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl shadow-lg">
                 +
               </div>
-              <span></span>
+              <span className="mt-12"></span>
             </button>
             <FooterButton to="/store-page"   icon={SettingsIcon}    label="店舗" />
             <FooterButton to="/casts"        icon={CastIcon}        label="スタッフ" />
@@ -70,12 +71,12 @@ const Footer: React.FC = () => {
             <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
             <button
               onClick={handlePlusClick}
-              className="flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
+              className="relative flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
             >
-              <div className="w-12 h-12 mb-1 bg-black rounded-full flex items-center justify-center text-white font-bold text-2xl">
+              <div className="absolute -top-4 w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl shadow-lg">
                 +
               </div>
-              <span></span>
+              <span className="mt-12"></span>
             </button>
             <FooterButton to="/princess-page" icon={CastIcon}      label="姫" />
             <FooterButton to="/score-page"    icon={ChatIcon}      label="成績" />
