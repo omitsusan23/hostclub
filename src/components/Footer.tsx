@@ -21,14 +21,18 @@ const Footer: React.FC = () => {
 
   if (!role) return null;
 
-  const isEmployee = role === 'owner' || role === 'operator' || role === 'admin';
+  const isOperator = role === 'operator' || role === 'owner' || role === 'admin';
   const isCast     = role === 'cast';
+
+  const handlePlusClick = () => {
+    console.log('Plus button clicked');
+  };
 
   return (
     <footer
       className="
         fixed bottom-0 left-0 right-0 z-50
-        shadow-lg border-t border-gray-300
+        bg-gray-100 shadow-lg border-t border-gray-300
         px-2 pt-1 pb-8 mt-6
         before:content-[''] before:absolute before:inset-x-0 before:bottom-0
         before:h-[env(safe-area-inset-bottom)] before:z-[-1]
@@ -42,13 +46,21 @@ const Footer: React.FC = () => {
           md:flex md:justify-between md:px-8
         "
       >
-        {isEmployee && (
+        {isOperator && (
           <>
-            <FooterButton to="/casts"        icon={CastIcon}        label="キャスト" />
-            <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
             <FooterButton to="/tables"       icon={TableStatusIcon} label="卓状況" />
-            <FooterButton to="/chat"         icon={ChatIcon}        label="チャット" />
-            <FooterButton to="/settings"     icon={SettingsIcon}    label="設定" />
+            <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
+            <button
+              onClick={handlePlusClick}
+              className="flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
+            >
+              <div className="w-12 h-12 mb-1 bg-black rounded-full flex items-center justify-center text-white font-bold text-2xl">
+                +
+              </div>
+              <span></span>
+            </button>
+            <FooterButton to="/store-page"   icon={SettingsIcon}    label="店舗" />
+            <FooterButton to="/casts"        icon={CastIcon}        label="スタッフ" />
           </>
         )}
 
@@ -56,9 +68,17 @@ const Footer: React.FC = () => {
           <>
             <FooterButton to="/tables"       icon={TableStatusIcon} label="卓状況" />
             <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
-            <FooterButton to="/chat"         icon={ChatIcon}        label="チャット" />
-            <FooterButton to="/settings"     icon={SettingsIcon}    label="設定" />
-            <div className="hidden md:block" />
+            <button
+              onClick={handlePlusClick}
+              className="flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
+            >
+              <div className="w-12 h-12 mb-1 bg-black rounded-full flex items-center justify-center text-white font-bold text-2xl">
+                +
+              </div>
+              <span></span>
+            </button>
+            <FooterButton to="/princess-page" icon={CastIcon}      label="姫" />
+            <FooterButton to="/score-page"    icon={ChatIcon}      label="成績" />
           </>
         )}
       </div>

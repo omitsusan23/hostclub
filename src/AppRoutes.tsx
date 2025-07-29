@@ -26,6 +26,10 @@ import OperatorProfilePage from './pages/OperatorProfilePage';
 import CastRegisterPage from './pages/cast.Register';
 import OperatorRegisterPage from './pages/operator.Register';
 
+import PrincessPage from './pages/PrincessPage';
+import ScorePage from './pages/ScorePage';
+import StorePage from './pages/StorePage';
+
 const HomeRedirect: React.FC = () => {
   const {
     state: { session },
@@ -154,6 +158,30 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             {wrapWithLayout(<ChatPage />)}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/princess-page"
+        element={
+          <ProtectedRoute allowedRoles={['cast']}>
+            {wrapWithLayout(<PrincessPage />)}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/score-page"
+        element={
+          <ProtectedRoute allowedRoles={['cast']}>
+            {wrapWithLayout(<ScorePage />)}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/store-page"
+        element={
+          <ProtectedRoute allowedRoles={['operator', 'owner', 'admin']}>
+            {wrapWithLayout(<StorePage />)}
           </ProtectedRoute>
         }
       />
