@@ -138,34 +138,7 @@ export default function TableStatusPage() {
         </div>
       )}
 
-      <Header title="卓状況">
-        <div className="flex items-center space-x-2 md:ml-auto">
-          <button
-            onClick={() => setFilter('all')}
-            className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${filter === 'all' ? 'font-bold text-black' : 'text-gray-700'}`}
-          >
-            全卓
-          </button>
-          <button
-            onClick={() => setFilter('occupied')}
-            className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${filter === 'occupied' ? 'font-bold text-black' : 'text-gray-700'}`}
-          >
-            使用中
-          </button>
-          <button
-            onClick={() => setFilter('empty')}
-            className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${filter === 'empty' ? 'font-bold text-black' : 'text-gray-700'}`}
-          >
-            空卓
-          </button>
-          <button
-            onClick={() => setFilter('first')}
-            className={`bg-gray-100 rounded-full px-3 py-1 text-sm ${filter === 'first' ? 'font-bold text-black' : 'text-gray-700'}`}
-          >
-            初回
-          </button>
-        </div>
-      </Header>
+      <Header title="卓状況" />
 
       <main id="main-content" className="container mx-auto px-2 py-4">
         <div className="grid grid-cols-3 gap-3">
