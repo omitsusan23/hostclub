@@ -3,6 +3,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
+import Header from '../components/Header'
 
 // MyPageProps に setCurrentUser を追加
 interface MyPageProps {
@@ -24,14 +25,16 @@ export default function MyPage({ setCurrentUser }: MyPageProps) {
   }
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">マイページ</h2>
-      <button
-        onClick={handleLogout}
-        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-      >
-        ログアウト
-      </button>
-    </div>
+    <>
+      <Header title="マイページ" />
+      <div className="p-4">
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          ログアウト
+        </button>
+      </div>
+    </>
   )
 }

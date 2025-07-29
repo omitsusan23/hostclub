@@ -29,6 +29,7 @@ import OperatorRegisterPage from './pages/operator.Register';
 import PrincessPage from './pages/PrincessPage';
 import ScorePage from './pages/ScorePage';
 import StorePage from './pages/StorePage';
+import MyPage from './pages/MyPage';
 
 const HomeRedirect: React.FC = () => {
   const {
@@ -182,6 +183,14 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute allowedRoles={['operator', 'owner', 'admin']}>
             {wrapWithLayout(<StorePage />)}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/mypage"
+        element={
+          <ProtectedRoute>
+            {wrapWithLayout(<MyPage />)}
           </ProtectedRoute>
         }
       />
