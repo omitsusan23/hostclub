@@ -13,10 +13,10 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white pt-[env(safe-area-inset-top)]">
       {/* メインヘッダー */}
-      <div className="relative h-10 bg-white">
+      <div className="relative h-8 bg-white">
         {/* 中央のタイトル - 最初に配置 */}
         <div className="absolute w-full h-full flex items-center justify-center">
-          <div className="bg-black text-white px-9 py-2 text-base font-bold">
+          <div className="bg-black text-white px-9 py-1 text-base font-bold">
             {title}
           </div>
         </div>

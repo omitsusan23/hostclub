@@ -33,7 +33,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         />
       )}
 
-      <main className="relative z-10 flex-grow container mx-auto px-4 pb-28 pt-[calc(env(safe-area-inset-top)+3rem)]">
+      <main className="relative z-10 flex-grow container mx-auto px-4 pb-28 pt-[calc(env(safe-area-inset-top)+2.5rem)]">
         {children}
       </main>
 
