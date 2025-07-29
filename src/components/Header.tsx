@@ -11,24 +11,24 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ title, children }) => {
   return (
-    <header className="fixed top-0 z-50 w-full bg-white">
+    <header className="fixed top-0 z-50 w-full bg-white pt-[env(safe-area-inset-top)]">
       {/* メインヘッダー */}
       <div className="h-10 flex items-center justify-between px-4 bg-white">
         {/* 左側: マイページ */}
-        <Link to="/mypage" className="flex flex-col items-center gap-px">
+        <Link to="/mypage" className="flex flex-col items-center gap-px w-[60px]">
           <img src={UserIcon} alt="MyPage" className="w-5 h-5" />
           <span className="text-[10px] text-black">MYpage</span>
         </Link>
 
         {/* 中央: ページタイトル */}
-        <div className="absolute left-1/2 transform -translate-x-1/2">
+        <div className="absolute left-0 right-0 flex justify-center">
           <div className="bg-black text-white px-[36px] py-2 text-base font-bold">
             {title}
           </div>
         </div>
 
         {/* 右側: カレンダーとベル */}
-        <div className="flex items-end gap-3">
+        <div className="flex items-center gap-3 w-[60px] justify-end">
           <img src={CalendarIcon} alt="Calendar" className="w-5 h-5" />
           <img src={BellIcon} alt="Notifications" className="w-5 h-[22.22px]" />
         </div>
