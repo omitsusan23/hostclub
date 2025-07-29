@@ -22,7 +22,7 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
         </div>
         
         {/* 左右の要素 - タイトルの上に重ねる */}
-        <div className="relative h-full flex items-center justify-between px-4 z-10">
+        <div className="relative h-full flex items-center justify-between px-6 z-10">
           {/* 左側: マイページ */}
           <Link to="/mypage" className="flex flex-col items-center gap-px">
             <img src={UserIcon} alt="MyPage" className="w-5 h-5" />
@@ -30,7 +30,7 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
           </Link>
 
           {/* 右側: カレンダーとベル */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <img src={CalendarIcon} alt="Calendar" className="w-5 h-5" />
             <img src={BellIcon} alt="Notifications" className="w-5 h-[22.22px]" />
           </div>
