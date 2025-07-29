@@ -30,8 +30,8 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
           </Link>
 
           {/* 右側: カレンダーとベル */}
-          <div className="flex items-center gap-4">
-            <img src={CalendarIcon} alt="Calendar" className="w-5 h-5" />
+          <div className="flex items-center">
+            <img src={CalendarIcon} alt="Calendar" className="w-5 h-5 mr-3" />
             <img src={BellIcon} alt="Notifications" className="w-5 h-[22.22px]" />
           </div>
         </div>
