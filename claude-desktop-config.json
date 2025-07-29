@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "hostclub": {
+      "command": "node",
+      "args": ["C:/Users/omitu/hostclub/test-mcp-server.mjs"],
+      "env": {
+        "VITE_SUPABASE_URL": "your-supabase-url-here",
+        "VITE_SUPABASE_ANON_KEY": "your-supabase-anon-key-here"
+      }
+    }
+  }
+}

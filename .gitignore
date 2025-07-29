@@ -29,3 +29,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# cursor mcp config (contains tokens)
+.cursor/mcp.json
