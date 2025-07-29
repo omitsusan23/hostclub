@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <title>ホストクラブ卓状況アプリ</title>
+
+    <!-- Supabase 環境変数を明示的に設定 -->
+    <script>
+      window.env = {
+        SUPABASE_URL: "https://yjimwidwhmksqjqpzoku.supabase.co",
+        SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlqaW13aWR3aG1rc3FqcXB6b2t1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyMDk4NDYsImV4cCI6MjA2NDc4NTg0Nn0.FAYjaQDPJK6SWg6skrhydbqgmLkcLS6rCIpPv9j4jYk"
+      };
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#ffffff" />
+
+    <!-- Apple-specific (iOS) -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="卓状況" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <!-- Safari pinned tab -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <!-- iPhone X notch対応 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <style>
+      /* iOSでSafeAreaの背景透過対策 */
+      body {
+        background-color: #ffffff;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
