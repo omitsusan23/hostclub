@@ -145,7 +145,7 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
           </div>
 
           {/* 飾り・キープと備考を囲む枠 */}
-          <div className="border border-[#d7d7d7] rounded p-4 self-stretch mb-8">
+          <div className="bg-[#1a1a1a] border border-[#666666] p-3 self-stretch mb-8">
             {/* 飾り・キープ */}
             <div className="flex flex-col gap-2">
               <label className="text-[#d7d7d7] text-[13px]">飾り・キープ</label>
@@ -161,7 +161,7 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
             </div>
 
             {/* 備考 */}
-            <div className="flex flex-col gap-2 mt-4">
+            <div className="flex flex-col gap-2 mt-3">
               <label className="text-[#d7d7d7] text-[13px]">備考</label>
               <div className="bg-[#464646] rounded border border-[#d7d7d7] p-3">
                 <textarea
