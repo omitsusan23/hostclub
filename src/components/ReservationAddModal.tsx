@@ -144,31 +144,34 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
             </div>
           </div>
 
-          {/* 飾り・キープ */}
-          <div className="flex flex-col gap-2 self-stretch">
-            <label className="text-[#d7d7d7] text-[13px]">飾り・キープ</label>
-            <div className="bg-[#464646] rounded border border-[#d7d7d7] p-3">
-              <textarea
-                value={decoKeep}
-                onChange={(e) => setDecoKeep(e.target.value)}
-                className="w-full bg-transparent text-[#d7d7d7] text-[15px] outline-none resize-none"
-                rows={2}
-                placeholder="タップで入力"
-              />
+          {/* 飾り・キープと備考を囲む枠 */}
+          <div className="border border-[#d7d7d7] rounded p-4 self-stretch mb-8">
+            {/* 飾り・キープ */}
+            <div className="flex flex-col gap-2">
+              <label className="text-[#d7d7d7] text-[13px]">飾り・キープ</label>
+              <div className="bg-[#464646] rounded border border-[#d7d7d7] p-3">
+                <textarea
+                  value={decoKeep}
+                  onChange={(e) => setDecoKeep(e.target.value)}
+                  className="w-full bg-transparent text-[#d7d7d7] text-[15px] outline-none resize-none"
+                  rows={2}
+                  placeholder="タップで入力"
+                />
+              </div>
             </div>
-          </div>
 
-          {/* 備考 */}
-          <div className="flex flex-col gap-2 self-stretch mb-8">
-            <label className="text-[#d7d7d7] text-[13px]">備考</label>
-            <div className="bg-[#464646] rounded border border-[#d7d7d7] p-3">
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="w-full bg-transparent text-[#d7d7d7] text-[15px] outline-none resize-none"
-                rows={3}
-                placeholder="タップで入力"
-              />
+            {/* 備考 */}
+            <div className="flex flex-col gap-2 mt-4">
+              <label className="text-[#d7d7d7] text-[13px]">備考</label>
+              <div className="bg-[#464646] rounded border border-[#d7d7d7] p-3">
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="w-full bg-transparent text-[#d7d7d7] text-[15px] outline-none resize-none"
+                  rows={3}
+                  placeholder="タップで入力"
+                />
+              </div>
             </div>
           </div>
         </div>
