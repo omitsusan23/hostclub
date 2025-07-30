@@ -35,16 +35,17 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer
-      className={`
-        fixed bottom-0 left-0 right-0 z-50
-        bg-gray-100 shadow-lg border-t border-gray-300
-        px-2 pt-3 pb-8 mt-6
-        before:content-[''] before:absolute before:inset-x-0 before:bottom-0
-        before:h-[env(safe-area-inset-bottom)] before:z-[-1]
-        ${isModalOpen ? '' : ''}
-      `}
-    >
+    <>
+      <footer
+        className={`
+          fixed bottom-0 left-0 right-0 z-50
+          bg-gray-100 shadow-lg border-t border-gray-300
+          px-2 pt-3 pb-8 mt-6
+          before:content-[''] before:absolute before:inset-x-0 before:bottom-0
+          before:h-[env(safe-area-inset-bottom)] before:z-[-1]
+          ${isModalOpen ? '' : ''}
+        `}
+      >
       <div
         className="
           relative z-10
@@ -108,12 +109,13 @@ const Footer: React.FC = () => {
           </>
         )}
       </div>
-      
-      <PlusButtonModal 
-        isOpen={isModalOpen} 
-        onClose={handleModalClose} 
-      />
     </footer>
+      
+    <PlusButtonModal 
+      isOpen={isModalOpen} 
+      onClose={handleModalClose} 
+    />
+    </>
   );
 };
 
