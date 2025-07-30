@@ -107,10 +107,15 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
       role="dialog"
       aria-modal="true"
       aria-labelledby="reservation-add-modal-title"
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      className="fixed inset-0 z-[80]"
       onKeyDown={handleKeyDown}
     >
-      <div className="bg-white p-6 rounded-lg w-full max-w-md mx-4">
+      {/* Black overlay */}
+      <div className="absolute inset-0 bg-black bg-opacity-75" />
+      
+      {/* Modal content - positioned from header to bottom */}
+      <div className="absolute top-[calc(env(safe-area-inset-top)+32px)] bottom-0 left-0 right-0 flex items-center justify-center">
+        <div className="bg-white p-6 rounded-lg w-full max-w-md mx-4 max-h-[90%] overflow-y-auto">
         <h3 id="reservation-add-modal-title" className="text-lg font-semibold mb-4">
           来店予約追加
         </h3>
@@ -203,6 +208,7 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
             追加
           </button>
         </div>
+      </div>
       </div>
     </div>
   );
