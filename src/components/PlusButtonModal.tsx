@@ -61,14 +61,14 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
       />
       
       {/* Modal content - positioned above the X button */}
-      <div className="fixed bottom-[140px] left-0 right-0 z-[65] px-6">
+      <div className="fixed bottom-[140px] left-0 right-0 z-[65] flex justify-center">
         {/* Menu items without background container */}
         <div className="space-y-0">
           {menuItems.map((item, index) => (
             <button
               key={item.id}
               onClick={item.onClick}
-              className="w-full text-white text-left block"
+              className="text-white text-left block"
             >
               <div className="py-3">
                 <div className="flex items-center">
@@ -78,10 +78,10 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-lg font-bold">{item.title}</span>
+                  <span className="text-xl font-bold">{item.title}</span>
                 </div>
                 {/* Bottom border */}
-                <div className="h-[2px] bg-white mt-3" />
+                <div className="h-[2px] bg-white mt-3 w-[240px]" />
               </div>
             </button>
           ))}
