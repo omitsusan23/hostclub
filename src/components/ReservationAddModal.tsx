@@ -143,26 +143,31 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
               />
             </div>
 
-            {/* 飾り・キープ */}
-            <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
-              <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">飾り・キープ</label>
-              <input
-                type="text"
+          </div>
+
+          {/* 飾り・キープ */}
+          <div className="bg-[#1a1a1a] border border-[#666666] p-3 self-stretch">
+            <label className="text-[#d7d7d7] text-[13px] block mb-2">飾り・キープ</label>
+            <div className="bg-[#464646] rounded border border-[#d7d7d7] p-3">
+              <textarea
                 value={decoKeep}
                 onChange={(e) => setDecoKeep(e.target.value)}
-                className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888]"
+                className="w-full bg-transparent text-[#d7d7d7] text-[15px] outline-none resize-none placeholder-[#888]"
+                rows={2}
                 placeholder="タップで入力"
               />
             </div>
+          </div>
 
-            {/* 備考 */}
-            <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
-              <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">備考</label>
-              <input
-                type="text"
+          {/* 備考 */}
+          <div className="bg-[#1a1a1a] border border-[#666666] p-3 self-stretch">
+            <label className="text-[#d7d7d7] text-[13px] block mb-2">備考</label>
+            <div className="bg-[#464646] rounded border border-[#d7d7d7] p-3">
+              <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888]"
+                className="w-full bg-transparent text-[#d7d7d7] text-[15px] outline-none resize-none placeholder-[#888]"
+                rows={3}
                 placeholder="タップで入力"
               />
             </div>
