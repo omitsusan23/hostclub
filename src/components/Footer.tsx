@@ -87,7 +87,7 @@ const Footer: React.FC = () => {
       )}
     
     {/* Plus button - outside footer's stacking context */}
-    {(isOperator || isCast) && !isModalOpen && (
+    {(isOperator || isCast) && (
       <button
         onClick={handlePlusClick}
         className="fixed bottom-[52px] left-1/2 transform -translate-x-1/2 z-[9999] flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"

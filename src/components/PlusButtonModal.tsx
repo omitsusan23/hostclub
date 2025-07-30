@@ -55,11 +55,12 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
     <>
       {/* Black overlay - covers entire screen */}
       <div 
-        className="fixed inset-0 bg-black bg-opacity-75 z-[55]"
+        className="fixed inset-0 bg-black bg-opacity-75 z-[100]"
+        onClick={onClose}
       />
       
       {/* Modal content - positioned above the X button */}
-      <div className="fixed bottom-[140px] left-0 right-0 z-[65] flex justify-center">
+      <div className="fixed bottom-[140px] left-0 right-0 z-[110] flex justify-center">
         {/* Menu items without background container */}
         <div className="space-y-0">
           {menuItems.map((item, index) => (
