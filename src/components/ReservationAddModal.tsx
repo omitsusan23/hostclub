@@ -14,12 +14,11 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
   const [personInCharge, setPersonInCharge] = useState('');
   const [name, setName] = useState('');
   const [plannedEntryTime, setPlannedEntryTime] = useState('');
-  const [chipMassInput, setChipMassInput] = useState('');
   const [plan, setPlan] = useState('');
   const [budget, setBudget] = useState('');
   const [requestNumber, setRequestNumber] = useState('');
   const [single, setSingle] = useState('');
-  const [drink, setDrink] = useState('');
+  const [requestHelp, setRequestHelp] = useState('');
   const [decoKeep, setDecoKeep] = useState('');
   const [notes, setNotes] = useState('');
 
@@ -96,18 +95,6 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
               />
             </div>
 
-            {/* チップマス入力 */}
-            <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
-              <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">チップマス入力</label>
-              <input
-                type="text"
-                value={chipMassInput}
-                onChange={(e) => setChipMassInput(e.target.value)}
-                className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888]"
-                placeholder="タップで入力"
-              />
-            </div>
-
             {/* プラン */}
             <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
               <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">プラン</label>
@@ -132,9 +119,9 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
               />
             </div>
 
-            {/* 要望卓番号 */}
+            {/* 希望卓 */}
             <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
-              <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">要望卓番号</label>
+              <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">希望卓</label>
               <input
                 type="text"
                 value={requestNumber}
@@ -144,37 +131,22 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
               />
             </div>
 
-            {/* 単価 */}
+            {/* 希望ヘルプ */}
             <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
-              <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">単価</label>
+              <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">希望ヘルプ</label>
               <input
                 type="text"
-                value={single}
-                onChange={(e) => setSingle(e.target.value)}
-                className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888]"
-                placeholder="タップで入力"
-              />
-            </div>
-
-            {/* 飲直 */}
-            <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
-              <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">飲直</label>
-              <input
-                type="text"
-                value={drink}
-                onChange={(e) => setDrink(e.target.value)}
+                value={requestHelp}
+                onChange={(e) => setRequestHelp(e.target.value)}
                 className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888]"
                 placeholder="タップで入力"
               />
             </div>
           </div>
 
-          {/* その他 Section */}
-          <div className="text-[#d7d7d7] text-[15px] font-medium self-stretch">その他</div>
-
-          {/* デコネーム・キープ */}
+          {/* 飾り・キープ */}
           <div className="flex flex-col gap-2 self-stretch">
-            <label className="text-[#d7d7d7] text-[13px]">デコネーム・キープ</label>
+            <label className="text-[#d7d7d7] text-[13px]">飾り・キープ</label>
             <div className="bg-[#464646] rounded border border-[#d7d7d7] p-3">
               <textarea
                 value={decoKeep}
