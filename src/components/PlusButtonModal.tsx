@@ -58,25 +58,35 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
       {/* Black overlay - covers entire screen */}
       <div 
         className="fixed inset-0 bg-black bg-opacity-75 z-[55]"
-        onClick={onClose}
       />
       
-      {/* Modal content - higher z-index than overlay */}
-      <div className="fixed inset-0 z-[65] flex items-center justify-center pointer-events-none">
-        <div className="relative bg-white rounded-2xl shadow-xl max-w-xs w-full mx-4 py-6 pointer-events-auto">
-          {/* Menu items */}
-          <div className="space-y-3 px-6">
-            {menuItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={item.onClick}
-                className="w-full flex items-center justify-between py-4 px-5 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group"
-              >
-                <span className="text-gray-800 font-medium text-base">{item.title}</span>
-                <span className="text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
-              </button>
-            ))}
-          </div>
+      {/* Modal content - positioned to be centered with X button */}
+      <div className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[65]">
+        {/* Menu items with black background style */}
+        <div className="bg-black rounded-lg overflow-hidden">
+          {menuItems.map((item, index) => (
+            <button
+              key={item.id}
+              onClick={item.onClick}
+              className="w-full text-white hover:bg-gray-900 transition-colors block"
+            >
+              <div className="px-6 py-4">
+                <div className="flex items-center">
+                  {/* Checkbox icon */}
+                  <div className="w-5 h-5 border-2 border-white rounded-sm flex items-center justify-center mr-3">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="text-base font-medium whitespace-nowrap">{item.title}</span>
+                </div>
+              </div>
+              {/* Bottom border - not on last item */}
+              {index < menuItems.length - 1 && (
+                <div className="h-[1px] bg-white opacity-20 mx-4" />
+              )}
+            </button>
+          ))}
         </div>
       </div>
     </>

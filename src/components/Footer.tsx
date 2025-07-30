@@ -90,9 +90,9 @@ const Footer: React.FC = () => {
         className="fixed bottom-[52px] left-1/2 transform -translate-x-1/2 z-[9999] flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
       >
         {/* Outer white circle */}
-        <div className="w-[68px] h-[68px] bg-white rounded-full flex items-center justify-center shadow-lg">
+        <div className="w-[74px] h-[74px] bg-white rounded-full flex items-center justify-center shadow-lg">
           {/* Gray circle */}
-          <div className="w-[66px] h-[66px] bg-gray-300 rounded-full flex items-center justify-center">
+          <div className="w-[72px] h-[72px] bg-gray-300 rounded-full flex items-center justify-center">
             {/* Black circle */}
             <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl">
               <span className={`inline-block transition-transform duration-200 ${isModalOpen ? 'rotate-45' : ''}`}>
