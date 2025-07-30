@@ -62,10 +62,17 @@ const Footer: React.FC = () => {
               onClick={handlePlusClick}
               className="relative flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
             >
-              <div className="absolute -top-4 w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl shadow-lg z-[70]">
-                <span className={`inline-block transition-transform duration-200 ${isModalOpen ? 'rotate-45' : ''}`}>
-                  +
-                </span>
+              {/* Outer white circle */}
+              <div className="absolute -top-4 w-[68px] h-[68px] bg-white rounded-full flex items-center justify-center shadow-lg z-[70]">
+                {/* Gray circle */}
+                <div className="w-[66px] h-[66px] bg-gray-300 rounded-full flex items-center justify-center">
+                  {/* Black circle */}
+                  <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl">
+                    <span className={`inline-block transition-transform duration-200 ${isModalOpen ? 'rotate-45' : ''}`}>
+                      +
+                    </span>
+                  </div>
+                </div>
               </div>
               <span className="mt-12"></span>
             </button>
@@ -82,10 +89,17 @@ const Footer: React.FC = () => {
               onClick={handlePlusClick}
               className="relative flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
             >
-              <div className="absolute -top-4 w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl shadow-lg z-[70]">
-                <span className={`inline-block transition-transform duration-200 ${isModalOpen ? 'rotate-45' : ''}`}>
-                  +
-                </span>
+              {/* Outer white circle */}
+              <div className="absolute -top-4 w-[68px] h-[68px] bg-white rounded-full flex items-center justify-center shadow-lg z-[70]">
+                {/* Gray circle */}
+                <div className="w-[66px] h-[66px] bg-gray-300 rounded-full flex items-center justify-center">
+                  {/* Black circle */}
+                  <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl">
+                    <span className={`inline-block transition-transform duration-200 ${isModalOpen ? 'rotate-45' : ''}`}>
+                      +
+                    </span>
+                  </div>
+                </div>
               </div>
               <span className="mt-12"></span>
             </button>
