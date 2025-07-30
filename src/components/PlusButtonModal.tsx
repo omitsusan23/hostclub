@@ -57,11 +57,11 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
     <>
       {/* Black overlay - covers entire screen */}
       <div 
-        className="fixed inset-0 bg-black bg-opacity-75 z-40"
+        className="fixed inset-0 bg-black bg-opacity-75 z-[55]"
       />
       
       {/* Modal content - higher z-index than overlay */}
-      <div className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none">
+      <div className="fixed inset-0 z-[65] flex items-center justify-center pointer-events-none">
         <div className="relative bg-white rounded-2xl shadow-xl max-w-xs w-full mx-4 py-6 pointer-events-auto">
           {/* Menu items */}
           <div className="space-y-3 px-6">

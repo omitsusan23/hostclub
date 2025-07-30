@@ -60,10 +60,10 @@ const Footer: React.FC = () => {
             <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" disabled={isModalOpen} />
             <button
               onClick={handlePlusClick}
-              className="relative flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
+              className="relative flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600 z-[100]"
             >
               {/* Outer white circle */}
-              <div className="absolute -top-4 w-[68px] h-[68px] bg-white rounded-full flex items-center justify-center shadow-lg z-[70]">
+              <div className="absolute -top-4 w-[68px] h-[68px] bg-white rounded-full flex items-center justify-center shadow-lg z-[100]">
                 {/* Gray circle */}
                 <div className="w-[66px] h-[66px] bg-gray-300 rounded-full flex items-center justify-center">
                   {/* Black circle */}
@@ -87,10 +87,10 @@ const Footer: React.FC = () => {
             <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" disabled={isModalOpen} />
             <button
               onClick={handlePlusClick}
-              className="relative flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
+              className="relative flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600 z-[100]"
             >
               {/* Outer white circle */}
-              <div className="absolute -top-4 w-[68px] h-[68px] bg-white rounded-full flex items-center justify-center shadow-lg z-[70]">
+              <div className="absolute -top-4 w-[68px] h-[68px] bg-white rounded-full flex items-center justify-center shadow-lg z-[100]">
                 {/* Gray circle */}
                 <div className="w-[66px] h-[66px] bg-gray-300 rounded-full flex items-center justify-center">
                   {/* Black circle */}
