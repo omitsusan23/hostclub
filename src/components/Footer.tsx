@@ -27,7 +27,7 @@ const Footer: React.FC = () => {
   const isCast     = role === 'cast';
 
   const handlePlusClick = () => {
-    setIsModalOpen(true);
+    setIsModalOpen(!isModalOpen);
   };
 
   const handleModalClose = () => {
@@ -61,7 +61,7 @@ const Footer: React.FC = () => {
               onClick={handlePlusClick}
               className="relative flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
             >
-              <div className="absolute -top-4 w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl shadow-lg">
+              <div className="absolute -top-4 w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl shadow-lg z-[70]">
                 <span className={`inline-block transition-transform duration-200 ${isModalOpen ? 'rotate-45' : ''}`}>
                   +
                 </span>
@@ -81,7 +81,7 @@ const Footer: React.FC = () => {
               onClick={handlePlusClick}
               className="relative flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
             >
-              <div className="absolute -top-4 w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl shadow-lg">
+              <div className="absolute -top-4 w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl shadow-lg z-[70]">
                 <span className={`inline-block transition-transform duration-200 ${isModalOpen ? 'rotate-45' : ''}`}>
                   +
                 </span>
