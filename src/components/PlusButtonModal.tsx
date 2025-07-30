@@ -55,9 +55,9 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
 
   return (
     <>
-      {/* Black overlay without blur - positioned below header and footer */}
+      {/* Black overlay - only covers main content area between header and footer */}
       <div 
-        className="fixed inset-0 bg-black bg-opacity-50 z-40"
+        className="fixed top-[60px] bottom-[100px] left-0 right-0 bg-black bg-opacity-75 z-40"
         onClick={onClose}
       />
       
