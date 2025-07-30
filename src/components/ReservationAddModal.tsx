@@ -26,11 +26,12 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
   // フォーカス用ref
   const firstInputRef = useRef<HTMLInputElement>(null);
   
-  useEffect(() => {
-    if (isOpen) {
-      firstInputRef.current?.focus();
-    }
-  }, [isOpen]);
+  // Auto-focus disabled as per user request
+  // useEffect(() => {
+  //   if (isOpen) {
+  //     firstInputRef.current?.focus();
+  //   }
+  // }, [isOpen]);
 
   // ESCで閉じる
   const handleKeyDown = (e: React.KeyboardEvent) => {
