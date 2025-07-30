@@ -1,22 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useAppContext } from '../context/AppContext';
-import { ReservationAddModal } from './ReservationAddModal';
 
 interface PlusButtonModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onReservationClick: () => void;
 }
 
-export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClose }) => {
+export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClose, onReservationClick }) => {
   const { state } = useAppContext();
   const role = state.session?.user?.user_metadata?.role;
-  const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
 
   if (!isOpen) return null;
 
   const handleReservationClick = () => {
-    onClose();
-    setIsReservationModalOpen(true);
+    onReservationClick();
   };
 
   const isOperator = role === 'operator' || role === 'owner' || role === 'admin';
@@ -87,12 +85,6 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
           ))}
         </div>
       </div>
-      
-      {/* Reservation Add Modal */}
-      <ReservationAddModal 
-        isOpen={isReservationModalOpen} 
-        onClose={() => setIsReservationModalOpen(false)} 
-      />
     </>
   );
 };

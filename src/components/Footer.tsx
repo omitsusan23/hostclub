@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { FooterButton } from './FooterButton';
 import { PlusButtonModal } from './PlusButtonModal';
+import { ReservationAddModal } from './ReservationAddModal';
 
 /* アイコン */
 import CastIcon        from '../assets/icons/cast.svg';
@@ -14,6 +15,7 @@ const Footer: React.FC = () => {
   const { state } = useAppContext();
   const role = state.session?.user?.user_metadata?.role;
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
 
   console.log('🧪 Footer描画チェック', JSON.stringify({
     session: state.session,
@@ -106,7 +108,16 @@ const Footer: React.FC = () => {
       
     <PlusButtonModal 
       isOpen={isModalOpen} 
-      onClose={handleModalClose} 
+      onClose={handleModalClose}
+      onReservationClick={() => {
+        handleModalClose();
+        setIsReservationModalOpen(true);
+      }}
+    />
+    
+    <ReservationAddModal
+      isOpen={isReservationModalOpen}
+      onClose={() => setIsReservationModalOpen(false)}
     />
     </>
   );
