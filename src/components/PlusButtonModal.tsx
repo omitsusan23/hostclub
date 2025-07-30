@@ -1,6 +1,6 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
+import { ReservationAddModal } from './ReservationAddModal';
 
 interface PlusButtonModalProps {
   isOpen: boolean;
@@ -8,15 +8,15 @@ interface PlusButtonModalProps {
 }
 
 export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClose }) => {
-  const navigate = useNavigate();
   const { state } = useAppContext();
   const role = state.session?.user?.user_metadata?.role;
+  const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
 
   if (!isOpen) return null;
 
   const handleReservationClick = () => {
     onClose();
-    navigate('/reservations');
+    setIsReservationModalOpen(true);
   };
 
   const isOperator = role === 'operator' || role === 'owner' || role === 'admin';
@@ -29,7 +29,7 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
     // Always show reservation for both roles (as per current Footer setup)
     items.push({
       id: 'reservation',
-      title: '来店予約',
+      title: '来店予約追加',
       onClick: handleReservationClick
     });
 
@@ -87,6 +87,12 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
           ))}
         </div>
       </div>
+      
+      {/* Reservation Add Modal */}
+      <ReservationAddModal 
+        isOpen={isReservationModalOpen} 
+        onClose={() => setIsReservationModalOpen(false)} 
+      />
     </>
   );
 };
