@@ -38,16 +38,16 @@ const Footer: React.FC = () => {
 
   return (
     <>
-      <footer
-        className={`
-          fixed bottom-0 left-0 right-0 z-50
-          bg-gray-100 shadow-lg border-t border-gray-300
-          px-2 pt-3 pb-8 mt-6
-          before:content-[''] before:absolute before:inset-x-0 before:bottom-0
-          before:h-[env(safe-area-inset-bottom)] before:z-[-1]
-          ${isModalOpen ? '' : ''}
-        `}
-      >
+      {!isModalOpen && (
+        <footer
+          className="
+            fixed bottom-0 left-0 right-0 z-50
+            bg-gray-100 shadow-lg border-t border-gray-300
+            px-2 pt-3 pb-8 mt-6
+            before:content-[''] before:absolute before:inset-x-0 before:bottom-0
+            before:h-[env(safe-area-inset-bottom)] before:z-[-1]
+          "
+        >
       <div
         className="
           relative z-10
@@ -83,10 +83,11 @@ const Footer: React.FC = () => {
           </>
         )}
       </div>
-    </footer>
+        </footer>
+      )}
     
     {/* Plus button - outside footer's stacking context */}
-    {(isOperator || isCast) && (
+    {(isOperator || isCast) && !isModalOpen && (
       <button
         onClick={handlePlusClick}
         className="fixed bottom-[52px] left-1/2 transform -translate-x-1/2 z-[9999] flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
