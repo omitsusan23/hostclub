@@ -16,6 +16,13 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
   const [budgetMode, setBudgetMode] = useState<'undecided' | 'input'>('undecided');
   const [budget, setBudget] = useState<number | ''>('');
   const [errors, setErrors] = useState<{ princess?: string; budget?: string }>({});
+  
+  // 拡張フォームstate
+  const [selectedPlan, setSelectedPlan] = useState('');
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const [additionalNotes, setAdditionalNotes] = useState('');
+  const [guestCount, setGuestCount] = useState<number>(1);
+  const [isVip, setIsVip] = useState(false);
 
   // フォーカス用ref
   const firstInputRef = useRef<HTMLInputElement>(null);
@@ -56,6 +63,12 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
         requestedTable: requestedTable.trim(),
         time: plannedTime,
         budget: budgetMode === 'input' ? Number(budget) : 0,
+        // 拡張フィールド
+        guestCount,
+        plan: selectedPlan,
+        options: selectedOptions,
+        notes: additionalNotes,
+        isVip: selectedOptions.includes('vip-room'),
       },
     });
     
@@ -66,6 +79,11 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
     setBudgetMode('undecided');
     setBudget('');
     setErrors({});
+    setGuestCount(1);
+    setSelectedPlan('');
+    setSelectedOptions([]);
+    setAdditionalNotes('');
+    setIsVip(false);
     onClose();
   };
 
@@ -113,102 +131,200 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
       {/* Black overlay */}
       <div className="absolute inset-0 bg-black bg-opacity-75" />
       
-      {/* Modal content - positioned from header to bottom */}
-      <div className="absolute top-[calc(env(safe-area-inset-top)+32px)] bottom-0 left-0 right-0 flex items-center justify-center">
-        <div className="bg-white p-6 rounded-lg w-full max-w-md mx-4 max-h-[90%] overflow-y-auto">
-        <h3 id="reservation-add-modal-title" className="text-lg font-semibold mb-4">
-          来店予約追加
-        </h3>
+      {/* Modal content - full screen from header */}
+      <div className="absolute top-[calc(env(safe-area-inset-top)+32px)] bottom-0 left-0 right-0 bg-[#000000eb]">
+        <div className="w-full h-full overflow-y-auto">
+          {/* White background section */}
+          <div className="bg-white px-5 py-6">
+            <h3 id="reservation-add-modal-title" className="text-xl font-bold mb-6">
+              来店予約追加
+            </h3>
 
-        {/* 姫名 */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">姫名</label>
-          <input
-            ref={firstInputRef}
-            type="text"
-            value={princess}
-            onChange={(e) => setPrincess(e.target.value)}
-            className="border border-gray-300 p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="姫名を入力"
-          />
-          {errors.princess && (
-            <p className="text-red-500 text-sm mt-1">{errors.princess}</p>
-          )}
-        </div>
+            {/* 基本情報セクション */}
+            <div className="space-y-4">
+              {/* 姫名 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">姫名</label>
+                <input
+                  ref={firstInputRef}
+                  type="text"
+                  value={princess}
+                  onChange={(e) => setPrincess(e.target.value)}
+                  className="border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="姫名を入力"
+                />
+                {errors.princess && (
+                  <p className="text-red-500 text-sm mt-1">{errors.princess}</p>
+                )}
+              </div>
 
-        {/* 希望卓番号 */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">希望卓番号</label>
-          <input
-            type="text"
-            value={requestedTable}
-            onChange={(e) => setRequestedTable(e.target.value)}
-            className="border border-gray-300 p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="希望卓番号を入力"
-          />
-        </div>
+              {/* 人数 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">人数</label>
+                <div className="flex items-center space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setGuestCount(Math.max(1, guestCount - 1))}
+                    className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300"
+                  >
+                    -
+                  </button>
+                  <span className="text-lg font-medium w-10 text-center">{guestCount}</span>
+                  <button
+                    type="button"
+                    onClick={() => setGuestCount(guestCount + 1)}
+                    className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
 
-        {/* 予定時間 */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">予定時間</label>
-          <select
-            value={plannedTime}
-            onChange={(e) => setPlannedTime(e.target.value)}
-            className="border border-gray-300 p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">選択してください</option>
-            {timeOptions.map((time) => (
-              <option key={time} value={time}>
-                {time}
-              </option>
-            ))}
-          </select>
-        </div>
+              {/* 希望卓番号 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">希望卓番号</label>
+                <input
+                  type="text"
+                  value={requestedTable}
+                  onChange={(e) => setRequestedTable(e.target.value)}
+                  className="border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="希望卓番号を入力"
+                />
+              </div>
+            </div>
+          </div>
 
-        {/* 予算 */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-1">予算</label>
-          <select
-            value={budgetMode}
-            onChange={handleBudgetModeChange}
-            className="border border-gray-300 p-2 w-full rounded mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="undecided">未定</option>
-            <option value="input">金額を入力</option>
-          </select>
-          
-          {budgetMode === 'input' && (
-            <>
-              <input
-                type="text"
-                value={budget}
-                onChange={handleBudgetChange}
-                className="border border-gray-300 p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="予算を入力（円）"
-              />
-              {errors.budget && (
-                <p className="text-red-500 text-sm mt-1">{errors.budget}</p>
-              )}
-            </>
-          )}
-        </div>
+          {/* ダークセクション */}
+          <div className="bg-[#000000eb] px-5 py-6">
+            <div className="space-y-6">
+              {/* 時間選択 */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-3">予定時間</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {timeOptions.map((time) => (
+                    <button
+                      key={time}
+                      type="button"
+                      onClick={() => setPlannedTime(time)}
+                      className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                        plannedTime === time
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}
+                    >
+                      {time}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-        {/* ボタン */}
-        <div className="flex justify-end space-x-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
-          >
-            キャンセル
-          </button>
-          <button
-            onClick={handleAdd}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-          >
-            追加
-          </button>
+              {/* プラン選択 */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-3">プラン</label>
+                <div className="space-y-2">
+                  {['VIPプラン', 'スタンダードプラン', 'カジュアルプラン'].map((plan) => (
+                    <button
+                      key={plan}
+                      type="button"
+                      onClick={() => setSelectedPlan(plan)}
+                      className={`w-full py-3 px-4 rounded-lg text-left transition-colors ${
+                        selectedPlan === plan
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}
+                    >
+                      {plan}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* オプション */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-3">オプション</label>
+                <div className="space-y-2">
+                  {[
+                    { id: 'vip-room', label: 'VIPルーム' },
+                    { id: 'champagne', label: 'シャンパンコール' },
+                    { id: 'birthday', label: 'バースデープレート' }
+                  ].map((option) => (
+                    <label key={option.id} className="flex items-center text-white">
+                      <input
+                        type="checkbox"
+                        checked={selectedOptions.includes(option.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedOptions([...selectedOptions, option.id]);
+                          } else {
+                            setSelectedOptions(selectedOptions.filter(id => id !== option.id));
+                          }
+                        }}
+                        className="mr-3 rounded"
+                      />
+                      <span className="text-sm">{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* 予算 */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-3">予算</label>
+                <select
+                  value={budgetMode}
+                  onChange={handleBudgetModeChange}
+                  className="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="undecided">未定</option>
+                  <option value="input">金額を入力</option>
+                </select>
+                
+                {budgetMode === 'input' && (
+                  <div className="mt-2">
+                    <input
+                      type="text"
+                      value={budget}
+                      onChange={handleBudgetChange}
+                      className="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="予算を入力（円）"
+                    />
+                    {errors.budget && (
+                      <p className="text-red-400 text-sm mt-1">{errors.budget}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* 追加メモ */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-3">追加メモ</label>
+                <textarea
+                  value={additionalNotes}
+                  onChange={(e) => setAdditionalNotes(e.target.value)}
+                  className="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                  placeholder="特別なリクエストやメモがあれば入力"
+                />
+              </div>
+            </div>
+
+            {/* ボタン */}
+            <div className="flex justify-between mt-8">
+              <button
+                onClick={onClose}
+                className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleAdd}
+                className="px-8 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+              >
+                予約を確定
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
       </div>
     </div>
   );
