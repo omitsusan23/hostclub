@@ -36,10 +36,32 @@ const Footer: React.FC = () => {
     setIsModalOpen(false);
   };
 
+  // PlusButtonModalが開いている時は何も表示しない
+  if (isModalOpen) {
+    return (
+      <>
+        <PlusButtonModal 
+          isOpen={isModalOpen} 
+          onClose={handleModalClose}
+          onReservationClick={() => {
+            handleModalClose();
+            setTimeout(() => {
+              setIsReservationModalOpen(true);
+            }, 100);
+          }}
+        />
+        
+        <ReservationAddModal
+          isOpen={isReservationModalOpen && !isModalOpen}
+          onClose={() => setIsReservationModalOpen(false)}
+        />
+      </>
+    );
+  }
+
   return (
     <>
-      {!isModalOpen && (
-        <footer
+      <footer
           className="
             fixed bottom-0 left-0 right-0 z-50
             bg-gray-100 shadow-lg border-t border-gray-300
@@ -83,11 +105,10 @@ const Footer: React.FC = () => {
           </>
         )}
       </div>
-        </footer>
-      )}
+      </footer>
     
     {/* Plus button - outside footer's stacking context */}
-    {(isOperator || isCast) && !isModalOpen && (
+    {(isOperator || isCast) && (
       <button
         onClick={handlePlusClick}
         className="fixed bottom-[52px] left-1/2 transform -translate-x-1/2 z-[9999] flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"

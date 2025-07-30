@@ -86,25 +86,6 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
           ))}
         </div>
       </div>
-      
-      {/* Close button - X mark */}
-      <button
-        onClick={onClose}
-        className="fixed bottom-[52px] left-1/2 transform -translate-x-1/2 z-[120] flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
-      >
-        {/* Outer white circle */}
-        <div className="w-[74px] h-[74px] bg-white rounded-full flex items-center justify-center shadow-lg">
-          {/* Gray circle */}
-          <div className="w-[72px] h-[72px] bg-gray-300 rounded-full flex items-center justify-center">
-            {/* Black circle */}
-            <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl">
-              <span className="inline-block rotate-45">
-                +
-              </span>
-            </div>
-          </div>
-        </div>
-      </button>
     </>
   );
 };
