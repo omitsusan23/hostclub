@@ -58,7 +58,7 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
       role="dialog"
       aria-modal="true"
       aria-labelledby="reservation-add-modal-title"
-      className="fixed inset-0 z-[80]"
+      className="fixed inset-0 z-[40]"
       onKeyDown={handleKeyDown}
     >
       {/* Black overlay */}

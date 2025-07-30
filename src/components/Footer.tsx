@@ -111,12 +111,14 @@ const Footer: React.FC = () => {
       onClose={handleModalClose}
       onReservationClick={() => {
         handleModalClose();
-        setIsReservationModalOpen(true);
+        setTimeout(() => {
+          setIsReservationModalOpen(true);
+        }, 100);
       }}
     />
     
     <ReservationAddModal
-      isOpen={isReservationModalOpen}
+      isOpen={isReservationModalOpen && !isModalOpen}
       onClose={() => setIsReservationModalOpen(false)}
     />
     </>
