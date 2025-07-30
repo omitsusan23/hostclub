@@ -68,7 +68,7 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
       
       {/* Modal content - full screen from navigation bar */}
       <div className="absolute top-[calc(env(safe-area-inset-top)+80px)] bottom-0 left-0 right-0 bg-black overflow-y-auto">
-        <div className="flex flex-col w-[361px] items-start gap-4 mx-auto mt-4">
+        <div className="flex flex-col w-[361px] items-start gap-4 mx-auto mt-4 mb-8">
           {/* Form Fields */}
           <div className="flex flex-col items-start gap-2 self-stretch">
             {/* 名前 */}
@@ -142,31 +142,27 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
                 placeholder="タップで入力"
               />
             </div>
-          </div>
 
-          {/* 飾り・キープ */}
-          <div className="bg-[#1a1a1a] border border-[#666666] p-3 self-stretch">
-            <label className="text-[#d7d7d7] text-[13px]">飾り・キープ</label>
-            <div className="bg-[#464646] rounded border border-[#d7d7d7] p-3 mt-2">
-              <textarea
+            {/* 飾り・キープ */}
+            <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
+              <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">飾り・キープ</label>
+              <input
+                type="text"
                 value={decoKeep}
                 onChange={(e) => setDecoKeep(e.target.value)}
-                className="w-full bg-transparent text-[#d7d7d7] text-[15px] outline-none resize-none"
-                rows={2}
+                className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888]"
                 placeholder="タップで入力"
               />
             </div>
-          </div>
 
-          {/* 備考 */}
-          <div className="bg-[#1a1a1a] border border-[#666666] p-3 self-stretch mb-8">
-            <label className="text-[#d7d7d7] text-[13px]">備考</label>
-            <div className="bg-[#464646] rounded border border-[#d7d7d7] p-3 mt-2">
-              <textarea
+            {/* 備考 */}
+            <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
+              <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">備考</label>
+              <input
+                type="text"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full bg-transparent text-[#d7d7d7] text-[15px] outline-none resize-none"
-                rows={3}
+                className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888]"
                 placeholder="タップで入力"
               />
             </div>
