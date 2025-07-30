@@ -136,7 +136,7 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
       <ModalNavigation onBack={onClose} onComplete={handleAdd} />
       
       {/* Modal content - full screen from navigation bar */}
-      <div className="absolute top-12 bottom-0 left-0 right-0 bg-[#000000eb]">
+      <div className="absolute top-[calc(env(safe-area-inset-top)+80px)] bottom-0 left-0 right-0 bg-[#000000eb]">
         <div className="w-full h-full overflow-y-auto">
           {/* White background section */}
           <div className="bg-white px-5 py-6">
