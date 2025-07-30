@@ -54,29 +54,31 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
   const menuItems = getMenuItems();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Overlay with semi-transparent background */}
+    <>
+      {/* Black overlay without blur - positioned below header and footer */}
       <div 
-        className="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm"
+        className="fixed inset-0 bg-black bg-opacity-50 z-40"
         onClick={onClose}
       />
       
-      {/* Modal content */}
-      <div className="relative bg-white rounded-2xl shadow-xl max-w-xs w-full mx-4 py-6">
-        {/* Menu items */}
-        <div className="space-y-3 px-6">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={item.onClick}
-              className="w-full flex items-center justify-between py-4 px-5 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group"
-            >
-              <span className="text-gray-800 font-medium text-base">{item.title}</span>
-              <span className="text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
-            </button>
-          ))}
+      {/* Modal content - higher z-index than overlay */}
+      <div className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none">
+        <div className="relative bg-white rounded-2xl shadow-xl max-w-xs w-full mx-4 py-6 pointer-events-auto">
+          {/* Menu items */}
+          <div className="space-y-3 px-6">
+            {menuItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={item.onClick}
+                className="w-full flex items-center justify-between py-4 px-5 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group"
+              >
+                <span className="text-gray-800 font-medium text-base">{item.title}</span>
+                <span className="text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
