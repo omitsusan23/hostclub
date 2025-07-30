@@ -56,4 +56,16 @@ html,
 body {
   overscroll-behavior-y: none;
   touch-action: pan-x pan-up;
+  scroll-behavior: auto;
+}
+
+/* 8. フォーカス時の自動スクロールを無効化 */
+* {
+  scroll-margin: 0;
+  scroll-padding: 0;
+}
+
+*:focus {
+  scroll-margin: 0;
+  scroll-padding: 0;
 }

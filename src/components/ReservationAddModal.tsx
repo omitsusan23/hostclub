@@ -33,10 +33,15 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
   //   }
   // }, [isOpen]);
 
-  // ESCで閉じる
+  // ESCで閉じる、左右の矢印キーを無効化
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       onClose();
+    }
+    // 左右の矢印キーでのフォーカス移動を無効化
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      e.stopPropagation();
     }
   };
 

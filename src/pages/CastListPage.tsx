@@ -47,16 +47,22 @@ export default function CastListPage() {
     fetchCasts()
   }, [state.session])
 
-  useEffect(() => {
-    if (modalOpen) {
-      firstShareButtonRef.current?.focus()
-    }
-  }, [modalOpen])
+  // オートフォーカスを無効化してスクロールを防ぐ
+  // useEffect(() => {
+  //   if (modalOpen) {
+  //     firstShareButtonRef.current?.focus()
+  //   }
+  // }, [modalOpen])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && modalOpen) {
         setModalOpen(false)
+      }
+      // 左右の矢印キーでのフォーカス移動を無効化
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.preventDefault()
+        e.stopPropagation()
       }
     }
     window.addEventListener('keydown', handler)
