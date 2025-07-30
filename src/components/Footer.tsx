@@ -36,13 +36,14 @@ const Footer: React.FC = () => {
 
   return (
     <footer
-      className="
+      className={`
         fixed bottom-0 left-0 right-0 z-50
         bg-gray-100 shadow-lg border-t border-gray-300
         px-2 pt-3 pb-8 mt-6
         before:content-[''] before:absolute before:inset-x-0 before:bottom-0
         before:h-[env(safe-area-inset-bottom)] before:z-[-1]
-      "
+        ${isModalOpen ? '' : ''}
+      `}
     >
       <div
         className="
@@ -55,8 +56,8 @@ const Footer: React.FC = () => {
       >
         {isOperator && (
           <>
-            <FooterButton to="/tables"       icon={TableStatusIcon} label="卓状況" />
-            <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
+            <FooterButton to="/tables"       icon={TableStatusIcon} label="卓状況" disabled={isModalOpen} />
+            <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" disabled={isModalOpen} />
             <button
               onClick={handlePlusClick}
               className="relative flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
@@ -68,15 +69,15 @@ const Footer: React.FC = () => {
               </div>
               <span className="mt-12"></span>
             </button>
-            <FooterButton to="/store-page"   icon={SettingsIcon}    label="店舗" />
-            <FooterButton to="/casts"        icon={CastIcon}        label="スタッフ" />
+            <FooterButton to="/store-page"   icon={SettingsIcon}    label="店舗" disabled={isModalOpen} />
+            <FooterButton to="/casts"        icon={CastIcon}        label="スタッフ" disabled={isModalOpen} />
           </>
         )}
 
         {isCast && (
           <>
-            <FooterButton to="/tables"       icon={TableStatusIcon} label="卓状況" />
-            <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" />
+            <FooterButton to="/tables"       icon={TableStatusIcon} label="卓状況" disabled={isModalOpen} />
+            <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" disabled={isModalOpen} />
             <button
               onClick={handlePlusClick}
               className="relative flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
@@ -88,8 +89,8 @@ const Footer: React.FC = () => {
               </div>
               <span className="mt-12"></span>
             </button>
-            <FooterButton to="/princess-page" icon={CastIcon}      label="姫" />
-            <FooterButton to="/score-page"    icon={ChatIcon}      label="成績" />
+            <FooterButton to="/princess-page" icon={CastIcon}      label="姫" disabled={isModalOpen} />
+            <FooterButton to="/score-page"    icon={ChatIcon}      label="成績" disabled={isModalOpen} />
           </>
         )}
       </div>
