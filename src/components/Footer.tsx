@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { FooterButton } from './FooterButton';
+import { PlusButtonModal } from './PlusButtonModal';
 
 /* アイコン */
 import CastIcon        from '../assets/icons/cast.svg';
@@ -12,6 +13,7 @@ import SettingsIcon    from '../assets/icons/settings.svg';
 const Footer: React.FC = () => {
   const { state } = useAppContext();
   const role = state.session?.user?.user_metadata?.role;
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   console.log('🧪 Footer描画チェック', JSON.stringify({
     session: state.session,
@@ -25,7 +27,11 @@ const Footer: React.FC = () => {
   const isCast     = role === 'cast';
 
   const handlePlusClick = () => {
-    console.log('Plus button clicked');
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -56,7 +62,9 @@ const Footer: React.FC = () => {
               className="relative flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
             >
               <div className="absolute -top-4 w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl shadow-lg">
-                +
+                <span className={`inline-block transition-transform duration-200 ${isModalOpen ? 'rotate-45' : ''}`}>
+                  +
+                </span>
               </div>
               <span className="mt-12"></span>
             </button>
@@ -74,7 +82,9 @@ const Footer: React.FC = () => {
               className="relative flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
             >
               <div className="absolute -top-4 w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl shadow-lg">
-                +
+                <span className={`inline-block transition-transform duration-200 ${isModalOpen ? 'rotate-45' : ''}`}>
+                  +
+                </span>
               </div>
               <span className="mt-12"></span>
             </button>
@@ -83,6 +93,11 @@ const Footer: React.FC = () => {
           </>
         )}
       </div>
+      
+      <PlusButtonModal 
+        isOpen={isModalOpen} 
+        onClose={handleModalClose} 
+      />
     </footer>
   );
 };
