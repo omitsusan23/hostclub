@@ -70,32 +70,20 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
       {/* Modal content - full screen from navigation bar */}
       <div className="absolute top-[calc(env(safe-area-inset-top)+80px)] bottom-0 left-0 right-0 bg-black overflow-y-auto">
         <div className="flex flex-col w-[361px] items-start gap-4 mx-auto mt-4">
-          {/* Profile Section */}
-          <header className="flex items-center gap-[17px] relative self-stretch w-full">
-            <div className="relative w-[60px] h-[60px]">
-              <div className="absolute inset-0 rounded-full border-[3px] border-[#cdb05a] bg-gray-300"></div>
-            </div>
-            <div className="flex flex-col items-start gap-[3px] flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-[#d7d7d7] text-[13px] leading-[normal]">担当</span>
-                <span className="bg-[#464646] text-[#d7d7d7] px-[6px] py-[2px] rounded text-[11px] leading-[normal]">主任</span>
-              </div>
-              <div className="flex items-center gap-2 self-stretch">
-                <span className="text-[#d7d7d7] text-[13px] leading-[normal]">名前</span>
-                <input
-                  ref={firstInputRef}
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="flex-1 bg-transparent text-[#d7d7d7] text-[13px] outline-none placeholder-[#888]"
-                  placeholder="タップで入力"
-                />
-              </div>
-            </div>
-          </header>
-
           {/* Form Fields */}
           <div className="flex flex-col items-start gap-2 self-stretch">
+            {/* 名前 */}
+            <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
+              <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">名前</label>
+              <input
+                ref={firstInputRef}
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888]"
+                placeholder="タップで入力"
+              />
+            </div>
             {/* 入店予定時間 */}
             <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
               <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">入店予定時間</label>
