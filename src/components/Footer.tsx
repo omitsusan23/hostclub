@@ -59,24 +59,10 @@ const Footer: React.FC = () => {
           <>
             <FooterButton to="/tables"       icon={TableStatusIcon} label="卓状況" disabled={isModalOpen} />
             <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" disabled={isModalOpen} />
-            <button
-              onClick={handlePlusClick}
-              className="relative flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600 z-[100]"
-            >
-              {/* Outer white circle */}
-              <div className="absolute -top-4 w-[68px] h-[68px] bg-white rounded-full flex items-center justify-center shadow-lg z-[100]">
-                {/* Gray circle */}
-                <div className="w-[66px] h-[66px] bg-gray-300 rounded-full flex items-center justify-center">
-                  {/* Black circle */}
-                  <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl">
-                    <span className={`inline-block transition-transform duration-200 ${isModalOpen ? 'rotate-45' : ''}`}>
-                      +
-                    </span>
-                  </div>
-                </div>
-              </div>
+            {/* Placeholder for plus button spacing */}
+            <div className="relative flex flex-col items-center justify-center">
               <span className="mt-12"></span>
-            </button>
+            </div>
             <FooterButton to="/store-page"   icon={SettingsIcon}    label="店舗" disabled={isModalOpen} />
             <FooterButton to="/casts"        icon={CastIcon}        label="スタッフ" disabled={isModalOpen} />
           </>
@@ -86,30 +72,37 @@ const Footer: React.FC = () => {
           <>
             <FooterButton to="/tables"       icon={TableStatusIcon} label="卓状況" disabled={isModalOpen} />
             <FooterButton to="/reservations" icon={ReservationIcon} label="来店予約" disabled={isModalOpen} />
-            <button
-              onClick={handlePlusClick}
-              className="relative flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600 z-[100]"
-            >
-              {/* Outer white circle */}
-              <div className="absolute -top-4 w-[68px] h-[68px] bg-white rounded-full flex items-center justify-center shadow-lg z-[100]">
-                {/* Gray circle */}
-                <div className="w-[66px] h-[66px] bg-gray-300 rounded-full flex items-center justify-center">
-                  {/* Black circle */}
-                  <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl">
-                    <span className={`inline-block transition-transform duration-200 ${isModalOpen ? 'rotate-45' : ''}`}>
-                      +
-                    </span>
-                  </div>
-                </div>
-              </div>
+            {/* Placeholder for plus button spacing */}
+            <div className="relative flex flex-col items-center justify-center">
               <span className="mt-12"></span>
-            </button>
+            </div>
             <FooterButton to="/princess-page" icon={CastIcon}      label="姫" disabled={isModalOpen} />
             <FooterButton to="/score-page"    icon={ChatIcon}      label="成績" disabled={isModalOpen} />
           </>
         )}
       </div>
     </footer>
+    
+    {/* Plus button - outside footer's stacking context */}
+    {(isOperator || isCast) && (
+      <button
+        onClick={handlePlusClick}
+        className="fixed bottom-[52px] left-1/2 transform -translate-x-1/2 z-[9999] flex flex-col items-center justify-center text-xs text-gray-700 hover:text-pink-600"
+      >
+        {/* Outer white circle */}
+        <div className="w-[68px] h-[68px] bg-white rounded-full flex items-center justify-center shadow-lg">
+          {/* Gray circle */}
+          <div className="w-[66px] h-[66px] bg-gray-300 rounded-full flex items-center justify-center">
+            {/* Black circle */}
+            <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl">
+              <span className={`inline-block transition-transform duration-200 ${isModalOpen ? 'rotate-45' : ''}`}>
+                +
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
+    )}
       
     <PlusButtonModal 
       isOpen={isModalOpen} 

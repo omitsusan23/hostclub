@@ -58,6 +58,7 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
       {/* Black overlay - covers entire screen */}
       <div 
         className="fixed inset-0 bg-black bg-opacity-75 z-[55]"
+        onClick={onClose}
       />
       
       {/* Modal content - higher z-index than overlay */}
