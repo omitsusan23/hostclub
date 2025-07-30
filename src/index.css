@@ -69,3 +69,60 @@ body {
   scroll-margin: 0;
   scroll-padding: 0;
 }
+
+/* 9. モバイルフォーム最適化 */
+.mobile-form-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* 横スクロール完全防止 */
+html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
+
+/* iOS Safariでのバウンス無効化 */
+.ios-scroll-fix {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 入力フィールドのズーム防止（iOS） */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="password"],
+textarea,
+select {
+  font-size: 16px !important;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* フォーカス時のアウトライン最適化 */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
