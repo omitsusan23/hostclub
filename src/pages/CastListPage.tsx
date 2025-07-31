@@ -4,6 +4,7 @@ import Header from '../components/Header'
 import { supabase } from '../lib/supabaseClient'
 import { useAppContext } from '../context/AppContext'
 import CastGrid from '../components/CastGrid'
+import StaffListBar from '../components/StaffListBar'
 
 interface Cast {
   id: string
@@ -127,14 +128,12 @@ export default function CastListPage() {
 
   return (
     <>
-      <Header title="スタッフ">
-        <button
-          onClick={() => setModalOpen(true)}
-          className="ml-2 px-3 py-1 bg-blue-500 text-white rounded"
-        >
-          追加
-        </button>
-      </Header>
+      <Header title="スタッフ" />
+      
+      <StaffListBar
+        registeredCount={casts.length}
+        onAddClick={() => setModalOpen(true)}
+      />
 
       <main className="pt-[calc(env(safe-area-inset-top)+66px)]">
         <CastGrid casts={casts} />
