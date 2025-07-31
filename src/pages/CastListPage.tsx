@@ -16,6 +16,7 @@ interface Cast {
   email?: string | null
   username?: string | null
   photo_url?: string | null
+  display_name?: string | null
 }
 
 export default function CastListPage() {
@@ -148,7 +149,8 @@ export default function CastListPage() {
           <CastGrid casts={casts.filter(cast => 
             searchQuery === '' || 
             cast.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            cast.email?.toLowerCase().includes(searchQuery.toLowerCase())
+            cast.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            cast.display_name?.toLowerCase().includes(searchQuery.toLowerCase())
           )} />
         </div>
       </main>
