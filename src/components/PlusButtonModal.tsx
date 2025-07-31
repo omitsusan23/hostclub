@@ -88,15 +88,15 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
       {/* Modal content - positioned above the X button */}
       <div className="fixed bottom-[140px] left-0 right-0 z-[110] flex justify-center">
         {/* Menu items without background container */}
-        <div className="space-y-0">
+        <div className="space-y-0 w-[240px]">
           {menuItems.map((item, index) => (
             <button
               key={item.id}
               onClick={(e) => item.onClick(e)}
-              className="text-white text-left block"
+              className="text-white text-left block w-full"
             >
               <div className="py-3">
-                <div className="flex items-center justify-center">
+                <div className="flex items-center">
                   {/* Checkbox icon - unchecked by default */}
                   <div className="w-6 h-6 border-2 border-white rounded flex items-center justify-center mr-3 flex-shrink-0">
                     {/* Empty checkbox - no checkmark */}
@@ -104,7 +104,7 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
                   <span className="text-xl font-bold">{item.title}</span>
                 </div>
                 {/* Bottom border */}
-                <div className="h-[2px] bg-white mt-3 w-[240px] mx-auto" />
+                <div className="h-[2px] bg-white mt-3 w-full" />
               </div>
             </button>
           ))}
