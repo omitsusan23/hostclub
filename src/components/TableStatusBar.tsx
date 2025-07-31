@@ -56,7 +56,7 @@ const TableStatusBar: React.FC<TableStatusBarProps> = ({ selectedFilter, onFilte
 
       {/* 右側のフィルタータブ */}
       <div
-        className="flex w-56 h-5 items-center absolute left-[170px] bg-black border-[0.41px] border-solid border-white"
+        className={`flex ${isCast ? 'w-[168px]' : 'w-56'} h-5 items-center absolute left-[170px] bg-black border-[0.41px] border-solid border-white`}
         role="tablist"
         aria-label="Table status tabs"
       >
