@@ -138,8 +138,8 @@ const Footer: React.FC = () => {
           {/* Gray circle */}
           <div className="w-[72px] h-[72px] bg-gray-300 rounded-full flex items-center justify-center">
             {/* Black circle */}
-            <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl">
-              <span className={`inline-block transition-transform duration-200 ${isModalOpen ? 'rotate-45' : ''}`}>
+            <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold text-3xl relative">
+              <span className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-transform duration-200 origin-center ${isModalOpen ? 'rotate-45' : ''}`}>
                 +
               </span>
             </div>
