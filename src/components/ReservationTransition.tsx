@@ -112,7 +112,7 @@ export const ReservationTransition: React.FC<ReservationTransitionProps> = ({
       {/* Navigation bar with slide-in animation */}
       {(phase === 'content' || phase === 'complete') && (
         <div 
-          className="fixed top-[calc(env(safe-area-inset-top)+70px)] left-0 right-0 z-10 animate-slide-down"
+          className="fixed top-[calc(env(safe-area-inset-top)+100px)] left-0 right-0 z-10 animate-slide-down"
         >
           <ModalNavigation onBack={onClose} onComplete={() => {}} />
         </div>
@@ -120,7 +120,7 @@ export const ReservationTransition: React.FC<ReservationTransitionProps> = ({
       
       {/* Form content with slide-in animation */}
       {(phase === 'content' || phase === 'complete') && (
-        <div className="absolute top-[calc(env(safe-area-inset-top)+150px)] bottom-0 left-0 right-0 bg-black overflow-y-auto">
+        <div className="absolute top-[calc(env(safe-area-inset-top)+180px)] bottom-0 left-0 right-0 bg-black overflow-y-auto">
           <div className="flex flex-col w-[361px] items-start gap-4 mx-auto mt-8 mb-8">
             {/* Form Fields with staggered animation */}
             <div className="flex flex-col items-start gap-2 self-stretch">
