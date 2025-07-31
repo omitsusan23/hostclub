@@ -29,7 +29,7 @@ const PrincessPage: React.FC = () => {
       {/* 姫一覧ヘッダー - ヘッダー直下に配置、全幅表示 */}
       <header className="relative w-screen h-[42px] bg-black -ml-[50vw] left-[50%]" role="banner">
         <div className="relative flex items-center justify-center h-full">
-          <h1 className="[font-family:'Inter-Bold',Helvetica] font-bold text-white text-xl text-center tracking-[0] leading-[normal] whitespace-nowrap">
+          <h1 className="font-bold text-white text-xl text-center tracking-[0] leading-[normal] whitespace-nowrap">
             登録人数({princessCount})
           </h1>
         </div>
@@ -73,7 +73,7 @@ const PrincessPage: React.FC = () => {
                   />
                 </svg>
               </div>
-              <div className="relative w-fit [font-family:'Inter-Bold',Helvetica] font-bold text-[#525154] text-[15px] text-center tracking-[0] leading-[normal] whitespace-nowrap">
+              <div className="relative w-fit font-bold text-[#525154] text-[15px] text-center tracking-[0] leading-[normal] whitespace-nowrap">
                 検索
               </div>
             </div>

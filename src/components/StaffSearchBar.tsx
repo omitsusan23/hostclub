@@ -47,7 +47,7 @@ const StaffSearchBar: React.FC<StaffSearchBarProps> = ({ onSearchChange }) => {
             </svg>
           </div>
 
-          <div className="relative w-fit [font-family:'Inter-Bold',Helvetica] font-bold text-[#525154] text-[15px] text-center tracking-[0] leading-[normal] whitespace-nowrap">
+          <div className="relative w-fit font-bold text-[#525154] text-[15px] text-center tracking-[0] leading-[normal] whitespace-nowrap">
             検索
           </div>
         </div>

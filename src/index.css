@@ -39,7 +39,8 @@ body {
   font-size: var(--font-size-base);
   line-height: 1.5;
   background-color: #f9fafb;
-  @apply font-tamanegi;
+  font-family: 'Inter-Bold', Helvetica, sans-serif;
+  font-weight: bold;
 }
 
 /* 6. 任意：グローバルリンクスタイル */
