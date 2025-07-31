@@ -1,7 +1,28 @@
 import React from 'react';
 import Header from '../components/Header';
+import { useAppContext } from '../context/AppContext';
 
 const PrincessPage: React.FC = () => {
+  const { state } = useAppContext();
+  
+  // 予約と卓情報から姫の名前を抽出してユニークな姫をカウント
+  const uniquePrincesses = new Set<string>();
+  
+  // 予約から姫を抽出
+  state.reservations.forEach(reservation => {
+    if (reservation.princess && reservation.princess.trim() !== '') {
+      uniquePrincesses.add(reservation.princess);
+    }
+  });
+  
+  // 卓から姫を抽出
+  state.tables.forEach(table => {
+    if (table.princess && table.princess.trim() !== '') {
+      uniquePrincesses.add(table.princess);
+    }
+  });
+  
+  const princessCount = uniquePrincesses.size;
   return (
     <>
       <Header title="姫" />
@@ -9,7 +30,7 @@ const PrincessPage: React.FC = () => {
       <header className="relative w-screen h-[42px] bg-black -ml-[50vw] left-[50%]" role="banner">
         <div className="relative flex items-center justify-center h-full">
           <h1 className="[font-family:'Inter-Bold',Helvetica] font-bold text-white text-xl text-center tracking-[0] leading-[normal] whitespace-nowrap">
-            姫一覧
+            登録人数({princessCount})
           </h1>
         </div>
         {/* 人アイコンボタン - 右側に配置（一時的に無効化） */}
