@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAppContext } from '../context/AppContext';
 
 type FilterType = 'all' | 'occupied' | 'empty' | 'first' | 'used';
 
@@ -9,6 +10,8 @@ interface TableStatusBarProps {
 
 const TableStatusBar: React.FC<TableStatusBarProps> = ({ selectedFilter, onFilterChange }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const { state } = useAppContext();
+  const isCast = state.currentUser?.role === 'cast';
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -36,7 +39,7 @@ const TableStatusBar: React.FC<TableStatusBarProps> = ({ selectedFilter, onFilte
     { id: 'occupied' as FilterType, label: '使用中' },
     { id: 'empty' as FilterType, label: '空卓' },
     { id: 'first' as FilterType, label: '初回' },
-    { id: 'used' as FilterType, label: '使用後' },
+    ...(!isCast ? [{ id: 'used' as FilterType, label: '使用後' }] : []),
   ];
 
   return (
