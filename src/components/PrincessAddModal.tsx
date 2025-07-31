@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ModalNavigation } from './ModalNavigation';
 
 interface PrincessAddModalProps {
@@ -7,102 +7,57 @@ interface PrincessAddModalProps {
 }
 
 export const PrincessAddModal: React.FC<PrincessAddModalProps> = ({ isOpen, onClose }) => {
-  // フォーム入力state
-  const [name, setName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [email, setEmail] = useState('');
-  const [notes, setNotes] = useState('');
-
-  // ESCで閉じる
+  // ESCで閉じる、左右の矢印キーを無効化
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       onClose();
     }
+    // 左右の矢印キーでのフォーカス移動を無効化
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      e.stopPropagation();
+    }
   };
 
-  // 姫追加
+  // 姫追加完了
   const handleAdd = () => {
     // TODO: Implement princess add logic
-    console.log('姫追加:', { name, phoneNumber, email, notes });
     onClose();
   };
 
   if (!isOpen) return null;
 
   return (
-    <div 
-      className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center"
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="princess-add-modal-title"
+      className="fixed inset-0 z-[40]"
       onKeyDown={handleKeyDown}
     >
-      <div 
-        className="bg-gray-100 w-full h-full max-w-[390px] max-h-[844px] overflow-hidden"
-        style={{ paddingTop: 'env(safe-area-inset-top)' }}
-      >
-        {/* ヘッダー */}
-        <div className="bg-white p-4 text-center text-lg font-bold">
-          新規姫追加
-        </div>
-
-        {/* ナビゲーション */}
-        <ModalNavigation
-          onPrev={() => {}}
-          onNext={() => {}}
-          onClose={onClose}
-          isFirstPage={true}
-          isLastPage={true}
-          onConfirm={handleAdd}
-        />
-
-        {/* フォーム */}
-        <div className="p-4 space-y-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 120px)' }}>
-          <p className="text-center text-gray-600 mb-6">
-            新規姫追加フォーム（今後実装予定）
-          </p>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">名前</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg"
-              placeholder="山田ななみ"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">電話番号</label>
-            <input
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg"
-              placeholder="090-1234-5678"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">メールアドレス</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg"
-              placeholder="example@email.com"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">備考</label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg"
-              rows={3}
-              placeholder="メモを入力"
-            />
+      {/* Black overlay */}
+      <div className="absolute inset-0 bg-black" />
+      
+      {/* Top black area with checked label */}
+      <div className="absolute top-0 left-0 right-0 bg-black z-10" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        <div className="flex items-center justify-center py-5">
+          <div className="flex items-center text-white">
+            <div className="w-6 h-6 border-2 border-white rounded flex items-center justify-center mr-3">
+              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <span className="text-xl font-bold">姫追加</span>
           </div>
         </div>
+      </div>
+      
+      {/* Fixed Navigation */}
+      <ModalNavigation onBack={onClose} onComplete={handleAdd} />
+      
+      {/* Modal content - full screen from navigation bar */}
+      <div className="absolute top-[calc(env(safe-area-inset-top)+120px)] bottom-0 left-0 right-0 bg-black overflow-y-auto">
+        {/* Empty content area - フォームは今後実装予定 */}
       </div>
     </div>
   );
