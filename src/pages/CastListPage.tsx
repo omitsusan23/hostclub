@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabaseClient'
 import { useAppContext } from '../context/AppContext'
 import CastGrid from '../components/CastGrid'
 import StaffListBar from '../components/StaffListBar'
+import StaffSearchBar from '../components/StaffSearchBar'
 
 interface Cast {
   id: string
@@ -24,6 +25,7 @@ export default function CastListPage() {
   const [selectedRole, setSelectedRole] = useState<'cast' | 'operator'>('cast')
   const [latestUrl, setLatestUrl] = useState<string | null>(null)
   const firstShareButtonRef = useRef<HTMLButtonElement>(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     if (!state.session) return
@@ -135,8 +137,15 @@ export default function CastListPage() {
         onAddClick={() => setModalOpen(true)}
       />
 
-      <main className="pt-[calc(env(safe-area-inset-top)+66px)]">
-        <CastGrid casts={casts} />
+      <main className="p-2 pt-[calc(env(safe-area-inset-top)+66px)]">
+        <StaffSearchBar onSearchChange={setSearchQuery} />
+        <div className="mt-4">
+          <CastGrid casts={casts.filter(cast => 
+            searchQuery === '' || 
+            cast.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            cast.email?.toLowerCase().includes(searchQuery.toLowerCase())
+          )} />
+        </div>
       </main>
 
       {modalOpen && (
