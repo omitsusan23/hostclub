@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useAppContext, Table } from '../context/AppContext';
 import Header from '../components/Header';
+import TableStatusBar from '../components/TableStatusBar';
 
-type Filter = 'all' | 'occupied' | 'empty' | 'first';
+type Filter = 'all' | 'occupied' | 'empty' | 'first' | 'used';
 
 export default function TableStatusPage() {
   const { state: { tables, tableSettings }, dispatch } = useAppContext();
@@ -47,6 +48,8 @@ export default function TableStatusPage() {
         return tables;
       case 'first':
         return tables.filter(t => firstLabels[t.tableNumber] !== undefined);
+      case 'used':
+        return [];
       case 'empty':
         return tableSettings
           .filter(n => !tables.some(t => t.tableNumber === n))
@@ -139,8 +142,13 @@ export default function TableStatusPage() {
       )}
 
       <Header title="卓状況" />
+      
+      <TableStatusBar
+        selectedFilter={filter === 'all' ? 'occupied' : filter}
+        onFilterChange={(newFilter) => setFilter(newFilter)}
+      />
 
-      <main id="main-content" className="container mx-auto px-2 py-4">
+      <main id="main-content" className="container mx-auto px-2 pt-[calc(env(safe-area-inset-top)+66px)] pb-4">
         <div className="grid grid-cols-3 gap-3">
           {renderedTables}
         </div>
