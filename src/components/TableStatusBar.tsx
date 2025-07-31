@@ -40,20 +40,20 @@ const TableStatusBar: React.FC<TableStatusBarProps> = ({ selectedFilter, onFilte
   ];
 
   return (
-    <header className="relative w-screen h-[42px] bg-black -ml-[50vw] left-[50%]" role="banner">
+    <header className="relative w-screen h-[42px] bg-black -ml-[50vw] left-[50%] flex items-center" role="banner">
       {/* 左側の日時表示 */}
-      <div className="flex w-[79px] items-center gap-[5px] px-[5px] py-0 absolute top-[19px] left-[21px] rotate-[-0.06deg]">
-        <div className="relative w-fit mt-[-0.63px] text-white text-xs tracking-[0.63px] [font-family:'Inter-Regular',Helvetica] font-normal leading-[0.1px]">
+      <div className="flex items-center gap-[5px] px-[5px] absolute left-[21px]">
+        <div className="text-white text-xs tracking-[0.63px] [font-family:'Inter-Regular',Helvetica] font-normal">
           {formatDate(currentTime)}
         </div>
-        <div className="relative w-fit mt-[-0.63px] mr-[-33.00px] text-white text-xl tracking-[0.63px] [font-family:'Inter-Regular',Helvetica] font-normal leading-[0.1px]">
+        <div className="text-white text-xl tracking-[0.63px] [font-family:'Inter-Regular',Helvetica] font-normal">
           {formatTime(currentTime)}
         </div>
       </div>
 
       {/* 右側のフィルタータブ */}
       <div
-        className="flex w-56 h-5 items-center absolute top-2.5 left-[170px] bg-black border-[0.41px] border-solid border-white"
+        className="flex w-56 h-5 items-center absolute left-[170px] bg-black border-[0.41px] border-solid border-white"
         role="tablist"
         aria-label="Table status tabs"
       >
@@ -79,13 +79,7 @@ const TableStatusBar: React.FC<TableStatusBarProps> = ({ selectedFilter, onFilte
             } ${index === tabData.length - 1 ? "mr-[-0.03px]" : ""}`}
           >
             <span
-              className={`absolute h-px ${
-                index === 0
-                  ? "top-2.5 left-[9px]"
-                  : index === 3
-                    ? "top-[9px] left-[9px]"
-                    : "top-2.5 left-[15px]"
-              } text-[12.3px] tracking-[0.41px] [font-family:'Inter-Regular',Helvetica] font-normal leading-[0.1px] ${
+              className={`absolute inset-0 flex items-center justify-center text-[12.3px] tracking-[0.41px] [font-family:'Inter-Regular',Helvetica] font-normal ${
                 tab.id === selectedFilter ? "text-black" : "text-white"
               }`}
             >
