@@ -137,8 +137,13 @@ export default function CastListPage() {
         onAddClick={() => setModalOpen(true)}
       />
 
-      <main className="p-2 pt-[calc(env(safe-area-inset-top)+66px)]">
-        <StaffSearchBar onSearchChange={setSearchQuery} />
+      <main className="p-2">
+        {/* 検索バー */}
+        <div>
+          <StaffSearchBar onSearchChange={setSearchQuery} />
+        </div>
+        
+        {/* スタッフグリッド */}
         <div className="mt-4">
           <CastGrid casts={casts.filter(cast => 
             searchQuery === '' || 
