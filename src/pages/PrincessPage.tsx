@@ -6,7 +6,7 @@ const PrincessPage: React.FC = () => {
     <>
       <Header title="姫" />
       {/* 姫一覧ヘッダー - ヘッダー直下に配置、全幅表示 */}
-      <header className="relative w-full h-[42px] bg-black" role="banner">
+      <header className="w-full h-[42px] bg-black -mx-4" role="banner">
         <div className="flex items-center justify-center h-full">
           <h1 className="[font-family:'Inter-Bold',Helvetica] font-bold text-white text-xl text-center tracking-[0] leading-[normal] whitespace-nowrap">
             姫一覧
