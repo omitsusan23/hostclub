@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useAppContext } from '../context/AppContext';
+import { ModalNavigation } from './ModalNavigation';
 
 interface NotificationTransitionProps {
   isAnimating: boolean;
@@ -9,73 +11,124 @@ interface NotificationTransitionProps {
 export const NotificationTransition: React.FC<NotificationTransitionProps> = ({ 
   isAnimating, 
   onAnimationComplete,
-  triggerPosition 
+  triggerPosition = { x: window.innerWidth / 2, y: window.innerHeight - 200 }
 }) => {
-  const [checkboxes, setCheckboxes] = useState<Array<{
-    id: number;
-    x: number;
-    y: number;
-    delay: number;
-    checked: boolean;
-  }>>([]);
+  const [phase, setPhase] = useState<'checkbox' | 'label-move' | 'content' | 'complete'>('checkbox');
+  const [showCheckmark, setShowCheckmark] = useState(false);
+  const labelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (isAnimating && triggerPosition) {
-      const newCheckboxes = Array.from({ length: 20 }, (_, i) => ({
-        id: i,
-        x: triggerPosition.x - 12, // Center the checkbox on trigger position
-        y: triggerPosition.y - 12,
-        delay: i * 20,
-        checked: false
-      }));
-      setCheckboxes(newCheckboxes);
-
-      // Start animation
-      const timeouts: NodeJS.Timeout[] = [];
-      newCheckboxes.forEach((checkbox, index) => {
-        const timeout = setTimeout(() => {
-          setCheckboxes(prev => 
-            prev.map(cb => cb.id === checkbox.id ? { ...cb, checked: true } : cb)
-          );
-        }, checkbox.delay);
-        timeouts.push(timeout);
-      });
-
-      // Complete animation after all checkboxes are checked
-      const completeTimeout = setTimeout(() => {
-        onAnimationComplete();
-      }, 600);
-      timeouts.push(completeTimeout);
-
-      return () => {
-        timeouts.forEach(timeout => clearTimeout(timeout));
-      };
+    if (!isAnimating) {
+      setPhase('checkbox');
+      setShowCheckmark(false);
+      return;
     }
-  }, [isAnimating, onAnimationComplete, triggerPosition]);
+
+    // Start animation sequence
+    const sequence = async () => {
+      // Phase 1: Show checkbox animation
+      await new Promise(resolve => setTimeout(resolve, 50));
+      setShowCheckmark(true);
+      
+      // Phase 2: Move label to top
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setPhase('label-move');
+      
+      // Phase 3: Show content
+      await new Promise(resolve => setTimeout(resolve, 400));
+      setPhase('content');
+      
+      // Phase 4: Complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+      setPhase('complete');
+      onAnimationComplete();
+    };
+
+    sequence();
+  }, [isAnimating, onAnimationComplete]);
 
   if (!isAnimating) return null;
 
+  // Calculate label position based on phase
+  const getLabelStyle = () => {
+    if (phase === 'checkbox') {
+      return {
+        position: 'fixed' as const,
+        left: '50%',
+        top: `${triggerPosition.y}px`,
+        transform: 'translateX(-50%)',
+        transition: 'none'
+      };
+    } else if (phase === 'label-move' || phase === 'content' || phase === 'complete') {
+      return {
+        position: 'fixed' as const,
+        left: '50%',
+        top: `calc(env(safe-area-inset-top) + 0px)`,
+        transform: 'translateX(-50%)',
+        transition: 'top 400ms cubic-bezier(0.4, 0, 0.2, 1)'
+      };
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-[300] pointer-events-none">
-      {checkboxes.map((checkbox) => (
-        <div
-          key={checkbox.id}
-          className="absolute animate-checkbox-fly"
-          style={{
-            left: `${checkbox.x}px`,
-            top: `${checkbox.y}px`,
-            animationDelay: `${checkbox.delay}ms`
-          }}
-        >
-          <div className="w-6 h-6 border-2 border-white rounded flex items-center justify-center bg-black/80">
-            {checkbox.checked && (
-              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+    <div className="fixed inset-0 z-[40]">
+      {/* Black overlay */}
+      <div className="absolute inset-0 bg-black" />
+      
+      {/* Animated label */}
+      <div 
+        ref={labelRef}
+        className="z-20"
+        style={getLabelStyle()}
+      >
+        <div className="flex items-center text-white">
+          <div className="w-6 h-6 border-2 border-white rounded flex items-center justify-center mr-3">
+            {showCheckmark && (
+              <svg 
+                className="w-4 h-4 text-white animate-scale-in" 
+                fill="currentColor" 
+                viewBox="0 0 20 20"
+              >
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
             )}
           </div>
+          <span className="text-xl font-bold">お知らせ</span>
         </div>
-      ))}
+      </div>
+      
+      {/* Navigation bar with slide-in animation */}
+      {(phase === 'content' || phase === 'complete') && (
+        <div 
+          className="fixed top-[calc(env(safe-area-inset-top)+100px)] left-0 right-0 z-10 animate-slide-down"
+        >
+          <ModalNavigation onBack={() => {}} onComplete={() => {}} />
+        </div>
+      )}
+      
+      {/* Form content with slide-in animation */}
+      {(phase === 'content' || phase === 'complete') && (
+        <div className="absolute top-[calc(env(safe-area-inset-top)+180px)] bottom-0 left-0 right-0 bg-black overflow-y-auto">
+          <div className="flex flex-col w-[361px] items-start gap-4 mx-auto mt-8 mb-8">
+            {/* お知らせ内容 with animation */}
+            <div 
+              className="bg-[#464646] rounded border border-[#d7d7d7] self-stretch animate-slide-up"
+              style={{ 
+                animationDelay: '0ms',
+                animationFillMode: 'backwards'
+              }}
+            >
+              <label className="text-[#d7d7d7] text-[13px] block px-3 py-2 border-b border-[#d7d7d7]">お知らせ内容</label>
+              <textarea
+                className="w-full bg-transparent text-[#d7d7d7] text-[15px] outline-none resize-none placeholder-[#888] px-3 py-3"
+                rows={10}
+                placeholder="タップで入力"
+                readOnly
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
