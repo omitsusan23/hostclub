@@ -65,7 +65,7 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
       
       {/* Top black area with checked label */}
       <div className="absolute top-0 left-0 right-0 bg-black z-10" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-        <div className="flex items-center justify-center py-4">
+        <div className="flex items-center justify-center py-5">
           <div className="flex items-center text-white">
             <div className="w-6 h-6 border-2 border-white rounded flex items-center justify-center mr-3">
               <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -81,7 +81,7 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
       <ModalNavigation onBack={onClose} onComplete={handleAdd} />
       
       {/* Modal content - full screen from navigation bar */}
-      <div className="absolute top-[calc(env(safe-area-inset-top)+80px)] bottom-0 left-0 right-0 bg-black overflow-y-auto">
+      <div className="absolute top-[calc(env(safe-area-inset-top)+120px)] bottom-0 left-0 right-0 bg-black overflow-y-auto">
         <div className="flex flex-col w-[361px] items-start gap-4 mx-auto mt-4 mb-8">
           {/* Form Fields */}
           <div className="flex flex-col items-start gap-2 self-stretch">
