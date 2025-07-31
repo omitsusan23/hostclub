@@ -27,7 +27,7 @@ const StaffSearchBar: React.FC<StaffSearchBarProps> = ({ onSearchChange }) => {
         className="w-full h-[31px] bg-[#d7d7d7] rounded-lg overflow-hidden flex items-center"
         role="search"
       >
-        <div className="inline-flex items-center gap-2.5 relative top-1 left-2">
+        <div className="inline-flex items-center gap-2.5 relative left-2">
           <label htmlFor="search-input" className="sr-only">
             検索
           </label>
