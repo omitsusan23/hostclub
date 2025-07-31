@@ -65,7 +65,7 @@ export const ReservationTransition: React.FC<ReservationTransitionProps> = ({
       return {
         position: 'fixed' as const,
         left: '50%',
-        top: `calc(env(safe-area-inset-top) + 16px)`,
+        top: `calc(env(safe-area-inset-top) + 4px)`,
         transform: 'translateX(-50%)',
         transition: 'top 400ms cubic-bezier(0.4, 0, 0.2, 1)'
       };
