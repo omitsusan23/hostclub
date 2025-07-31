@@ -35,7 +35,7 @@ const PrincessPage: React.FC = () => {
         </button>
       </header>
       
-      <main className="p-4 pb-16">
+      <main className="p-4">
         {/* 検索バー */}
         <div>
           <div className="w-full h-[31px] bg-[#d7d7d7] rounded-lg overflow-hidden">
