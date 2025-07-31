@@ -32,14 +32,14 @@ export const PrincessAddModal: React.FC<PrincessAddModalProps> = ({ isOpen, onCl
       role="dialog"
       aria-modal="true"
       aria-labelledby="princess-add-modal-title"
-      className="fixed inset-0 z-[40]"
+      className="fixed inset-0 z-[200]"
       onKeyDown={handleKeyDown}
     >
       {/* Black overlay */}
       <div className="absolute inset-0 bg-black" />
       
       {/* Top black area with checked label */}
-      <div className="absolute top-0 left-0 right-0 bg-black z-10" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <div className="absolute top-0 left-0 right-0 bg-black" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="flex items-center justify-center py-5">
           <div className="flex items-center text-white">
             <div className="w-6 h-6 border-2 border-white rounded flex items-center justify-center mr-3">
