@@ -56,9 +56,9 @@ export const ReservationTransition: React.FC<ReservationTransitionProps> = ({
     if (phase === 'checkbox') {
       return {
         position: 'fixed' as const,
-        left: `${triggerPosition.x - 120}px`,
+        left: '50%',
         top: `${triggerPosition.y}px`,
-        transform: 'translate(0, 0)',
+        transform: 'translateX(-50%)',
         transition: 'none'
       };
     } else if (phase === 'label-move' || phase === 'content' || phase === 'complete') {
@@ -67,7 +67,7 @@ export const ReservationTransition: React.FC<ReservationTransitionProps> = ({
         left: '50%',
         top: `calc(env(safe-area-inset-top) + 16px)`,
         transform: 'translateX(-50%)',
-        transition: 'all 400ms cubic-bezier(0.4, 0, 0.2, 1)'
+        transition: 'top 400ms cubic-bezier(0.4, 0, 0.2, 1)'
       };
     }
   };
@@ -112,7 +112,7 @@ export const ReservationTransition: React.FC<ReservationTransitionProps> = ({
       {/* Navigation bar with slide-in animation */}
       {(phase === 'content' || phase === 'complete') && (
         <div 
-          className="fixed top-[calc(env(safe-area-inset-top)+60px)] left-0 right-0 z-10 animate-slide-down"
+          className="fixed top-[calc(env(safe-area-inset-top)+70px)] left-0 right-0 z-10 animate-slide-down"
         >
           <ModalNavigation onBack={onClose} onComplete={() => {}} />
         </div>
@@ -120,7 +120,7 @@ export const ReservationTransition: React.FC<ReservationTransitionProps> = ({
       
       {/* Form content with slide-in animation */}
       {(phase === 'content' || phase === 'complete') && (
-        <div className="absolute top-[calc(env(safe-area-inset-top)+80px)] bottom-0 left-0 right-0 bg-black overflow-y-auto">
+        <div className="absolute top-[calc(env(safe-area-inset-top)+150px)] bottom-0 left-0 right-0 bg-black overflow-y-auto">
           <div className="flex flex-col w-[361px] items-start gap-4 mx-auto mt-8 mb-8">
             {/* Form Fields with staggered animation */}
             <div className="flex flex-col items-start gap-2 self-stretch">
