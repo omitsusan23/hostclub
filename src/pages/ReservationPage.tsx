@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useAppContext, type Reservation } from '../context/AppContext'
 import Header from '../components/Header'
+import ReservationDateBar from '../components/ReservationDateBar'
 
 
 export default function ReservationPage() {
@@ -9,6 +10,20 @@ export default function ReservationPage() {
   const { reservations, tableSettings = [], tables } = state
 
   const assignedNumbers = tables.map((t) => t.tableNumber)
+  
+  // 日付選択の状態管理（25時制対応）
+  const getCurrentDate = () => {
+    const now = new Date()
+    const hours = now.getHours()
+    if (hours < 5) {
+      const yesterday = new Date(now)
+      yesterday.setDate(yesterday.getDate() - 1)
+      return yesterday
+    }
+    return now
+  }
+  
+  const [selectedDate, setSelectedDate] = useState(getCurrentDate())
 
 
   const [toastMessage, setToastMessage] = useState('')
@@ -89,6 +104,11 @@ export default function ReservationPage() {
           </div>
         </div>
       )}
+      
+      <ReservationDateBar
+        selectedDate={selectedDate}
+        onDateChange={setSelectedDate}
+      />
 
       <main id="main-content" className="p-4 pb-16 pt-[calc(env(safe-area-inset-top)+66px)]">
         {/* 見出しとボタンは削除済み。以下は予約一覧とモーダル関連です */}
