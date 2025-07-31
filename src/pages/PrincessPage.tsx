@@ -1,9 +1,9 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import Header from '../components/Header';
+import PrincessAddModal from '../components/PrincessAddModal';
 
 const PrincessPage: React.FC = () => {
-  const navigate = useNavigate();
+  const [isPrincessModalOpen, setIsPrincessModalOpen] = useState(false);
 
   return (
     <>
@@ -17,7 +17,7 @@ const PrincessPage: React.FC = () => {
         </div>
         {/* 姫追加ボタン - 右側に配置 */}
         <button
-          onClick={() => navigate('/add-princess')}
+          onClick={() => setIsPrincessModalOpen(true)}
           className="absolute w-[29px] h-6 top-2 right-4 bg-[url(/vector.svg)] bg-[100%_100%]"
           aria-label="Add new princess"
           type="button"
@@ -53,6 +53,12 @@ const PrincessPage: React.FC = () => {
 
         {/* ここに今後のコンテンツを追加 */}
       </main>
+
+      {/* 姫追加モーダル */}
+      <PrincessAddModal
+        isOpen={isPrincessModalOpen}
+        onClose={() => setIsPrincessModalOpen(false)}
+      />
     </>
   );
 };
