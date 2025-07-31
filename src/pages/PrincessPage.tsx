@@ -1,10 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Header from '../components/Header';
-import PrincessAddModal from '../components/PrincessAddModal';
 
 const PrincessPage: React.FC = () => {
-  const [isPrincessModalOpen, setIsPrincessModalOpen] = useState(false);
-
   return (
     <>
       <Header title="姫" />
@@ -15,9 +12,9 @@ const PrincessPage: React.FC = () => {
             姫一覧
           </h1>
         </div>
-        {/* 人アイコンボタン - 右側に配置 */}
+        {/* 人アイコンボタン - 右側に配置（一時的に無効化） */}
         <button
-          onClick={() => setIsPrincessModalOpen(true)}
+          onClick={() => {}}
           className="absolute top-2 right-4"
           aria-label="Add new princess"
           type="button"
@@ -35,7 +32,7 @@ const PrincessPage: React.FC = () => {
         </button>
       </header>
       
-      <main className="p-2">
+      <main className="p-4">
         {/* 検索バー */}
         <div>
           <div className="w-full h-[31px] bg-[#d7d7d7] rounded-lg overflow-hidden">
@@ -64,12 +61,6 @@ const PrincessPage: React.FC = () => {
 
         {/* ここに今後のコンテンツを追加 */}
       </main>
-
-      {/* 姫追加モーダル */}
-      <PrincessAddModal
-        isOpen={isPrincessModalOpen}
-        onClose={() => setIsPrincessModalOpen(false)}
-      />
     </>
   );
 };

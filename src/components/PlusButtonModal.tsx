@@ -5,9 +5,10 @@ interface PlusButtonModalProps {
   isOpen: boolean;
   onClose: () => void;
   onReservationClick: (position: { x: number; y: number }) => void;
+  onPrincessClick: (position: { x: number; y: number }) => void;
 }
 
-export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClose, onReservationClick }) => {
+export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClose, onReservationClick, onPrincessClick }) => {
   const { state } = useAppContext();
   const role = state.session?.user?.user_metadata?.role;
 
@@ -20,6 +21,15 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
       y: rect.top + rect.height / 2
     };
     onReservationClick(position);
+  };
+
+  const handlePrincessClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+    onPrincessClick(position);
   };
 
   const isOperator = role === 'operator' || role === 'owner' || role === 'admin';
@@ -36,19 +46,13 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
       onClick: (e: React.MouseEvent<HTMLButtonElement>) => handleReservationClick(e)
     });
 
-    // Future implementation for new store visit and princess addition
-    // These will be conditionally shown based on permissions
-    if (isOperator) {
-      // items.push({
-      //   id: 'new-visit',
-      //   title: '新規来店',
-      //   onClick: () => { /* Future implementation */ }
-      // });
-      // items.push({
-      //   id: 'add-princess',
-      //   title: '姫追加',
-      //   onClick: () => { /* Future implementation */ }
-      // });
+    // Add princess option for cast role
+    if (isCast) {
+      items.push({
+        id: 'add-princess',
+        title: '姫追加',
+        onClick: (e: React.MouseEvent<HTMLButtonElement>) => handlePrincessClick(e)
+      });
     }
 
     return items;

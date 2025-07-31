@@ -4,6 +4,8 @@ import { FooterButton } from './FooterButton';
 import { PlusButtonModal } from './PlusButtonModal';
 import { ReservationAddModal } from './ReservationAddModal';
 import { ReservationTransition } from './ReservationTransition';
+import PrincessAddModal from './PrincessAddModal';
+import { PrincessTransition } from './PrincessTransition';
 
 /* アイコン */
 import CastIcon        from '../assets/icons/cast.svg';
@@ -19,6 +21,9 @@ const Footer: React.FC = () => {
   const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationTriggerPosition, setAnimationTriggerPosition] = useState<{ x: number; y: number }>();
+  const [isPrincessModalOpen, setIsPrincessModalOpen] = useState(false);
+  const [isPrincessAnimating, setIsPrincessAnimating] = useState(false);
+  const [princessAnimationTriggerPosition, setPrincessAnimationTriggerPosition] = useState<{ x: number; y: number }>();
 
   console.log('🧪 Footer描画チェック', JSON.stringify({
     session: state.session,
@@ -45,6 +50,16 @@ const Footer: React.FC = () => {
       <ReservationAddModal
         isOpen={isReservationModalOpen}
         onClose={() => setIsReservationModalOpen(false)}
+      />
+    );
+  }
+
+  // PrincessAddModalが開いている時は、フッターを非表示にする
+  if (isPrincessModalOpen) {
+    return (
+      <PrincessAddModal
+        isOpen={isPrincessModalOpen}
+        onClose={() => setIsPrincessModalOpen(false)}
       />
     );
   }
@@ -126,6 +141,11 @@ const Footer: React.FC = () => {
         setIsAnimating(true);
         handleModalClose();
       }}
+      onPrincessClick={(position) => {
+        setPrincessAnimationTriggerPosition(position);
+        setIsPrincessAnimating(true);
+        handleModalClose();
+      }}
     />
     
     <ReservationAddModal
@@ -143,6 +163,23 @@ const Footer: React.FC = () => {
         setIsAnimating(false);
       }}
       triggerPosition={animationTriggerPosition}
+    />
+    
+    <PrincessAddModal
+      isOpen={isPrincessModalOpen}
+      onClose={() => setIsPrincessModalOpen(false)}
+    />
+    
+    <PrincessTransition
+      isAnimating={isPrincessAnimating}
+      onComplete={() => {
+        setIsPrincessAnimating(false);
+        setIsPrincessModalOpen(true);
+      }}
+      onClose={() => {
+        setIsPrincessAnimating(false);
+      }}
+      triggerPosition={princessAnimationTriggerPosition}
     />
     </>
   );
