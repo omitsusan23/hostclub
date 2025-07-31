@@ -6,6 +6,8 @@ import { ReservationAddModal } from './ReservationAddModal';
 import { ReservationTransition } from './ReservationTransition';
 import PrincessAddModal from './PrincessAddModal';
 import { PrincessTransition } from './PrincessTransition';
+import NotificationModal from './NotificationModal';
+import { NotificationTransition } from './NotificationTransition';
 
 /* アイコン */
 import CastIcon        from '../assets/icons/cast.svg';
@@ -24,6 +26,9 @@ const Footer: React.FC = () => {
   const [isPrincessModalOpen, setIsPrincessModalOpen] = useState(false);
   const [isPrincessAnimating, setIsPrincessAnimating] = useState(false);
   const [princessAnimationTriggerPosition, setPrincessAnimationTriggerPosition] = useState<{ x: number; y: number }>();
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+  const [isNotificationAnimating, setIsNotificationAnimating] = useState(false);
+  const [notificationAnimationTriggerPosition, setNotificationAnimationTriggerPosition] = useState<{ x: number; y: number }>();
 
   console.log('🧪 Footer描画チェック', JSON.stringify({
     session: state.session,
@@ -60,6 +65,16 @@ const Footer: React.FC = () => {
       <PrincessAddModal
         isOpen={isPrincessModalOpen}
         onClose={() => setIsPrincessModalOpen(false)}
+      />
+    );
+  }
+
+  // NotificationModalが開いている時は、フッターを非表示にする
+  if (isNotificationModalOpen) {
+    return (
+      <NotificationModal
+        isOpen={isNotificationModalOpen}
+        onClose={() => setIsNotificationModalOpen(false)}
       />
     );
   }
@@ -146,6 +161,11 @@ const Footer: React.FC = () => {
         setIsPrincessAnimating(true);
         handleModalClose();
       }}
+      onNotificationClick={(position) => {
+        setNotificationAnimationTriggerPosition(position);
+        setIsNotificationAnimating(true);
+        handleModalClose();
+      }}
     />
     
     <ReservationAddModal
@@ -180,6 +200,20 @@ const Footer: React.FC = () => {
         setIsPrincessAnimating(false);
       }}
       triggerPosition={princessAnimationTriggerPosition}
+    />
+    
+    <NotificationModal
+      isOpen={isNotificationModalOpen}
+      onClose={() => setIsNotificationModalOpen(false)}
+    />
+    
+    <NotificationTransition
+      isAnimating={isNotificationAnimating}
+      onAnimationComplete={() => {
+        setIsNotificationAnimating(false);
+        setIsNotificationModalOpen(true);
+      }}
+      triggerPosition={notificationAnimationTriggerPosition}
     />
     </>
   );

@@ -6,9 +6,10 @@ interface PlusButtonModalProps {
   onClose: () => void;
   onReservationClick: (position: { x: number; y: number }) => void;
   onPrincessClick: (position: { x: number; y: number }) => void;
+  onNotificationClick: (position: { x: number; y: number }) => void;
 }
 
-export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClose, onReservationClick, onPrincessClick }) => {
+export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClose, onReservationClick, onPrincessClick, onNotificationClick }) => {
   const { state } = useAppContext();
   const role = state.session?.user?.user_metadata?.role;
 
@@ -30,6 +31,15 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
       y: rect.top + rect.height / 2
     };
     onPrincessClick(position);
+  };
+
+  const handleNotificationClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+    onNotificationClick(position);
   };
 
   const isOperator = role === 'operator' || role === 'owner' || role === 'admin';
@@ -54,6 +64,13 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
         onClick: (e: React.MouseEvent<HTMLButtonElement>) => handlePrincessClick(e)
       });
     }
+
+    // Add notification option for all roles
+    items.push({
+      id: 'notification',
+      title: 'お知らせ',
+      onClick: (e: React.MouseEvent<HTMLButtonElement>) => handleNotificationClick(e)
+    });
 
     return items;
   };
