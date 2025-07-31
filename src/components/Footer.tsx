@@ -3,6 +3,7 @@ import { useAppContext } from '../context/AppContext';
 import { FooterButton } from './FooterButton';
 import { PlusButtonModal } from './PlusButtonModal';
 import { ReservationAddModal } from './ReservationAddModal';
+import { ReservationTransition } from './ReservationTransition';
 
 /* アイコン */
 import CastIcon        from '../assets/icons/cast.svg';
@@ -16,6 +17,8 @@ const Footer: React.FC = () => {
   const role = state.session?.user?.user_metadata?.role;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [animationTriggerPosition, setAnimationTriggerPosition] = useState<{ x: number; y: number }>();
 
   console.log('🧪 Footer描画チェック', JSON.stringify({
     session: state.session,
@@ -118,17 +121,28 @@ const Footer: React.FC = () => {
     <PlusButtonModal 
       isOpen={isModalOpen} 
       onClose={handleModalClose}
-      onReservationClick={() => {
+      onReservationClick={(position) => {
+        setAnimationTriggerPosition(position);
+        setIsAnimating(true);
         handleModalClose();
-        setTimeout(() => {
-          setIsReservationModalOpen(true);
-        }, 100);
       }}
     />
     
     <ReservationAddModal
       isOpen={isReservationModalOpen}
       onClose={() => setIsReservationModalOpen(false)}
+    />
+    
+    <ReservationTransition
+      isAnimating={isAnimating}
+      onComplete={() => {
+        setIsAnimating(false);
+        setIsReservationModalOpen(true);
+      }}
+      onClose={() => {
+        setIsAnimating(false);
+      }}
+      triggerPosition={animationTriggerPosition}
     />
     </>
   );

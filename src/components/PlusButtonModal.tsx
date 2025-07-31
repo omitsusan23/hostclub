@@ -4,7 +4,7 @@ import { useAppContext } from '../context/AppContext';
 interface PlusButtonModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onReservationClick: () => void;
+  onReservationClick: (position: { x: number; y: number }) => void;
 }
 
 export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClose, onReservationClick }) => {
@@ -13,8 +13,13 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
 
   if (!isOpen) return null;
 
-  const handleReservationClick = () => {
-    onReservationClick();
+  const handleReservationClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+    onReservationClick(position);
   };
 
   const isOperator = role === 'operator' || role === 'owner' || role === 'admin';
@@ -28,7 +33,7 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
     items.push({
       id: 'reservation',
       title: '来店予約追加',
-      onClick: handleReservationClick
+      onClick: (e: React.MouseEvent<HTMLButtonElement>) => handleReservationClick(e)
     });
 
     // Future implementation for new store visit and princess addition
@@ -66,7 +71,7 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
           {menuItems.map((item, index) => (
             <button
               key={item.id}
-              onClick={item.onClick}
+              onClick={(e) => item.onClick(e)}
               className="text-white text-left block"
             >
               <div className="py-3">
