@@ -11,7 +11,26 @@ export const PrincessAddModal: React.FC<PrincessAddModalProps> = ({ isOpen, onCl
   const [formData, setFormData] = useState({
     name: '',
     lineName: '',
-    attribute: ''
+    attribute: '',
+    age: '',
+    birthYear: '',
+    birthDate: '',
+    currentResidence: '',
+    birthplace: '',
+    bloodType: '',
+    occupation: '',
+    contactTime: '',
+    favoriteDrink: '',
+    favoriteCigarette: '',
+    bottleName: '',
+    favoriteHelp: '',
+    hobby: '',
+    specialty: '',
+    holiday: '',
+    favoriteBrand: '',
+    marriage: '',
+    children: '',
+    partner: ''
   });
 
   // ESCで閉じる、左右の矢印キーを無効化
