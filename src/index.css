@@ -174,3 +174,18 @@ select:focus {
 .animate-slide-up {
   animation: slide-up 0.3s ease-out;
 }
+
+/* 11. 揺れアニメーション（iPhoneライク） */
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+.animate-wiggle {
+  animation: wiggle 0.15s ease-in-out infinite;
+  transform-origin: center center;
+}

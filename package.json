@@ -14,6 +14,9 @@
     "trim:logos": "node scripts/trim-logos.mjs"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@heroicons/react": "^2.2.0",
     "@supabase/supabase-js": "^2.50.0",
     "@vercel/mcp-adapter": "^0.11.1",
