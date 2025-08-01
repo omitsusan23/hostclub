@@ -142,7 +142,9 @@ const Footer: React.FC = () => {
               <div 
                 className={`absolute w-full h-full flex items-center justify-center transition-transform duration-200 ${isModalOpen ? 'rotate-45' : ''}`}
               >
-                <span className="text-3xl font-bold leading-none">+</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 5v14M5 12h14" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+                </svg>
               </div>
             </div>
           </div>
