@@ -153,12 +153,12 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ formData, on
 
       {/* 連絡可能な時間帯 */}
       <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
-        <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">連絡可能な時間帯</label>
+        <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 min-w-0 shrink-0 w-[120px]">連絡可能な時間帯</label>
         <input
           type="text"
           value={formData.contactTime}
           onChange={(e) => onChange('contactTime', e.target.value)}
-          className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888]"
+          className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888] min-w-0"
           placeholder="タップで入力"
         />
       </div>
@@ -249,12 +249,12 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ formData, on
 
       {/* 好きなブランド */}
       <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
-        <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">好きなブランド</label>
+        <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 min-w-0 shrink-0 w-[100px]">好きなブランド</label>
         <input
           type="text"
           value={formData.favoriteBrand}
           onChange={(e) => onChange('favoriteBrand', e.target.value)}
-          className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888]"
+          className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888] min-w-0"
           placeholder="タップで入力"
         />
       </div>
