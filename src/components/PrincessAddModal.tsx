@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ModalNavigation } from './ModalNavigation';
+import { BasicInfoSection } from './BasicInfoSection';
 
 interface PrincessAddModalProps {
   isOpen: boolean;
@@ -7,6 +8,12 @@ interface PrincessAddModalProps {
 }
 
 export const PrincessAddModal: React.FC<PrincessAddModalProps> = ({ isOpen, onClose }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    lineName: '',
+    attribute: ''
+  });
+
   // ESCで閉じる、左右の矢印キーを無効化
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
@@ -19,9 +26,18 @@ export const PrincessAddModal: React.FC<PrincessAddModalProps> = ({ isOpen, onCl
     }
   };
 
+  // フォームフィールドの更新
+  const handleFieldChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   // 姫追加完了
-  const handleAdd = () => {
-    // TODO: Implement princess add logic
+  const handleRegister = () => {
+    // TODO: Implement princess registration logic
+    console.log('Registering princess:', formData);
     onClose();
   };
 
@@ -52,12 +68,17 @@ export const PrincessAddModal: React.FC<PrincessAddModalProps> = ({ isOpen, onCl
         </div>
       </div>
       
-      {/* Fixed Navigation - 戻るのみ */}
-      <ModalNavigation onBack={onClose} />
+      {/* Fixed Navigation - 戻ると登録 */}
+      <ModalNavigation onBack={onClose} onComplete={handleRegister} completeText="登録" />
       
       {/* Modal content - full screen from navigation bar */}
       <div className="absolute top-[calc(env(safe-area-inset-top)+120px)] bottom-0 left-0 right-0 bg-black overflow-y-auto">
-        {/* Empty content area - フォームは今後実装予定 */}
+        <div className="p-4">
+          <BasicInfoSection 
+            formData={formData}
+            onChange={handleFieldChange}
+          />
+        </div>
       </div>
     </div>
   );
