@@ -133,8 +133,6 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({
     })
   );
 
-  if (!isOpen) return null;
-
   const handleReservationClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const position = {
@@ -202,7 +200,7 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({
   const isCast = role === 'cast';
 
   // Get menu items based on permissions
-  const getMenuItems = () => {
+  const getMenuItems = React.useCallback(() => {
     const menuItems: MenuItem[] = [];
 
     // Always show reservation for both roles
@@ -257,7 +255,7 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({
     });
 
     return menuItems;
-  };
+  }, [isCast]);
 
   // Initialize items on mount and when role changes
   useEffect(() => {
@@ -286,7 +284,7 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({
         setItems(defaultItems);
       }
     }
-  }, [isOpen, role]);
+  }, [isOpen, role, getMenuItems]);
 
   // Long press detection
   const handleTouchStart = () => {
@@ -332,6 +330,9 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({
       onClose();
     }
   };
+
+  // 条件付き返却をフックの後に移動
+  if (!isOpen) return null;
 
   return (
     <>
