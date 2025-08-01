@@ -96,15 +96,17 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
               className="text-white text-left block w-full"
             >
               <div className="py-3">
-                <div className="flex items-center">
-                  {/* Checkbox icon - unchecked by default */}
-                  <div className="w-6 h-6 border-2 border-white rounded flex items-center justify-center mr-3 flex-shrink-0">
-                    {/* Empty checkbox - no checkmark */}
+                <div className="flex flex-col items-start">
+                  <div className="flex items-center">
+                    {/* Checkbox icon - unchecked by default */}
+                    <div className="w-6 h-6 border-2 border-white rounded flex items-center justify-center mr-3 flex-shrink-0">
+                      {/* Empty checkbox - no checkmark */}
+                    </div>
+                    <span className="text-xl font-bold">{item.title}</span>
                   </div>
-                  <span className="text-xl font-bold">{item.title}</span>
+                  {/* Bottom border - 6文字分の幅 */}
+                  <div className="h-[2px] bg-white mt-3 w-[180px]" />
                 </div>
-                {/* Bottom border */}
-                <div className="h-[2px] bg-white mt-3 w-full" />
               </div>
             </button>
           ))}
