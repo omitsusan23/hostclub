@@ -11,85 +11,43 @@ interface BasicInfoSectionProps {
 
 export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ formData, onChange }) => {
   return (
-    <div className="space-y-4">
-      <div className="bg-gray-800 rounded-lg border border-gray-700 px-4 py-3">
-        <label className="text-gray-400 text-sm block mb-1">名前</label>
+    <>
+      {/* 名前 */}
+      <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
+        <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">名前</label>
         <input
           type="text"
           value={formData.name}
           onChange={(e) => onChange('name', e.target.value)}
+          className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888]"
           placeholder="タップで入力"
-          className="w-full bg-transparent text-white placeholder-gray-500 focus:outline-none"
         />
       </div>
 
-      <div className="bg-gray-800 rounded-lg border border-gray-700 px-4 py-3">
-        <label className="text-gray-400 text-sm block mb-1">入店予定時間</label>
+      {/* LINE名 */}
+      <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
+        <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">LINE名</label>
         <input
           type="text"
           value={formData.lineName}
           onChange={(e) => onChange('lineName', e.target.value)}
+          className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888]"
           placeholder="タップで入力"
-          className="w-full bg-transparent text-white placeholder-gray-500 focus:outline-none"
         />
       </div>
 
-      <div className="bg-gray-800 rounded-lg border border-gray-700 px-4 py-3">
-        <label className="text-gray-400 text-sm block mb-1">ブラン</label>
+      {/* 属性 */}
+      <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
+        <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">属性</label>
         <input
           type="text"
           value={formData.attribute}
           onChange={(e) => onChange('attribute', e.target.value)}
+          className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888]"
           placeholder="タップで入力"
-          className="w-full bg-transparent text-white placeholder-gray-500 focus:outline-none"
         />
       </div>
-
-      <div className="bg-gray-800 rounded-lg border border-gray-700 px-4 py-3">
-        <label className="text-gray-400 text-sm block mb-1">予算/単価</label>
-        <input
-          type="text"
-          placeholder="タップで入力"
-          className="w-full bg-transparent text-white placeholder-gray-500 focus:outline-none"
-        />
-      </div>
-
-      <div className="bg-gray-800 rounded-lg border border-gray-700 px-4 py-3">
-        <label className="text-gray-400 text-sm block mb-1">希望卓</label>
-        <input
-          type="text"
-          placeholder="タップで入力"
-          className="w-full bg-transparent text-white placeholder-gray-500 focus:outline-none"
-        />
-      </div>
-
-      <div className="bg-gray-800 rounded-lg border border-gray-700 px-4 py-3">
-        <label className="text-gray-400 text-sm block mb-1">希望ヘルプ</label>
-        <input
-          type="text"
-          placeholder="タップで入力"
-          className="w-full bg-transparent text-white placeholder-gray-500 focus:outline-none"
-        />
-      </div>
-
-      <div className="bg-gray-800 rounded-lg border border-gray-700 px-4 py-3">
-        <label className="text-gray-400 text-sm block mb-1">飾り・キープ</label>
-        <textarea
-          placeholder="タップで入力"
-          className="w-full bg-transparent text-white placeholder-gray-500 focus:outline-none resize-none"
-          rows={3}
-        />
-      </div>
-
-      <div className="bg-gray-800 rounded-lg border border-gray-700 px-4 py-3">
-        <label className="text-gray-400 text-sm block mb-1">備考</label>
-        <textarea
-          placeholder="タップで入力"
-          className="w-full bg-transparent text-white placeholder-gray-500 focus:outline-none resize-none"
-          rows={3}
-        />
-      </div>
-    </div>
+    </>
   );
 };
 

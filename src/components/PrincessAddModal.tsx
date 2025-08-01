@@ -72,12 +72,15 @@ export const PrincessAddModal: React.FC<PrincessAddModalProps> = ({ isOpen, onCl
       <ModalNavigation onBack={onClose} onComplete={handleRegister} completeText="登録" />
       
       {/* Modal content - full screen from navigation bar */}
-      <div className="absolute top-[calc(env(safe-area-inset-top)+120px)] bottom-0 left-0 right-0 bg-black overflow-y-auto">
-        <div className="p-4">
-          <BasicInfoSection 
-            formData={formData}
-            onChange={handleFieldChange}
-          />
+      <div className="absolute top-[calc(env(safe-area-inset-top)+64px)] bottom-0 left-0 right-0 bg-black overflow-y-auto">
+        <div className="flex flex-col w-[361px] items-start gap-4 mx-auto p-4 pb-8">
+          {/* Form Fields */}
+          <div className="flex flex-col items-start gap-2 self-stretch">
+            <BasicInfoSection 
+              formData={formData}
+              onChange={handleFieldChange}
+            />
+          </div>
         </div>
       </div>
     </div>
