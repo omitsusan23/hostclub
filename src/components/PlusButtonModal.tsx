@@ -7,9 +7,23 @@ interface PlusButtonModalProps {
   onReservationClick: (position: { x: number; y: number }) => void;
   onPrincessClick: (position: { x: number; y: number }) => void;
   onNotificationClick: (position: { x: number; y: number }) => void;
+  onStaffClick: (position: { x: number; y: number }) => void;
+  onDailyReportClick: (position: { x: number; y: number }) => void;
+  onFirstVisitClick: (position: { x: number; y: number }) => void;
+  onVisitClick: (position: { x: number; y: number }) => void;
 }
 
-export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClose, onReservationClick, onPrincessClick, onNotificationClick }) => {
+export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  onReservationClick, 
+  onPrincessClick, 
+  onNotificationClick,
+  onStaffClick,
+  onDailyReportClick,
+  onFirstVisitClick,
+  onVisitClick 
+}) => {
   const { state } = useAppContext();
   const role = state.session?.user?.user_metadata?.role;
 
@@ -42,6 +56,42 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
     onNotificationClick(position);
   };
 
+  const handleStaffClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+    onStaffClick(position);
+  };
+
+  const handleDailyReportClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+    onDailyReportClick(position);
+  };
+
+  const handleFirstVisitClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+    onFirstVisitClick(position);
+  };
+
+  const handleVisitClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+    onVisitClick(position);
+  };
+
   const isOperator = role === 'operator' || role === 'owner' || role === 'admin';
   const isCast = role === 'cast';
 
@@ -70,6 +120,34 @@ export const PlusButtonModal: React.FC<PlusButtonModalProps> = ({ isOpen, onClos
       id: 'notification',
       title: 'お知らせ',
       onClick: (e: React.MouseEvent<HTMLButtonElement>) => handleNotificationClick(e)
+    });
+
+    // Add staff option
+    items.push({
+      id: 'staff',
+      title: 'スタッフ追加',
+      onClick: (e: React.MouseEvent<HTMLButtonElement>) => handleStaffClick(e)
+    });
+
+    // Add daily report option
+    items.push({
+      id: 'daily-report',
+      title: '日報',
+      onClick: (e: React.MouseEvent<HTMLButtonElement>) => handleDailyReportClick(e)
+    });
+
+    // Add first visit option
+    items.push({
+      id: 'first-visit',
+      title: '初回来店',
+      onClick: (e: React.MouseEvent<HTMLButtonElement>) => handleFirstVisitClick(e)
+    });
+
+    // Add visit option
+    items.push({
+      id: 'visit',
+      title: '来店',
+      onClick: (e: React.MouseEvent<HTMLButtonElement>) => handleVisitClick(e)
     });
 
     return items;

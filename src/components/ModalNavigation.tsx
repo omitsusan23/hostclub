@@ -2,7 +2,7 @@ import React from "react";
 
 interface ModalNavigationProps {
   onBack: () => void;
-  onComplete: () => void;
+  onComplete?: () => void;
 }
 
 export const ModalNavigation: React.FC<ModalNavigationProps> = ({ onBack, onComplete }) => {
@@ -17,13 +17,15 @@ export const ModalNavigation: React.FC<ModalNavigationProps> = ({ onBack, onComp
         戻る
       </button>
       
-      <button
-        onClick={onComplete}
-        className="text-white text-base font-medium border-b border-white pb-0.5 hover:opacity-80 transition-opacity"
-        type="button"
-      >
-        完了
-      </button>
+      {onComplete && (
+        <button
+          onClick={onComplete}
+          className="text-white text-base font-medium border-b border-white pb-0.5 hover:opacity-80 transition-opacity"
+          type="button"
+        >
+          完了
+        </button>
+      )}
     </nav>
   );
 };

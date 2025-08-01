@@ -52,8 +52,8 @@ export const PrincessAddModal: React.FC<PrincessAddModalProps> = ({ isOpen, onCl
         </div>
       </div>
       
-      {/* Fixed Navigation */}
-      <ModalNavigation onBack={onClose} onComplete={handleAdd} />
+      {/* Fixed Navigation - 戻るのみ */}
+      <ModalNavigation onBack={onClose} />
       
       {/* Modal content - full screen from navigation bar */}
       <div className="absolute top-[calc(env(safe-area-inset-top)+120px)] bottom-0 left-0 right-0 bg-black overflow-y-auto">

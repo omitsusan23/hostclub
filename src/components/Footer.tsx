@@ -8,6 +8,14 @@ import PrincessAddModal from './PrincessAddModal';
 import { PrincessTransition } from './PrincessTransition';
 import NotificationModal from './NotificationModal';
 import { NotificationTransition } from './NotificationTransition';
+import StaffAddModal from './StaffAddModal';
+import { StaffTransition } from './StaffTransition';
+import DailyReportModal from './DailyReportModal';
+import { DailyReportTransition } from './DailyReportTransition';
+import FirstVisitModal from './FirstVisitModal';
+import { FirstVisitTransition } from './FirstVisitTransition';
+import VisitModal from './VisitModal';
+import { VisitTransition } from './VisitTransition';
 
 /* アイコン */
 import CastIcon        from '../assets/icons/cast.svg';
@@ -29,6 +37,18 @@ const Footer: React.FC = () => {
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [isNotificationAnimating, setIsNotificationAnimating] = useState(false);
   const [notificationAnimationTriggerPosition, setNotificationAnimationTriggerPosition] = useState<{ x: number; y: number }>();
+  const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
+  const [isStaffAnimating, setIsStaffAnimating] = useState(false);
+  const [staffAnimationTriggerPosition, setStaffAnimationTriggerPosition] = useState<{ x: number; y: number }>();
+  const [isDailyReportModalOpen, setIsDailyReportModalOpen] = useState(false);
+  const [isDailyReportAnimating, setIsDailyReportAnimating] = useState(false);
+  const [dailyReportAnimationTriggerPosition, setDailyReportAnimationTriggerPosition] = useState<{ x: number; y: number }>();
+  const [isFirstVisitModalOpen, setIsFirstVisitModalOpen] = useState(false);
+  const [isFirstVisitAnimating, setIsFirstVisitAnimating] = useState(false);
+  const [firstVisitAnimationTriggerPosition, setFirstVisitAnimationTriggerPosition] = useState<{ x: number; y: number }>();
+  const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
+  const [isVisitAnimating, setIsVisitAnimating] = useState(false);
+  const [visitAnimationTriggerPosition, setVisitAnimationTriggerPosition] = useState<{ x: number; y: number }>();
 
   console.log('🧪 Footer描画チェック', JSON.stringify({
     session: state.session,
@@ -75,6 +95,46 @@ const Footer: React.FC = () => {
       <NotificationModal
         isOpen={isNotificationModalOpen}
         onClose={() => setIsNotificationModalOpen(false)}
+      />
+    );
+  }
+
+  // StaffAddModalが開いている時は、フッターを非表示にする
+  if (isStaffModalOpen) {
+    return (
+      <StaffAddModal
+        isOpen={isStaffModalOpen}
+        onClose={() => setIsStaffModalOpen(false)}
+      />
+    );
+  }
+
+  // DailyReportModalが開いている時は、フッターを非表示にする
+  if (isDailyReportModalOpen) {
+    return (
+      <DailyReportModal
+        isOpen={isDailyReportModalOpen}
+        onClose={() => setIsDailyReportModalOpen(false)}
+      />
+    );
+  }
+
+  // FirstVisitModalが開いている時は、フッターを非表示にする
+  if (isFirstVisitModalOpen) {
+    return (
+      <FirstVisitModal
+        isOpen={isFirstVisitModalOpen}
+        onClose={() => setIsFirstVisitModalOpen(false)}
+      />
+    );
+  }
+
+  // VisitModalが開いている時は、フッターを非表示にする
+  if (isVisitModalOpen) {
+    return (
+      <VisitModal
+        isOpen={isVisitModalOpen}
+        onClose={() => setIsVisitModalOpen(false)}
       />
     );
   }
@@ -170,6 +230,26 @@ const Footer: React.FC = () => {
         setIsNotificationAnimating(true);
         handleModalClose();
       }}
+      onStaffClick={(position) => {
+        setStaffAnimationTriggerPosition(position);
+        setIsStaffAnimating(true);
+        handleModalClose();
+      }}
+      onDailyReportClick={(position) => {
+        setDailyReportAnimationTriggerPosition(position);
+        setIsDailyReportAnimating(true);
+        handleModalClose();
+      }}
+      onFirstVisitClick={(position) => {
+        setFirstVisitAnimationTriggerPosition(position);
+        setIsFirstVisitAnimating(true);
+        handleModalClose();
+      }}
+      onVisitClick={(position) => {
+        setVisitAnimationTriggerPosition(position);
+        setIsVisitAnimating(true);
+        handleModalClose();
+      }}
     />
     
     <ReservationAddModal
@@ -218,6 +298,62 @@ const Footer: React.FC = () => {
         setIsNotificationModalOpen(true);
       }}
       triggerPosition={notificationAnimationTriggerPosition}
+    />
+    
+    <StaffAddModal
+      isOpen={isStaffModalOpen}
+      onClose={() => setIsStaffModalOpen(false)}
+    />
+    
+    <StaffTransition
+      isAnimating={isStaffAnimating}
+      onAnimationComplete={() => {
+        setIsStaffAnimating(false);
+        setIsStaffModalOpen(true);
+      }}
+      triggerPosition={staffAnimationTriggerPosition}
+    />
+    
+    <DailyReportModal
+      isOpen={isDailyReportModalOpen}
+      onClose={() => setIsDailyReportModalOpen(false)}
+    />
+    
+    <DailyReportTransition
+      isAnimating={isDailyReportAnimating}
+      onAnimationComplete={() => {
+        setIsDailyReportAnimating(false);
+        setIsDailyReportModalOpen(true);
+      }}
+      triggerPosition={dailyReportAnimationTriggerPosition}
+    />
+    
+    <FirstVisitModal
+      isOpen={isFirstVisitModalOpen}
+      onClose={() => setIsFirstVisitModalOpen(false)}
+    />
+    
+    <FirstVisitTransition
+      isAnimating={isFirstVisitAnimating}
+      onAnimationComplete={() => {
+        setIsFirstVisitAnimating(false);
+        setIsFirstVisitModalOpen(true);
+      }}
+      triggerPosition={firstVisitAnimationTriggerPosition}
+    />
+    
+    <VisitModal
+      isOpen={isVisitModalOpen}
+      onClose={() => setIsVisitModalOpen(false)}
+    />
+    
+    <VisitTransition
+      isAnimating={isVisitAnimating}
+      onAnimationComplete={() => {
+        setIsVisitAnimating(false);
+        setIsVisitModalOpen(true);
+      }}
+      triggerPosition={visitAnimationTriggerPosition}
     />
     </>
   );
