@@ -66,6 +66,11 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
   const handleTimeSelect = (selectedTime: string) => {
     console.log('ReservationAddModal - Received time:', selectedTime);
     setPlannedEntryTime(selectedTime);
+    console.log('ReservationAddModal - State after set:', plannedEntryTime);
+    // 強制的に再レンダリング
+    setTimeout(() => {
+      console.log('ReservationAddModal - State after timeout:', plannedEntryTime);
+    }, 100);
   };
 
   if (!isOpen) return null;
@@ -111,7 +116,7 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
               <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">名前</label>
               <div className="flex-1 text-[15px] pr-3 text-right">
                 {name ? (
-                  <span className="text-[#d7d7d7]">{name}</span>
+                  <span className="text-white">{name}</span>
                 ) : (
                   <span className="text-[#888]">選択してください</span>
                 )}
@@ -125,7 +130,7 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
               <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">入店予定時間</label>
               <div className="flex-1 text-[15px] pr-3 text-right">
                 {plannedEntryTime ? (
-                  <span className="text-[#d7d7d7]">{plannedEntryTime}</span>
+                  <span className="text-white">{plannedEntryTime}</span>
                 ) : (
                   <span className="text-[#888]">選択してください</span>
                 )}

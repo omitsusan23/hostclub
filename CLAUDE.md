@@ -37,7 +37,12 @@
     - 境界線: `border border-[#38383a]`
     - 高さ: `h-[36px]`
     - アイコン色: `#8e8e93`
-  - **実装例**: NameSelectModal
+  - **テキスト色統一**:
+    - 選択された値: `text-white` (白色で表示)
+    - プレースホルダー: `text-[#888]` (暗いグレー)
+    - ラベル: `text-[#d7d7d7]` (明るいグレー)
+    - 入力テキスト: `text-[#d7d7d7]` または `text-white`
+  - **実装例**: NameSelectModal, TimeSelectModal
   - **適用対象**: 今後作成する全ての入力系選択モーダル
 
 ### 未解決の問題
