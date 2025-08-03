@@ -94,18 +94,18 @@ const PrincessDetailPage: React.FC = () => {
         {/* 戻るボタン - 左側に配置 */}
         <button
           onClick={() => navigate(-1)}
-          className="absolute top-2 left-4 flex items-center justify-center"
+          className="absolute top-2 left-4"
           aria-label="戻る"
         >
-          <span className="font-bold text-white text-xl">戻る</span>
+          <span className="text-white text-base font-medium border-b border-white pb-0.5">戻る</span>
         </button>
         {/* 編集ボタン - 右側に配置 */}
         <button
           onClick={() => navigate(`/princess/${id}/edit`)}
-          className="absolute top-2 right-4 flex items-center justify-center px-2 py-0 border-b border-white"
+          className="absolute top-2 right-4"
           aria-label="編集"
         >
-          <span className="font-bold text-white text-xl">編集</span>
+          <span className="text-white text-base font-medium border-b border-white pb-0.5">編集</span>
         </button>
       </header>
       

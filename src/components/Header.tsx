@@ -31,20 +31,7 @@ const Header: React.FC<HeaderProps> = ({ title, showBack = false, children }) =>
               onClick={() => navigate(-1)}
               className="flex items-center"
             >
-              <svg 
-                className="w-6 h-6 text-black" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M15 19l-7-7 7-7" 
-                />
-              </svg>
-              <span className="text-sm text-black ml-1">戻る</span>
+              <span className="text-black text-base font-medium border-b border-black pb-0.5">戻る</span>
             </button>
           ) : (
             <Link to="/mypage" className="flex flex-col items-center gap-px">
