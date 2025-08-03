@@ -82,7 +82,7 @@ const PrincessDetailPage: React.FC = () => {
 
   return (
     <>
-      <Header title="姫" showBack={true} />
+      <Header title="姫" />
       
       {/* 姫情報詳細ヘッダー - 姫ページと同じスタイル */}
       <header className="relative w-screen h-[42px] bg-black -ml-[50vw] left-[50%]" role="banner">
@@ -91,6 +91,14 @@ const PrincessDetailPage: React.FC = () => {
             姫情報詳細
           </h1>
         </div>
+        {/* 戻るボタン - 左側に配置 */}
+        <button
+          onClick={() => navigate(-1)}
+          className="absolute top-2 left-4 flex items-center justify-center"
+          aria-label="戻る"
+        >
+          <span className="font-bold text-white text-xl">戻る</span>
+        </button>
         {/* 編集ボタン - 右側に配置 */}
         <button
           onClick={() => navigate(`/princess/${id}/edit`)}
@@ -144,136 +152,105 @@ const PrincessDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 詳細情報セクション */}
-        <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 rounded-lg">
-          <h2 className="text-white text-lg font-bold mb-4">詳細情報</h2>
-          
-          <div className="space-y-3">
-            {princess.birth_date && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">誕生日</span>
-                <span className="text-white text-sm">{princess.birth_date}</span>
-              </div>
-            )}
-            
-            {princess.blood_type && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">血液型</span>
-                <span className="text-white text-sm">{princess.blood_type}</span>
-              </div>
-            )}
-            
-            {princess.occupation && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">職業</span>
-                <span className="text-white text-sm">{princess.occupation}</span>
-              </div>
-            )}
-            
-            {princess.current_residence && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">現住所</span>
-                <span className="text-white text-sm">{princess.current_residence}</span>
-              </div>
-            )}
-            
-            {princess.birthplace && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">出身地</span>
-                <span className="text-white text-sm">{princess.birthplace}</span>
-              </div>
-            )}
-            
-            {princess.favorite_drink && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">好きなお酒</span>
-                <span className="text-white text-sm">{princess.favorite_drink}</span>
-              </div>
-            )}
-            
-            {princess.favorite_brand && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">好きなブランド</span>
-                <span className="text-white text-sm">{princess.favorite_brand}</span>
-              </div>
-            )}
-            
-            {princess.hobby && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">趣味</span>
-                <span className="text-white text-sm">{princess.hobby}</span>
-              </div>
-            )}
-            
-            {princess.contact_time && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">連絡可能時間</span>
-                <span className="text-white text-sm">{princess.contact_time}</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* その他の情報セクション */}
+        {/* 基本情報セクション */}
         <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 mb-20 rounded-lg">
-          <h2 className="text-white text-lg font-bold mb-4">その他の情報</h2>
+          <h2 className="text-white text-lg font-bold mb-4">基本情報</h2>
           
           <div className="space-y-3">
-            {princess.favorite_cigarette && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">好きなタバコ</span>
-                <span className="text-white text-sm">{princess.favorite_cigarette}</span>
-              </div>
-            )}
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">年齢</span>
+              <span className="text-white text-sm">{princess.age || ''}</span>
+            </div>
             
-            {princess.bottle_name && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">ボトル名</span>
-                <span className="text-white text-sm">{princess.bottle_name}</span>
-              </div>
-            )}
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">誕生年</span>
+              <span className="text-white text-sm">{princess.birth_year || ''}</span>
+            </div>
             
-            {princess.favorite_help && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">好きなヘルプ</span>
-                <span className="text-white text-sm">{princess.favorite_help}</span>
-              </div>
-            )}
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">誕生日</span>
+              <span className="text-white text-sm">{princess.birth_date || ''}</span>
+            </div>
             
-            {princess.specialty && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">特技</span>
-                <span className="text-white text-sm">{princess.specialty}</span>
-              </div>
-            )}
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">現在の居住地</span>
+              <span className="text-white text-sm">{princess.current_residence || ''}</span>
+            </div>
             
-            {princess.holiday && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">休日</span>
-                <span className="text-white text-sm">{princess.holiday}</span>
-              </div>
-            )}
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">出身地</span>
+              <span className="text-white text-sm">{princess.birthplace || ''}</span>
+            </div>
             
-            {princess.marriage && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">結婚</span>
-                <span className="text-white text-sm">{princess.marriage}</span>
-              </div>
-            )}
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">血液型</span>
+              <span className="text-white text-sm">{princess.blood_type || ''}</span>
+            </div>
             
-            {princess.children && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">子供</span>
-                <span className="text-white text-sm">{princess.children}</span>
-              </div>
-            )}
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">職業</span>
+              <span className="text-white text-sm">{princess.occupation || ''}</span>
+            </div>
             
-            {princess.partner && (
-              <div className="flex justify-between py-2 border-b border-gray-700">
-                <span className="text-gray-400 text-sm">パートナー</span>
-                <span className="text-white text-sm">{princess.partner}</span>
-              </div>
-            )}
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">連絡可能時間</span>
+              <span className="text-white text-sm">{princess.contact_time || ''}</span>
+            </div>
+            
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">好きなお酒</span>
+              <span className="text-white text-sm">{princess.favorite_drink || ''}</span>
+            </div>
+            
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">好きなタバコ</span>
+              <span className="text-white text-sm">{princess.favorite_cigarette || ''}</span>
+            </div>
+            
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">ボトル名</span>
+              <span className="text-white text-sm">{princess.bottle_name || ''}</span>
+            </div>
+            
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">好きなヘルプ</span>
+              <span className="text-white text-sm">{princess.favorite_help || ''}</span>
+            </div>
+            
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">趣味</span>
+              <span className="text-white text-sm">{princess.hobby || ''}</span>
+            </div>
+            
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">特技</span>
+              <span className="text-white text-sm">{princess.specialty || ''}</span>
+            </div>
+            
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">休日</span>
+              <span className="text-white text-sm">{princess.holiday || ''}</span>
+            </div>
+            
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">好きなブランド</span>
+              <span className="text-white text-sm">{princess.favorite_brand || ''}</span>
+            </div>
+            
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">結婚</span>
+              <span className="text-white text-sm">{princess.marriage || ''}</span>
+            </div>
+            
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">子供</span>
+              <span className="text-white text-sm">{princess.children || ''}</span>
+            </div>
+            
+            <div className="flex items-center py-2 border-b border-gray-700">
+              <span className="text-gray-400 text-sm w-24">恋人</span>
+              <span className="text-white text-sm">{princess.partner || ''}</span>
+            </div>
           </div>
         </div>
       </div>
