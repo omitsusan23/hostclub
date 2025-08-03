@@ -101,13 +101,9 @@ const PrincessDetailPage: React.FC = () => {
         </button>
       </header>
       
-      <div className="flex flex-col w-full bg-black min-h-screen pt-[42px]">
-        {/* サマリーセクション */}
-        <div className="bg-[#2a2a2a] p-4 m-4 rounded-lg">
-          <div className="mb-4">
-            <h2 className="text-white text-lg font-bold">基本情報</h2>
-          </div>
-          
+      <div className="flex flex-col w-full bg-black min-h-screen">
+        {/* サマリーセクション - ヘッダーから8pxの間隔（姫ページと同じ） */}
+        <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 mb-4 rounded-lg">
           <div className="flex items-center mb-4">
             <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mr-4">
               <span className="text-black text-sm font-bold">
