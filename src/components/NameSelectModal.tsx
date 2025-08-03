@@ -27,6 +27,14 @@ export const NameSelectModal: React.FC<NameSelectModalProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // 検索フィルター（名前とLine名の両方で検索）- useEffectより前に定義
+  const filteredPrincesses = princesses.filter(princess => {
+    const searchLower = searchTerm.toLowerCase();
+    const nameMatch = princess.name.toLowerCase().includes(searchLower);
+    const lineNameMatch = princess.line_name?.toLowerCase().includes(searchLower) || false;
+    return nameMatch || lineNameMatch;
+  });
+
   useEffect(() => {
     if (isOpen && currentStore?.id) {
       fetchPrincesses();
@@ -73,13 +81,6 @@ export const NameSelectModal: React.FC<NameSelectModalProps> = ({
     onClose();
   };
 
-  // 検索フィルター（名前とLine名の両方で検索）
-  const filteredPrincesses = princesses.filter(princess => {
-    const searchLower = searchTerm.toLowerCase();
-    const nameMatch = princess.name.toLowerCase().includes(searchLower);
-    const lineNameMatch = princess.line_name?.toLowerCase().includes(searchLower) || false;
-    return nameMatch || lineNameMatch;
-  });
 
   if (!isOpen) return null;
 
