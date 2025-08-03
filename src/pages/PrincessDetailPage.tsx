@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import Header from '../components/Header';
+import MemoEditModal from '../components/MemoEditModal';
+import DecorationEditModal from '../components/DecorationEditModal';
 
 interface PrincessDetail {
   id: string;
@@ -27,6 +29,8 @@ interface PrincessDetail {
   marriage?: string;
   children?: string;
   partner?: string;
+  memo?: string;
+  decoration_keep?: string;
   created_at: string;
 }
 
@@ -35,6 +39,8 @@ const PrincessDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const [princess, setPrincess] = useState<PrincessDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showMemoModal, setShowMemoModal] = useState(false);
+  const [showDecorationModal, setShowDecorationModal] = useState(false);
 
   useEffect(() => {
     fetchPrincessDetail();
@@ -132,8 +138,18 @@ const PrincessDetailPage: React.FC = () => {
 
         {/* メモセクション */}
         <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 rounded-lg">
-          <h2 className="text-white text-lg font-bold mb-4">メモ</h2>
-          <button className="text-gray-400 text-sm">詳しく見る</button>
+          <div className="flex justify-between items-start mb-4">
+            <h2 className="text-white text-lg font-bold">メモ</h2>
+            <button 
+              onClick={() => setShowMemoModal(true)}
+              className="text-white text-sm font-medium border-b border-white pb-0.5"
+            >
+              編集
+            </button>
+          </div>
+          <p className="text-white text-sm whitespace-pre-wrap">
+            {princess.memo || '未登録'}
+          </p>
         </div>
 
         {/* 最終来店履歴セクション */}
@@ -150,6 +166,22 @@ const PrincessDetailPage: React.FC = () => {
           <div className="h-40 flex items-center justify-center border border-gray-600 rounded">
             <p className="text-gray-500">グラフは今後実装予定</p>
           </div>
+        </div>
+
+        {/* 飾り・キープセクション */}
+        <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 rounded-lg">
+          <div className="flex justify-between items-start mb-4">
+            <h2 className="text-white text-lg font-bold">飾り・キープ</h2>
+            <button 
+              onClick={() => setShowDecorationModal(true)}
+              className="text-white text-sm font-medium border-b border-white pb-0.5"
+            >
+              編集
+            </button>
+          </div>
+          <p className="text-white text-sm whitespace-pre-wrap">
+            {princess.decoration_keep || '未登録'}
+          </p>
         </div>
 
         {/* 基本情報セクション */}
@@ -254,6 +286,30 @@ const PrincessDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* メモ編集モーダル */}
+      {showMemoModal && (
+        <MemoEditModal 
+          princess={princess}
+          onClose={() => setShowMemoModal(false)}
+          onUpdate={(updatedPrincess) => {
+            setPrincess(updatedPrincess);
+            setShowMemoModal(false);
+          }}
+        />
+      )}
+
+      {/* 飾り・キープ編集モーダル */}
+      {showDecorationModal && (
+        <DecorationEditModal 
+          princess={princess}
+          onClose={() => setShowDecorationModal(false)}
+          onUpdate={(updatedPrincess) => {
+            setPrincess(updatedPrincess);
+            setShowDecorationModal(false);
+          }}
+        />
+      )}
     </>
   );
 };
