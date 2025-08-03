@@ -103,7 +103,7 @@ const PrincessDetailPage: React.FC = () => {
       
       <div className="flex flex-col w-full bg-black min-h-screen">
         {/* サマリーセクション - ヘッダーから8pxの間隔（姫ページと同じ） */}
-        <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 mb-4 rounded-lg">
+        <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 rounded-lg">
           <div className="flex items-center relative">
             {/* 属性アイコン - 二回り小さく */}
             <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-3">
@@ -123,41 +123,21 @@ const PrincessDetailPage: React.FC = () => {
         </div>
 
         {/* メモセクション */}
-        <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 mb-4 rounded-lg">
+        <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 rounded-lg">
           <h2 className="text-white text-lg font-bold mb-4">メモ</h2>
           <button className="text-gray-400 text-sm">詳しく見る</button>
         </div>
 
         {/* 最終来店履歴セクション */}
-        <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 mb-4 rounded-lg">
+        <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 rounded-lg">
           <h2 className="text-white text-lg font-bold mb-4">最終来店履歴</h2>
           
           {/* 来店記録がない場合 */}
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-400 text-sm">本指名</span>
-              <span className="text-white text-sm">来店なし</span>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="text-gray-400 text-sm">日付</span>
-              <span className="text-white text-sm">来店なし</span>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="text-gray-400 text-sm">使用金額</span>
-              <span className="text-white text-sm">来店なし</span>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="text-gray-400 text-sm">時間</span>
-              <span className="text-white text-sm">来店なし</span>
-            </div>
-          </div>
+          <p className="text-gray-400 text-sm">来店なし</p>
         </div>
 
         {/* グラフセクション（将来実装） */}
-        <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 mb-4 rounded-lg">
+        <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 rounded-lg">
           <h2 className="text-white text-lg font-bold mb-4">来店履歴</h2>
           <div className="h-40 flex items-center justify-center border border-gray-600 rounded">
             <p className="text-gray-500">グラフは今後実装予定</p>
@@ -165,7 +145,7 @@ const PrincessDetailPage: React.FC = () => {
         </div>
 
         {/* 詳細情報セクション */}
-        <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 mb-4 rounded-lg">
+        <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 rounded-lg">
           <h2 className="text-white text-lg font-bold mb-4">詳細情報</h2>
           
           <div className="space-y-3">
