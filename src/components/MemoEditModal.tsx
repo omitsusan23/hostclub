@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import ModalNavigation from './ModalNavigation';
+import { ModalNavigation } from './ModalNavigation';
 
 interface PrincessDetail {
   id: string;
