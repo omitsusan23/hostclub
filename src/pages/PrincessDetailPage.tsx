@@ -104,20 +104,21 @@ const PrincessDetailPage: React.FC = () => {
       <div className="flex flex-col w-full bg-black min-h-screen">
         {/* サマリーセクション - ヘッダーから8pxの間隔（姫ページと同じ） */}
         <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 mb-4 rounded-lg">
-          <div className="flex items-center">
+          <div className="flex items-center relative">
             {/* 属性アイコン - 二回り小さく */}
             <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-3">
               <span className="text-black text-[10px] font-bold">
                 {princess.attribute?.slice(0, 4) || '新規'}
               </span>
             </div>
-            {/* 名前とLINE名 - 同じY軸に配置 */}
-            <div className="flex items-center gap-3">
-              <h3 className="text-white text-xl font-bold">{princess.name}</h3>
-              {princess.line_name && (
-                <span className="text-gray-400 text-lg">{princess.line_name}</span>
-              )}
-            </div>
+            {/* 名前 */}
+            <h3 className="text-white text-base font-bold">{princess.name}</h3>
+            {/* LINE名 - X軸中心より10px右からスタート */}
+            {princess.line_name && (
+              <div className="absolute left-[calc(50%+10px)] flex items-center">
+                <span className="text-gray-400 text-sm">LINE: {princess.line_name}</span>
+              </div>
+            )}
           </div>
         </div>
 

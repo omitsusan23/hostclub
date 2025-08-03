@@ -53,11 +53,6 @@ export const PrincessCard: React.FC<PrincessCardProps> = ({
           </div>
         )}
       </div>
-      
-      {/* 右側のテキスト */}
-      <span className="text-white text-[16px] ml-2 mr-2">
-        nana
-      </span>
     </div>
   );
 };
