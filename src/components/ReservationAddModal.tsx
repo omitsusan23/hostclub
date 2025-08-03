@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { ModalNavigation } from './ModalNavigation';
 import { NameSelectModal } from './NameSelectModal';
+import { TimeSelectModal } from './TimeSelectModal';
 
 interface ReservationAddModalProps {
   isOpen: boolean;
@@ -25,6 +26,8 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
   
   // 名前選択モーダル用state
   const [isNameSelectOpen, setIsNameSelectOpen] = useState(false);
+  // 時間選択モーダル用state
+  const [isTimeSelectOpen, setIsTimeSelectOpen] = useState(false);
 
   // フォーカス用ref
   const firstInputRef = useRef<HTMLInputElement>(null);
@@ -57,6 +60,11 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
   // 名前選択
   const handleNameSelect = (selectedName: string) => {
     setName(selectedName);
+  };
+
+  // 時間選択
+  const handleTimeSelect = (selectedTime: string) => {
+    setPlannedEntryTime(selectedTime);
   };
 
   if (!isOpen) return null;
@@ -105,15 +113,14 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
               </div>
             </div>
             {/* 入店予定時間 */}
-            <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
+            <div 
+              className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7] cursor-pointer"
+              onClick={() => setIsTimeSelectOpen(true)}
+            >
               <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">入店予定時間</label>
-              <input
-                type="text"
-                value={plannedEntryTime}
-                onChange={(e) => setPlannedEntryTime(e.target.value)}
-                className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888]"
-                placeholder="タップで入力"
-              />
+              <div className="flex-1 text-[#d7d7d7] text-[15px] pr-3 text-right">
+                {plannedEntryTime || <span className="text-[#888]">選択してください</span>}
+              </div>
             </div>
 
             {/* プラン */}
@@ -198,6 +205,14 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
         onClose={() => setIsNameSelectOpen(false)}
         selectedName={name}
         onNameSelect={handleNameSelect}
+      />
+
+      {/* 時間選択モーダル */}
+      <TimeSelectModal
+        isOpen={isTimeSelectOpen}
+        onClose={() => setIsTimeSelectOpen(false)}
+        selectedTime={plannedEntryTime}
+        onTimeSelect={handleTimeSelect}
       />
     </div>
   );

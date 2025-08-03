@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useStore } from '../context/StoreContext';
 
 interface Princess {
   id: string;
   name: string;
+  line_name?: string;
 }
 
 interface NameSelectModalProps {
@@ -24,6 +25,7 @@ export const NameSelectModal: React.FC<NameSelectModalProps> = ({
   const [princesses, setPrincesses] = useState<Princess[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen && currentStore?.id) {
@@ -31,13 +33,25 @@ export const NameSelectModal: React.FC<NameSelectModalProps> = ({
     }
   }, [isOpen, currentStore]);
 
+  // 選択されたアイテムにスクロール
+  useEffect(() => {
+    if (isOpen && filteredPrincesses.length > 0 && scrollRef.current) {
+      const selectedIndex = filteredPrincesses.findIndex(p => p.name === selectedName);
+      if (selectedIndex !== -1) {
+        // 選択アイテムが中央に来るように、上に1つ半分見える位置にスクロール
+        const scrollPosition = (selectedIndex - 1.8) * 44; // 44px = h-11
+        scrollRef.current.scrollTop = Math.max(0, scrollPosition);
+      }
+    }
+  }, [isOpen, filteredPrincesses, selectedName]);
+
   const fetchPrincesses = async () => {
     if (!currentStore?.id) return;
 
     try {
       const { data, error } = await supabase
         .from('princess_profiles')
-        .select('id, name')
+        .select('id, name, line_name')
         .eq('store_id', currentStore.id)
         .order('name', { ascending: true });
 
@@ -59,10 +73,13 @@ export const NameSelectModal: React.FC<NameSelectModalProps> = ({
     onClose();
   };
 
-  // 検索フィルター
-  const filteredPrincesses = princesses.filter(princess =>
-    princess.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // 検索フィルター（名前とLine名の両方で検索）
+  const filteredPrincesses = princesses.filter(princess => {
+    const searchLower = searchTerm.toLowerCase();
+    const nameMatch = princess.name.toLowerCase().includes(searchLower);
+    const lineNameMatch = princess.line_name?.toLowerCase().includes(searchLower) || false;
+    return nameMatch || lineNameMatch;
+  });
 
   if (!isOpen) return null;
 
@@ -124,7 +141,9 @@ export const NameSelectModal: React.FC<NameSelectModalProps> = ({
               {searchTerm ? '検索結果がありません' : '姫が登録されていません'}
             </div>
           ) : (
-            <div className="w-full px-4 py-6">
+            <div ref={scrollRef} className="w-full overflow-y-auto">
+              {/* 上部パディング */}
+              <div className="h-[calc(50%-22px)]" />
               {filteredPrincesses.map((princess, index) => {
                 const isSelected = princess.name === selectedName;
                 const isAdjacent = filteredPrincesses.findIndex(p => p.name === selectedName);
@@ -160,6 +179,8 @@ export const NameSelectModal: React.FC<NameSelectModalProps> = ({
                   </div>
                 );
               })}
+              {/* 下部パディング */}
+              <div className="h-[calc(50%-22px)]" />
             </div>
           )}
         </div>
