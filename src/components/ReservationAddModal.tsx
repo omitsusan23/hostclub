@@ -109,8 +109,12 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
               onClick={() => setIsNameSelectOpen(true)}
             >
               <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">名前</label>
-              <div className="flex-1 text-[#d7d7d7] text-[15px] pr-3 text-right">
-                {name || <span className="text-[#888]">選択してください</span>}
+              <div className="flex-1 text-[15px] pr-3 text-right">
+                {name ? (
+                  <span className="text-[#d7d7d7]">{name}</span>
+                ) : (
+                  <span className="text-[#888]">選択してください</span>
+                )}
               </div>
             </div>
             {/* 入店予定時間 */}
@@ -119,8 +123,12 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
               onClick={() => setIsTimeSelectOpen(true)}
             >
               <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">入店予定時間</label>
-              <div className="flex-1 text-[#d7d7d7] text-[15px] pr-3 text-right">
-                {plannedEntryTime || <span className="text-[#888]">選択してください</span>}
+              <div className="flex-1 text-[15px] pr-3 text-right">
+                {plannedEntryTime ? (
+                  <span className="text-[#d7d7d7]">{plannedEntryTime}</span>
+                ) : (
+                  <span className="text-[#888]">選択してください</span>
+                )}
               </div>
             </div>
 
