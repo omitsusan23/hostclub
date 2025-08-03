@@ -82,19 +82,30 @@ const PrincessDetailPage: React.FC = () => {
 
   return (
     <>
-      <Header title={princess.name} showBack={true} />
+      <Header title="姫" showBack={true} />
       
-      <div className="flex flex-col w-full bg-black min-h-screen">
+      {/* 姫情報詳細ヘッダー - 姫ページと同じスタイル */}
+      <header className="relative w-screen h-[42px] bg-black -ml-[50vw] left-[50%]" role="banner">
+        <div className="relative flex items-center justify-center h-full">
+          <h1 className="font-bold text-white text-xl text-center tracking-[0] leading-[normal] whitespace-nowrap">
+            姫情報詳細
+          </h1>
+        </div>
+        {/* 編集ボタン - 右側に配置 */}
+        <button
+          onClick={() => navigate(`/princess/${id}/edit`)}
+          className="absolute top-2 right-4 flex items-center justify-center px-2 py-0 border-b border-white"
+          aria-label="編集"
+        >
+          <span className="font-bold text-white text-xl">編集</span>
+        </button>
+      </header>
+      
+      <div className="flex flex-col w-full bg-black min-h-screen pt-[42px]">
         {/* サマリーセクション */}
         <div className="bg-[#2a2a2a] p-4 m-4 rounded-lg">
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4">
             <h2 className="text-white text-lg font-bold">基本情報</h2>
-            <button 
-              onClick={() => navigate(`/princess/${id}/edit`)}
-              className="text-[#4a9eff] text-sm"
-            >
-              編集
-            </button>
           </div>
           
           <div className="flex items-center mb-4">
