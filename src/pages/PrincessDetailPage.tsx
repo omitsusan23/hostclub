@@ -104,27 +104,20 @@ const PrincessDetailPage: React.FC = () => {
       <div className="flex flex-col w-full bg-black min-h-screen">
         {/* サマリーセクション - ヘッダーから8pxの間隔（姫ページと同じ） */}
         <div className="bg-[#2a2a2a] p-4 mx-4 mt-2 mb-4 rounded-lg">
-          <div className="flex items-center mb-4">
-            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mr-4">
-              <span className="text-black text-sm font-bold">
+          <div className="flex items-center">
+            {/* 属性アイコン - 二回り小さく */}
+            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-3">
+              <span className="text-black text-[10px] font-bold">
                 {princess.attribute?.slice(0, 4) || '新規'}
               </span>
             </div>
-            <div className="flex-1">
-              <h3 className="text-white text-xl font-bold mb-1">{princess.name}</h3>
-              {princess.age && (
-                <p className="text-gray-400 text-sm">{princess.age}歳</p>
-              )}
+            {/* 名前とLINE名 - 同じY軸に配置 */}
+            <div className="flex items-center gap-3">
+              <h3 className="text-white text-xl font-bold">{princess.name}</h3>
               {princess.line_name && (
-                <p className="text-gray-400 text-sm">LINE: {princess.line_name}</p>
+                <span className="text-gray-400 text-lg">{princess.line_name}</span>
               )}
             </div>
-          </div>
-
-          <div className="border-t border-gray-600 pt-3">
-            <p className="text-gray-400 text-sm mb-2">来店回数</p>
-            <p className="text-white text-2xl font-bold">0回</p>
-            <p className="text-gray-500 text-xs mt-1">来店なし</p>
           </div>
         </div>
 
