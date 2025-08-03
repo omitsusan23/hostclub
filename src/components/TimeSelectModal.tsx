@@ -94,9 +94,9 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
     if (dateScrollRef.current) {
       const dateIndex = dates.findIndex(d => d.value === selectedDate);
       if (dateIndex !== -1) {
-        // 上に少しだけ見えるように調整（1.3に変更）
-        const scrollPosition = (dateIndex - 1.3) * 44;
-        dateScrollRef.current.scrollTop = Math.max(0, scrollPosition);
+        // 選択項目を中央に配置（indexそのままで使用）
+        const scrollPosition = dateIndex * 44;
+        dateScrollRef.current.scrollTop = scrollPosition;
       }
     }
 
@@ -104,8 +104,8 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
     if (hourScrollRef.current) {
       const hourIndex = hours.indexOf(selectedHour);
       if (hourIndex !== -1) {
-        const scrollPosition = (hourIndex - 1.3) * 44;
-        hourScrollRef.current.scrollTop = Math.max(0, scrollPosition);
+        const scrollPosition = hourIndex * 44;
+        hourScrollRef.current.scrollTop = scrollPosition;
       }
     }
 
@@ -113,8 +113,8 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
     if (minuteScrollRef.current) {
       const minuteIndex = minutes.indexOf(selectedMinute);
       if (minuteIndex !== -1) {
-        const scrollPosition = (minuteIndex - 1.3) * 44;
-        minuteScrollRef.current.scrollTop = Math.max(0, scrollPosition);
+        const scrollPosition = minuteIndex * 44;
+        minuteScrollRef.current.scrollTop = scrollPosition;
       }
     }
   };
