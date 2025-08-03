@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useStore } from '../context/StoreContext';
+import { PrincessCard } from './PrincessCard';
 
 interface Princess {
   id: string;
   name: string;
   attribute?: string;
   line_name?: string;
+  age?: number;
+  favorite_drink?: string;
   created_at: string;
 }
 
@@ -26,7 +29,7 @@ export const PrincessList: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('princess_profiles')
-        .select('id, name, attribute, line_name, created_at')
+        .select('id, name, attribute, line_name, age, favorite_drink, created_at')
         .eq('store_id', currentStore.id)
         .order('created_at', { ascending: false });
 
@@ -93,51 +96,25 @@ export const PrincessList: React.FC = () => {
       </div>
 
       {/* 姫リスト */}
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-1 px-2">
         {filteredPrincesses.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
             姫が登録されていません
           </div>
         ) : (
           filteredPrincesses.map((princess) => (
-            <div
+            <PrincessCard
               key={princess.id}
-              className="flex items-center h-[60px] px-4 bg-[#464646] border-b border-[#5a5a5a] active:bg-[#525252]"
-            >
-              {/* アイコン部分 - 属性を表示 */}
-              <div className="w-[45px] h-[45px] rounded-full bg-white flex items-center justify-center mr-3">
-                <span className="text-black text-xs font-bold">
-                  {princess.attribute ? princess.attribute.slice(0, 4) : '新規'}
-                </span>
-              </div>
-              
-              {/* 名前部分 */}
-              <div className="flex-1">
-                <div className="text-white text-[17px] font-bold">
-                  {princess.name}
-                </div>
-                {princess.line_name && (
-                  <div className="text-gray-400 text-[13px]">
-                    LINE: {princess.line_name}
-                  </div>
-                )}
-              </div>
-              
-              {/* 矢印アイコン */}
-              <svg 
-                className="w-5 h-5 text-gray-400" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="m9 5 7 7-7 7" 
-                />
-              </svg>
-            </div>
+              name={princess.name}
+              attribute={princess.attribute}
+              age={princess.age}
+              lineName={princess.line_name}
+              favoriteDrink={princess.favorite_drink}
+              onClick={() => {
+                // TODO: 詳細ページへの遷移
+                console.log('Princess clicked:', princess.id);
+              }}
+            />
           ))
         )}
       </div>

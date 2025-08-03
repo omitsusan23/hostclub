@@ -1,81 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
-import { useAppContext } from '../context/AppContext';
 import { supabase } from '../lib/supabaseClient';
 import { useStore } from '../context/StoreContext';
-import { PrincessCard } from '../components/PrincessCard';
+import { PrincessList } from '../components/PrincessList';
 import { PrincessAddModal } from '../components/PrincessAddModal';
 
-interface Princess {
-  id: string;
-  name: string;
-  attribute?: string;
-  age?: number;
-  line_name?: string;
-  favorite_drink?: string;
-  birth_year?: number;
-  birth_date?: string;
-  current_residence?: string;
-  birthplace?: string;
-  blood_type?: string;
-  occupation?: string;
-  contact_time?: string;
-  favorite_cigarette?: string;
-  bottle_name?: string;
-  favorite_help?: string;
-  hobby?: string;
-  specialty?: string;
-  holiday?: string;
-  favorite_brand?: string;
-  marriage?: string;
-  children?: string;
-  partner?: string;
-}
 
 const PrincessPage: React.FC = () => {
-  const { state } = useAppContext();
   const { currentStore } = useStore();
-  const [princesses, setPrincesses] = useState<Princess[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [princessCount, setPrincessCount] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  // Supabaseから姫情報を取得
+  // 姫数を取得
   useEffect(() => {
-    fetchPrincesses();
-  }, [currentStore]);
-
-  const fetchPrincesses = async () => {
     if (!currentStore?.id) return;
-
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
+    
+    const fetchCount = async () => {
+      const { count } = await supabase
         .from('princess_profiles')
-        .select('*')
-        .eq('store_id', currentStore.id)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching princesses:', error);
-      } else {
-        setPrincesses(data || []);
-      }
-    } catch (error) {
-      console.error('Unexpected error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 検索フィルタリング
-  const filteredPrincesses = princesses.filter(princess => 
-    princess.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    princess.attribute?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    princess.line_name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const princessCount = princesses.length;
+        .select('*', { count: 'exact', head: true })
+        .eq('store_id', currentStore.id);
+      
+      setPrincessCount(count || 0);
+    };
+    
+    fetchCount();
+  }, [currentStore, refreshKey]);
   return (
     <>
       <Header title="姫" />
@@ -106,58 +57,9 @@ const PrincessPage: React.FC = () => {
         </button>
       </header>
       
-      <main className="p-4 pb-20">
-        {/* 検索バー */}
-        <div className="mb-4">
-          <div className="relative w-full">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="検索"
-              className="w-full h-[31px] bg-[#d7d7d7] rounded-lg pl-10 pr-4 text-[#525154] placeholder-[#525154] font-bold text-[15px] outline-none"
-            />
-            <svg 
-              className="absolute left-2 top-1 w-[21px] h-[21px]" 
-              fill="none" 
-              stroke="#525154" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" 
-              />
-            </svg>
-          </div>
-        </div>
-
-        {/* 姫リスト */}
-        <div className="space-y-3">
-          {loading ? (
-            <div className="text-center text-white py-8">読み込み中...</div>
-          ) : filteredPrincesses.length === 0 ? (
-            <div className="text-center text-[#999] py-8">
-              {searchQuery ? '検索結果がありません' : '姫が登録されていません'}
-            </div>
-          ) : (
-            filteredPrincesses.map(princess => (
-              <PrincessCard
-                key={princess.id}
-                name={princess.name}
-                attribute={princess.attribute}
-                age={princess.age}
-                lineName={princess.line_name}
-                favoriteDrink={princess.favorite_drink}
-                onClick={() => {
-                  // TODO: 姫詳細ページへの遷移
-                  console.log('Princess clicked:', princess.id);
-                }}
-              />
-            ))
-          )}
-        </div>
+      <main className="bg-black min-h-screen">
+        {/* PrincessListコンポーネントに姫一覧の表示を委譲 */}
+        <PrincessList key={refreshKey} />
       </main>
 
       {/* 姫追加モーダル */}
@@ -165,7 +67,7 @@ const PrincessPage: React.FC = () => {
         isOpen={isAddModalOpen}
         onClose={() => {
           setIsAddModalOpen(false);
-          fetchPrincesses(); // モーダルを閉じたら姫リストを更新
+          setRefreshKey(prev => prev + 1); // リストを更新
         }}
       />
     </>
