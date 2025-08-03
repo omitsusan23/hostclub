@@ -94,8 +94,9 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
     if (dateScrollRef.current) {
       const dateIndex = dates.findIndex(d => d.value === selectedDate);
       if (dateIndex !== -1) {
-        // 選択項目を中央に配置（indexそのままで使用）
-        const scrollPosition = dateIndex * 44;
+        // 選択アイテムが真ん中（3番目の位置）に来るようにスクロール
+        // 上に1つ余分なアイテムが見えるように調整
+        const scrollPosition = (dateIndex - 1.8) * 44; // 44px = h-11
         dateScrollRef.current.scrollTop = scrollPosition;
       }
     }
@@ -104,7 +105,7 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
     if (hourScrollRef.current) {
       const hourIndex = hours.indexOf(selectedHour);
       if (hourIndex !== -1) {
-        const scrollPosition = hourIndex * 44;
+        const scrollPosition = (hourIndex - 1.8) * 44;
         hourScrollRef.current.scrollTop = scrollPosition;
       }
     }
@@ -113,7 +114,7 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
     if (minuteScrollRef.current) {
       const minuteIndex = minutes.indexOf(selectedMinute);
       if (minuteIndex !== -1) {
-        const scrollPosition = minuteIndex * 44;
+        const scrollPosition = (minuteIndex - 1.8) * 44;
         minuteScrollRef.current.scrollTop = scrollPosition;
       }
     }
@@ -200,8 +201,8 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
                 className="h-full overflow-y-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 style={{ scrollSnapType: 'y mandatory' }}
               >
-                {/* 上部のパディング（短くして上の空白を削減） */}
-                <div className="h-[calc(50%-66px)]" />
+                {/* 上部のパディング */}
+                <div className="h-[calc(50%-22px)]" />
                 
                 {dates.map((date, index) => {
                   const isSelected = date.value === selectedDate;
@@ -233,8 +234,8 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
                 className="h-full overflow-y-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 style={{ scrollSnapType: 'y mandatory' }}
               >
-                {/* 上部のパディング（短くして上の空白を削減） */}
-                <div className="h-[calc(50%-66px)]" />
+                {/* 上部のパディング */}
+                <div className="h-[calc(50%-22px)]" />
                 
                 {hours.map((hour, index) => {
                   const isSelected = hour === selectedHour;
@@ -270,8 +271,8 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
                 className="h-full overflow-y-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 style={{ scrollSnapType: 'y mandatory' }}
               >
-                {/* 上部のパディング（短くして上の空白を削減） */}
-                <div className="h-[calc(50%-66px)]" />
+                {/* 上部のパディング */}
+                <div className="h-[calc(50%-22px)]" />
                 
                 {minutes.map((minute, index) => {
                   const isSelected = minute === selectedMinute;
