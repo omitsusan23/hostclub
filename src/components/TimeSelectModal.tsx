@@ -17,7 +17,43 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
   const hours = ['20', '21', '22', '23', '00', '01'];
   const minutes = ['00', '15', '30', '45'];
 
+  // 日付生成（今日から1ヶ月後まで）
+  const generateDates = () => {
+    const dates = [];
+    const today = new Date();
+    const oneMonthLater = new Date();
+    oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+
+    const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
+
+    for (let i = 0; i <= 30; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      const weekDay = weekDays[date.getDay()];
+      
+      if (i === 0) {
+        dates.push({ label: '今日', value: date.toISOString().split('T')[0], isToday: true });
+      } else if (i === 1) {
+        dates.push({ label: '明日', value: date.toISOString().split('T')[0], isToday: false });
+      } else {
+        dates.push({ 
+          label: `${month}/${day}(${weekDay})`, 
+          value: date.toISOString().split('T')[0],
+          isToday: false 
+        });
+      }
+    }
+    
+    return dates;
+  };
+
+  const dates = generateDates();
+
   // 初期値設定
+  const [selectedDate, setSelectedDate] = useState(dates[0].value);
   const [selectedHour, setSelectedHour] = useState(() => {
     if (selectedTime) {
       const [hour] = selectedTime.split(':');
@@ -35,6 +71,7 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
   });
 
   // スクロール用のref
+  const dateScrollRef = useRef<HTMLDivElement>(null);
   const hourScrollRef = useRef<HTMLDivElement>(null);
   const minuteScrollRef = useRef<HTMLDivElement>(null);
 
@@ -46,14 +83,22 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
   }, [isOpen]);
 
   const scrollToSelected = () => {
+    // 日付のスクロール
+    if (dateScrollRef.current) {
+      const dateIndex = dates.findIndex(d => d.value === selectedDate);
+      if (dateIndex !== -1) {
+        // 上に少しだけ見えるように調整（1.3に変更）
+        const scrollPosition = (dateIndex - 1.3) * 44;
+        dateScrollRef.current.scrollTop = Math.max(0, scrollPosition);
+      }
+    }
+
     // 時間のスクロール
     if (hourScrollRef.current) {
       const hourIndex = hours.indexOf(selectedHour);
       if (hourIndex !== -1) {
-        // 選択アイテムが真ん中（3番目の位置）に来るようにスクロール
-        // 上に1つ余分なアイテムが見えるように調整
-        const scrollPosition = (hourIndex - 1.8) * 44; // 44px = h-11
-        hourScrollRef.current.scrollTop = scrollPosition;
+        const scrollPosition = (hourIndex - 1.3) * 44;
+        hourScrollRef.current.scrollTop = Math.max(0, scrollPosition);
       }
     }
 
@@ -61,17 +106,22 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
     if (minuteScrollRef.current) {
       const minuteIndex = minutes.indexOf(selectedMinute);
       if (minuteIndex !== -1) {
-        const scrollPosition = (minuteIndex - 1.8) * 44;
-        minuteScrollRef.current.scrollTop = scrollPosition;
+        const scrollPosition = (minuteIndex - 1.3) * 44;
+        minuteScrollRef.current.scrollTop = Math.max(0, scrollPosition);
       }
     }
   };
 
-  const handleScroll = (type: 'hour' | 'minute', event: React.UIEvent<HTMLDivElement>) => {
+  const handleScroll = (type: 'date' | 'hour' | 'minute', event: React.UIEvent<HTMLDivElement>) => {
     const scrollTop = event.currentTarget.scrollTop;
     const index = Math.round(scrollTop / 44);
     
-    if (type === 'hour') {
+    if (type === 'date') {
+      const newDate = dates[Math.max(0, Math.min(index, dates.length - 1))];
+      if (newDate && newDate.value !== selectedDate) {
+        setSelectedDate(newDate.value);
+      }
+    } else if (type === 'hour') {
       const newHour = hours[Math.max(0, Math.min(index, hours.length - 1))];
       if (newHour !== selectedHour) {
         setSelectedHour(newHour);
@@ -85,7 +135,9 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
   };
 
   const handleComplete = () => {
-    onTimeSelect(`${selectedHour}:${selectedMinute}`);
+    const selectedDateObj = dates.find(d => d.value === selectedDate);
+    const dateLabel = selectedDateObj?.label || '';
+    onTimeSelect(`${dateLabel} ${selectedHour}:${selectedMinute}`);
     onClose();
   };
 
@@ -131,16 +183,49 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
 
           {/* Picker columns */}
           <div className="flex h-full items-center justify-center px-6">
-            {/* Hour column */}
+            {/* Date column */}
             <div className="flex-1 h-full relative">
+              <div 
+                ref={dateScrollRef}
+                onScroll={(e) => handleScroll('date', e)}
+                className="h-full overflow-y-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                style={{ scrollSnapType: 'y mandatory' }}
+              >
+                {/* 上部のパディング（短くして上の空白を削減） */}
+                <div className="h-[calc(50%-44px)]" />
+                
+                {dates.map((date, index) => {
+                  const isSelected = date.value === selectedDate;
+                  const selectedIndex = dates.findIndex(d => d.value === selectedDate);
+                  const distance = Math.abs(selectedIndex - index);
+                  
+                  return (
+                    <div
+                      key={date.value}
+                      onClick={() => setSelectedDate(date.value)}
+                      className={`h-11 flex items-center justify-center cursor-pointer ${getItemStyle(isSelected, distance)}`}
+                      style={{ scrollSnapAlign: 'center' }}
+                    >
+                      {date.label}
+                    </div>
+                  );
+                })}
+                
+                {/* 下部のパディング */}
+                <div className="h-[calc(50%-22px)]" />
+              </div>
+            </div>
+
+            {/* Hour column */}
+            <div className="w-20 h-full relative">
               <div 
                 ref={hourScrollRef}
                 onScroll={(e) => handleScroll('hour', e)}
                 className="h-full overflow-y-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 style={{ scrollSnapType: 'y mandatory' }}
               >
-                {/* 上部のパディング */}
-                <div className="h-[calc(50%-22px)]" />
+                {/* 上部のパディング（短くして上の空白を削減） */}
+                <div className="h-[calc(50%-44px)]" />
                 
                 {hours.map((hour, index) => {
                   const isSelected = hour === selectedHour;
@@ -164,20 +249,20 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
             </div>
 
             {/* Colon separator */}
-            <div className="w-8 flex items-center justify-center">
+            <div className="w-5 flex items-center justify-center">
               <span className="text-white text-[22px]">:</span>
             </div>
 
             {/* Minute column */}
-            <div className="flex-1 h-full relative">
+            <div className="w-20 h-full relative">
               <div 
                 ref={minuteScrollRef}
                 onScroll={(e) => handleScroll('minute', e)}
                 className="h-full overflow-y-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 style={{ scrollSnapType: 'y mandatory' }}
               >
-                {/* 上部のパディング */}
-                <div className="h-[calc(50%-22px)]" />
+                {/* 上部のパディング（短くして上の空白を削減） */}
+                <div className="h-[calc(50%-44px)]" />
                 
                 {minutes.map((minute, index) => {
                   const isSelected = minute === selectedMinute;
