@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ModalNavigation } from './ModalNavigation';
 import { BasicInfoSection } from './BasicInfoSection';
+import { supabase } from '../lib/supabaseClient';
+import { useStoreContext } from '../context/StoreContext';
 
 interface PrincessAddModalProps {
   isOpen: boolean;
@@ -53,11 +55,57 @@ export const PrincessAddModal: React.FC<PrincessAddModalProps> = ({ isOpen, onCl
     }));
   };
 
+  const { currentStore } = useStoreContext();
+
   // 姫追加完了
-  const handleRegister = () => {
-    // TODO: Implement princess registration logic
-    console.log('Registering princess:', formData);
-    onClose();
+  const handleRegister = async () => {
+    // 名前が未入力の場合は登録しない
+    if (!formData.name.trim()) {
+      // TODO: 名前未入力のため登録できませんモーダルを表示
+      console.log('名前が未入力のため登録できません');
+      return;
+    }
+
+    try {
+      // Supabaseに姫情報を保存
+      const { data, error } = await supabase
+        .from('princess_profiles')
+        .insert({
+          store_id: currentStore?.id,
+          name: formData.name,
+          line_name: formData.lineName || null,
+          attribute: formData.attribute || null,
+          age: formData.age ? parseInt(formData.age) : null,
+          birth_year: formData.birthYear ? parseInt(formData.birthYear) : null,
+          birth_date: formData.birthDate || null,
+          current_residence: formData.currentResidence || null,
+          birthplace: formData.birthplace || null,
+          blood_type: formData.bloodType || null,
+          occupation: formData.occupation || null,
+          contact_time: formData.contactTime || null,
+          favorite_drink: formData.favoriteDrink || null,
+          favorite_cigarette: formData.favoriteCigarette || null,
+          bottle_name: formData.bottleName || null,
+          favorite_help: formData.favoriteHelp || null,
+          hobby: formData.hobby || null,
+          specialty: formData.specialty || null,
+          holiday: formData.holiday || null,
+          favorite_brand: formData.favoriteBrand || null,
+          marriage: formData.marriage || null,
+          children: formData.children || null,
+          partner: formData.partner || null
+        });
+
+      if (error) {
+        console.error('姫情報の登録に失敗しました:', error);
+        return;
+      }
+
+      console.log('姫情報を登録しました:', data);
+      onClose();
+    } catch (error) {
+      console.error('予期しないエラーが発生しました:', error);
+    }
   };
 
   if (!isOpen) return null;
