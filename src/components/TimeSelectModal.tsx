@@ -139,6 +139,7 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
       const newDate = dates[Math.max(0, Math.min(index, dates.length - 1))];
       if (newDate && newDate.value !== selectedDate) {
         setSelectedDate(newDate.value);
+        localStorage.setItem('lastSelectedDate', newDate.value);
         const selectedDateLabel = newDate.label;
         console.log(`入店予定時間: ${selectedDateLabel} ${selectedHour}:${selectedMinute}`);
       }
@@ -146,6 +147,7 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
       const newHour = hours[Math.max(0, Math.min(index, hours.length - 1))];
       if (newHour !== selectedHour) {
         setSelectedHour(newHour);
+        localStorage.setItem('lastSelectedHour', newHour);
         const selectedDateObj = dates.find(d => d.value === selectedDate);
         const dateLabel = selectedDateObj?.label || '';
         console.log(`入店予定時間: ${dateLabel} ${newHour}:${selectedMinute}`);
@@ -154,6 +156,7 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
       const newMinute = minutes[Math.max(0, Math.min(index, minutes.length - 1))];
       if (newMinute !== selectedMinute) {
         setSelectedMinute(newMinute);
+        localStorage.setItem('lastSelectedMinute', newMinute);
         const selectedDateObj = dates.find(d => d.value === selectedDate);
         const dateLabel = selectedDateObj?.label || '';
         console.log(`入店予定時間: ${dateLabel} ${selectedHour}:${newMinute}`);
