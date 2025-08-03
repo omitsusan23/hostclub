@@ -136,7 +136,7 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
               <div 
                 ref={hourScrollRef}
                 onScroll={(e) => handleScroll('hour', e)}
-                className="h-full overflow-y-auto scrollbar-hide scroll-smooth"
+                className="h-full overflow-y-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 style={{ scrollSnapType: 'y mandatory' }}
               >
                 {/* 上部のパディング */}
@@ -173,7 +173,7 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
               <div 
                 ref={minuteScrollRef}
                 onScroll={(e) => handleScroll('minute', e)}
-                className="h-full overflow-y-auto scrollbar-hide scroll-smooth"
+                className="h-full overflow-y-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 style={{ scrollSnapType: 'y mandatory' }}
               >
                 {/* 上部のパディング */}
