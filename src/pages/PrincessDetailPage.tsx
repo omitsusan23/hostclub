@@ -144,7 +144,7 @@ const PrincessDetailPage: React.FC = () => {
               onClick={() => setShowMemoModal(true)}
               className="text-white text-sm font-medium border-b border-white pb-0.5"
             >
-              編集
+              メモ
             </button>
           </div>
           <p className="text-white text-sm whitespace-pre-wrap">

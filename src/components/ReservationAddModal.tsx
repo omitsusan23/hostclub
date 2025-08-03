@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { ModalNavigation } from './ModalNavigation';
+import { NameSelectModal } from './NameSelectModal';
 
 interface ReservationAddModalProps {
   isOpen: boolean;
@@ -21,6 +22,9 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
   const [requestHelp, setRequestHelp] = useState('');
   const [decoKeep, setDecoKeep] = useState('');
   const [notes, setNotes] = useState('');
+  
+  // 名前選択モーダル用state
+  const [isNameSelectOpen, setIsNameSelectOpen] = useState(false);
 
   // フォーカス用ref
   const firstInputRef = useRef<HTMLInputElement>(null);
@@ -48,6 +52,11 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
   const handleAdd = () => {
     // TODO: Implement reservation add logic
     onClose();
+  };
+
+  // 名前選択
+  const handleNameSelect = (selectedName: string) => {
+    setName(selectedName);
   };
 
   if (!isOpen) return null;
@@ -86,16 +95,14 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
           {/* Form Fields */}
           <div className="flex flex-col items-start gap-2 self-stretch">
             {/* 名前 */}
-            <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
+            <div 
+              className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7] cursor-pointer"
+              onClick={() => setIsNameSelectOpen(true)}
+            >
               <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">名前</label>
-              <input
-                ref={firstInputRef}
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="flex-1 bg-transparent text-[#d7d7d7] text-[15px] outline-none pr-3 text-right placeholder-[#888]"
-                placeholder="タップで入力"
-              />
+              <div className="flex-1 text-[#d7d7d7] text-[15px] pr-3 text-right">
+                {name || <span className="text-[#888]">選択してください</span>}
+              </div>
             </div>
             {/* 入店予定時間 */}
             <div className="flex items-center self-stretch h-[44px] bg-[#464646] rounded border border-[#d7d7d7]">
@@ -184,6 +191,14 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
           </div>
         </div>
       </div>
+
+      {/* 名前選択モーダル */}
+      <NameSelectModal
+        isOpen={isNameSelectOpen}
+        onClose={() => setIsNameSelectOpen(false)}
+        selectedName={name}
+        onNameSelect={handleNameSelect}
+      />
     </div>
   );
 };
