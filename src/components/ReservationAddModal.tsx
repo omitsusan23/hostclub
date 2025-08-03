@@ -114,11 +114,11 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
               onClick={() => setIsNameSelectOpen(true)}
             >
               <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">名前</label>
-              <div className="flex-1 text-[15px] pr-3 text-right">
+              <div className="flex-1 pr-3 text-right">
                 {name ? (
-                  <span className="text-white">{name}</span>
+                  <span className="text-white text-[15px] font-medium">{name}</span>
                 ) : (
-                  <span className="text-[#888]">選択してください</span>
+                  <span className="text-[#888] text-[15px]">選択してください</span>
                 )}
               </div>
             </div>
