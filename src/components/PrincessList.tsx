@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useStore } from '../context/StoreContext';
 import { PrincessCard } from './PrincessCard';
@@ -15,6 +16,7 @@ interface Princess {
 
 export const PrincessList: React.FC = () => {
   const { currentStore } = useStore();
+  const navigate = useNavigate();
   const [princesses, setPrincesses] = useState<Princess[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -111,8 +113,7 @@ export const PrincessList: React.FC = () => {
               lineName={princess.line_name}
               favoriteDrink={princess.favorite_drink}
               onClick={() => {
-                // TODO: 詳細ページへの遷移
-                console.log('Princess clicked:', princess.id);
+                navigate(`/princess/${princess.id}`);
               }}
             />
           ))

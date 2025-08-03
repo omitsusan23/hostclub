@@ -1,15 +1,17 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import UserIcon from '../assets/icons/user.svg';
 import CalendarIcon from '../assets/icons/calendar.svg';
 import BellIcon from '../assets/icons/bell.svg';
 
 interface HeaderProps {
   title: string;
+  showBack?: boolean;
   children?: React.ReactNode;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, children }) => {
+const Header: React.FC<HeaderProps> = ({ title, showBack = false, children }) => {
+  const navigate = useNavigate();
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white pt-[env(safe-area-inset-top)]">
       {/* メインヘッダー */}
@@ -23,11 +25,33 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
         
         {/* 左右の要素 - タイトルの上に重ねる */}
         <div className="relative h-full flex items-center justify-between px-6 z-10">
-          {/* 左側: マイページ */}
-          <Link to="/mypage" className="flex flex-col items-center gap-px">
-            <img src={UserIcon} alt="MyPage" className="w-5 h-5" />
-            <span className="text-[10px] text-black">MYpage</span>
-          </Link>
+          {/* 左側: 戻るボタンまたはマイページ */}
+          {showBack ? (
+            <button 
+              onClick={() => navigate(-1)}
+              className="flex items-center"
+            >
+              <svg 
+                className="w-6 h-6 text-black" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M15 19l-7-7 7-7" 
+                />
+              </svg>
+              <span className="text-sm text-black ml-1">戻る</span>
+            </button>
+          ) : (
+            <Link to="/mypage" className="flex flex-col items-center gap-px">
+              <img src={UserIcon} alt="MyPage" className="w-5 h-5" />
+              <span className="text-[10px] text-black">MYpage</span>
+            </Link>
+          )}
 
           {/* 右側: カレンダーとベル */}
           <div className="flex items-center">
