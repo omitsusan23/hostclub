@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ModalNavigation } from './ModalNavigation';
 import { BasicInfoSection } from './BasicInfoSection';
 import { supabase } from '../lib/supabaseClient';
-import { useStoreContext } from '../context/StoreContext';
+import { useStore } from '../context/StoreContext';
 
 interface PrincessAddModalProps {
   isOpen: boolean;
@@ -55,7 +55,7 @@ export const PrincessAddModal: React.FC<PrincessAddModalProps> = ({ isOpen, onCl
     }));
   };
 
-  const { currentStore } = useStoreContext();
+  const { currentStore } = useStore();
 
   // 姫追加完了
   const handleRegister = async () => {
