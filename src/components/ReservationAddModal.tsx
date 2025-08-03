@@ -129,9 +129,8 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
             >
               <label className="text-[#d7d7d7] text-[15px] pl-3 pr-2 whitespace-nowrap">入店予定時間</label>
               <div className="flex-1 pr-3 text-right">
-                {console.log('plannedEntryTime value:', plannedEntryTime, 'type:', typeof plannedEntryTime)}
                 {plannedEntryTime ? (
-                  <span className="text-[#00ff00] text-[15px] font-medium">選択時間: {plannedEntryTime}</span>
+                  <span className="text-white text-[15px] font-medium">{plannedEntryTime}</span>
                 ) : (
                   <span className="text-[#888] text-[15px]">選択してください</span>
                 )}

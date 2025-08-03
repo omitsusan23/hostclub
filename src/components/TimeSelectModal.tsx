@@ -201,7 +201,7 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
                 style={{ scrollSnapType: 'y mandatory' }}
               >
                 {/* 上部のパディング（短くして上の空白を削減） */}
-                <div className="h-[calc(50%-44px)]" />
+                <div className="h-[calc(50%-66px)]" />
                 
                 {dates.map((date, index) => {
                   const isSelected = date.value === selectedDate;
@@ -234,7 +234,7 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
                 style={{ scrollSnapType: 'y mandatory' }}
               >
                 {/* 上部のパディング（短くして上の空白を削減） */}
-                <div className="h-[calc(50%-44px)]" />
+                <div className="h-[calc(50%-66px)]" />
                 
                 {hours.map((hour, index) => {
                   const isSelected = hour === selectedHour;
@@ -271,7 +271,7 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
                 style={{ scrollSnapType: 'y mandatory' }}
               >
                 {/* 上部のパディング（短くして上の空白を削減） */}
-                <div className="h-[calc(50%-44px)]" />
+                <div className="h-[calc(50%-66px)]" />
                 
                 {minutes.map((minute, index) => {
                   const isSelected = minute === selectedMinute;
