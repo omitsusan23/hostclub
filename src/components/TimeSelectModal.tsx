@@ -55,17 +55,23 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
   // 初期値設定
   const [selectedDate, setSelectedDate] = useState(dates[0].value);
   const [selectedHour, setSelectedHour] = useState(() => {
-    if (selectedTime) {
-      const [hour] = selectedTime.split(':');
-      return hour;
+    if (selectedTime && selectedTime.includes(':')) {
+      // 既存の値から時間部分を抽出（日付がある場合も考慮）
+      const timePart = selectedTime.split(' ').pop() || '';
+      const [hour] = timePart.split(':');
+      // 営業時間内の時間かチェック
+      return hours.includes(hour) ? hour : '21';
     }
     return '21'; // デフォルト
   });
 
   const [selectedMinute, setSelectedMinute] = useState(() => {
-    if (selectedTime) {
-      const [, minute] = selectedTime.split(':');
-      return minute;
+    if (selectedTime && selectedTime.includes(':')) {
+      // 既存の値から分部分を抽出（日付がある場合も考慮）
+      const timePart = selectedTime.split(' ').pop() || '';
+      const [, minute] = timePart.split(':');
+      // 有効な分かチェック
+      return minutes.includes(minute) ? minute : '00';
     }
     return '00'; // デフォルト
   });
@@ -78,7 +84,8 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
   // モーダルが開いたときに選択された時間にスクロール
   useEffect(() => {
     if (isOpen) {
-      scrollToSelected();
+      // タイマーで少し遅延させて確実に要素が描画されてからスクロール
+      setTimeout(() => scrollToSelected(), 50);
     }
   }, [isOpen]);
 
@@ -137,7 +144,9 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
   const handleComplete = () => {
     const selectedDateObj = dates.find(d => d.value === selectedDate);
     const dateLabel = selectedDateObj?.label || '';
-    onTimeSelect(`${dateLabel} ${selectedHour}:${selectedMinute}`);
+    const result = `${dateLabel} ${selectedHour}:${selectedMinute}`;
+    console.log('TimeSelectModal - Selected:', result);
+    onTimeSelect(result);
     onClose();
   };
 

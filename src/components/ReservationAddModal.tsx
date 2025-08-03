@@ -64,6 +64,7 @@ export const ReservationAddModal: React.FC<ReservationAddModalProps> = ({ isOpen
 
   // 時間選択
   const handleTimeSelect = (selectedTime: string) => {
+    console.log('ReservationAddModal - Received time:', selectedTime);
     setPlannedEntryTime(selectedTime);
   };
 
