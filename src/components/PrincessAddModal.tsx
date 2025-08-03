@@ -67,11 +67,15 @@ export const PrincessAddModal: React.FC<PrincessAddModalProps> = ({ isOpen, onCl
     }
 
     try {
+      // 現在のユーザー情報を取得
+      const { data: { user } } = await supabase.auth.getUser();
+      
       // Supabaseに姫情報を保存
       const { data, error } = await supabase
         .from('princess_profiles')
         .insert({
           store_id: currentStore?.id,
+          created_by: user?.id,
           name: formData.name,
           line_name: formData.lineName || null,
           attribute: formData.attribute || null,
