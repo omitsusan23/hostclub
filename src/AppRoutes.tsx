@@ -28,6 +28,7 @@ import OperatorRegisterPage from './pages/operator.Register';
 
 import PrincessPage from './pages/PrincessPage';
 import PrincessDetailPage from './pages/PrincessDetailPage';
+import PrincessEditPage from './pages/PrincessEditPage';
 import ScorePage from './pages/ScorePage';
 import StorePage from './pages/StorePage';
 import MyPage from './pages/MyPage';
@@ -176,6 +177,14 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute allowedRoles={['cast']}>
             {wrapWithLayout(<PrincessDetailPage />)}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/princess/:id/edit"
+        element={
+          <ProtectedRoute allowedRoles={['cast']}>
+            <PrincessEditPage />
           </ProtectedRoute>
         }
       />
