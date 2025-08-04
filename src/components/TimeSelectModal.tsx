@@ -21,9 +21,6 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
   const generateDates = () => {
     const dates = [];
     const today = new Date();
-    const oneMonthLater = new Date();
-    oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
-
     const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
 
     for (let i = 0; i <= 30; i++) {
@@ -52,41 +49,10 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
 
   const dates = generateDates();
 
-  // 初期値設定（localStorageから前回の選択を取得）
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const saved = localStorage.getItem('lastSelectedDate');
-    return saved || dates[0].value;
-  });
-  
-  const [selectedHour, setSelectedHour] = useState(() => {
-    // まずlocalStorageをチェック
-    const saved = localStorage.getItem('lastSelectedHour');
-    if (saved && hours.includes(saved)) {
-      return saved;
-    }
-    // 次に既存の値をチェック
-    if (selectedTime && selectedTime.includes(':')) {
-      const timePart = selectedTime.split(' ').pop() || '';
-      const [hour] = timePart.split(':');
-      return hours.includes(hour) ? hour : '21';
-    }
-    return '21'; // デフォルト
-  });
-
-  const [selectedMinute, setSelectedMinute] = useState(() => {
-    // まずlocalStorageをチェック
-    const saved = localStorage.getItem('lastSelectedMinute');
-    if (saved && minutes.includes(saved)) {
-      return saved;
-    }
-    // 次に既存の値をチェック
-    if (selectedTime && selectedTime.includes(':')) {
-      const timePart = selectedTime.split(' ').pop() || '';
-      const [, minute] = timePart.split(':');
-      return minutes.includes(minute) ? minute : '00';
-    }
-    return '00'; // デフォルト
-  });
+  // 初期値設定（当日、現在選択可能な時間）
+  const [selectedDate, setSelectedDate] = useState(dates[0].value);
+  const [selectedHour, setSelectedHour] = useState('21');
+  const [selectedMinute, setSelectedMinute] = useState('00');
 
   // スクロール用のref
   const dateScrollRef = useRef<HTMLDivElement>(null);
@@ -97,7 +63,7 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       // タイマーで少し遅延させて確実に要素が描画されてからスクロール
-      setTimeout(() => scrollToSelected(), 50);
+      setTimeout(() => scrollToSelected(), 100);
     }
   }, [isOpen]);
 
@@ -106,7 +72,6 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
     if (dateScrollRef.current) {
       const dateIndex = dates.findIndex(d => d.value === selectedDate);
       if (dateIndex !== -1) {
-        // 選択アイテムを画面中央に配置
         const scrollPosition = Math.max(0, dateIndex * 44);
         dateScrollRef.current.scrollTop = scrollPosition;
       }
@@ -139,7 +104,6 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
       const newDate = dates[Math.max(0, Math.min(index, dates.length - 1))];
       if (newDate && newDate.value !== selectedDate) {
         setSelectedDate(newDate.value);
-        localStorage.setItem('lastSelectedDate', newDate.value);
         const selectedDateLabel = newDate.label;
         console.log(`入店予定時間: ${selectedDateLabel} ${selectedHour}:${selectedMinute}`);
       }
@@ -147,7 +111,6 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
       const newHour = hours[Math.max(0, Math.min(index, hours.length - 1))];
       if (newHour !== selectedHour) {
         setSelectedHour(newHour);
-        localStorage.setItem('lastSelectedHour', newHour);
         const selectedDateObj = dates.find(d => d.value === selectedDate);
         const dateLabel = selectedDateObj?.label || '';
         console.log(`入店予定時間: ${dateLabel} ${newHour}:${selectedMinute}`);
@@ -156,7 +119,6 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
       const newMinute = minutes[Math.max(0, Math.min(index, minutes.length - 1))];
       if (newMinute !== selectedMinute) {
         setSelectedMinute(newMinute);
-        localStorage.setItem('lastSelectedMinute', newMinute);
         const selectedDateObj = dates.find(d => d.value === selectedDate);
         const dateLabel = selectedDateObj?.label || '';
         console.log(`入店予定時間: ${dateLabel} ${selectedHour}:${newMinute}`);
@@ -168,13 +130,7 @@ export const TimeSelectModal: React.FC<TimeSelectModalProps> = ({
     const selectedDateObj = dates.find(d => d.value === selectedDate);
     const dateLabel = selectedDateObj?.label || '';
     const result = `${dateLabel} ${selectedHour}:${selectedMinute}`;
-    console.log(`入店予定時間: ${selectedHour}:${selectedMinute}`);
-    
-    // 選択値をlocalStorageに保存
-    localStorage.setItem('lastSelectedDate', selectedDate);
-    localStorage.setItem('lastSelectedHour', selectedHour);
-    localStorage.setItem('lastSelectedMinute', selectedMinute);
-    
+    console.log(`入店予定時間: ${result}`);
     onTimeSelect(result);
     onClose();
   };
